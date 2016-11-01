@@ -4,9 +4,6 @@ import ipywidgets as widgets
 class FormValue(object):
 
     def __init__(self, name, desc, **kwargs):
-
-        label_layout = widgets.Layout(flex='1 1 auto')
-
         width = kwargs.get('width', 'auto')
 
         form_item_layout = widgets.Layout(
@@ -20,7 +17,6 @@ class FormValue(object):
         cb = kwargs.get('cb')
 
         self.default = self.dd.value
-
         self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
                                   layout=widgets.Layout(flex='2 1 auto'))
         self.w = widgets.Box([self.label, self.dd], layout=form_item_layout)
@@ -34,7 +30,6 @@ class FormValue(object):
         self.name = name
         self.no_cb = False
 
-
     def cb(self, _):
         '''
         Called when the value changed.  It is called after every keystroke, so
@@ -42,7 +37,7 @@ class FormValue(object):
         '''
 
         val = self.dd.value
-        print "cb val=%s no_cb=%s" % (val, self.no_cb)
+        # print "cb val=%s no_cb=%s" % (val, self.no_cb)
         if self.no_cb:
             self.no_cb = False
             return
@@ -50,14 +45,16 @@ class FormValue(object):
         if self._cb is not None:
             self._cb(self.name, val)
 
-
     @property
     def value(self):
         return self.dd.value
 
     @value.setter
     def value(self, newval):
-        self.dd.value = newval
+        try:
+            self.dd.value = newval
+        except:
+            raise ValueError("Invalid value.")
 
     def _ipython_display_(self):
         self.w._ipython_display_()
@@ -69,3 +66,15 @@ class FormValue(object):
     @enabled.setter
     def enabled(self, newval):
         self.dd.disabled = not newval
+
+
+class String(FormValue):
+    def __init__(self, name, description, value, **kwargs):
+        self.dd = widgets.Text(value=value, width='auto')
+        FormValue.__init__(self, name, description, **kwargs)
+
+
+class Dropdown(FormValue):
+    def __init__(self, name, description, options, value, **kwargs):
+        self.dd = widgets.Dropdown(options=options, value=value)
+        FormValue.__init__(self, name, description, **kwargs)
