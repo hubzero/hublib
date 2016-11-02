@@ -13,24 +13,28 @@ class Tab(object):
 
 
 class Form(object):
-    def __init__(self, wlist, name='', showtitle=False, **kwargs):
+    def __init__(self, wlist, **kwargs):
         """
         Creates a form from a list of ui elements
 
         :param wlist: List of UI elements
-        :param name: Optional name. Default is ''.
+        :param name: Optional string to show in a titlebar or tab.
+        :param desc: Optional description that will show in a popup over the titlebar.
+        :param width: Optional with of the form.
         """
-        self.name = name
+        self.name = kwargs.get('name', '')
         width = kwargs.get('width')
-        desc = kwargs.get('desc')
-        if desc is None:
-            lval = "<p style='background-color: #DCDCDC; font-size:200; padding: 5px'>%s</p>" % name
-        else:
-            lval = '<p data-toggle="popover" title="%s">%s</p>' % (desc, name)
-        label = widgets.HTML(value=lval, layout=widgets.Layout(flex='2 1 auto'))
-
+        desc = kwargs.get('desc', '')
         wlist = [w.w for w in wlist]
-        wlist.insert(0, label)
+
+        if self.name:
+            style = "style='background-color: #DCDCDC; font-size:200; padding: 5px'"
+            if desc:
+                desc = 'data-toggle="popover" title="%s"' % (desc)
+            lval = '<p  %s %s>%s</p>' % (desc, style, self.name)
+            label = widgets.HTML(value=lval, layout=widgets.Layout(flex='2 1 auto'))
+            wlist.insert(0, label)
+
         self.w = widgets.VBox(wlist, layout=widgets.Layout(
             display='flex',
             flex_flow='column',
