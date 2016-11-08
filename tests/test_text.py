@@ -7,15 +7,15 @@ import hublib.ui as ui
 from collections import Counter
 
 
-class TestString:
+class TestText:
 
     callbacks = Counter()
     cval = ''
 
     @staticmethod
     def cb(name, val):
-        TestString.callbacks[name] += 1
-        TestString.cval = val
+        TestText.callbacks[name] += 1
+        TestText.cval = val
 
     @classmethod
     def setup_class(cls):
@@ -26,7 +26,7 @@ class TestString:
         teardown_test_comm()
 
     def test_basic(self):
-        x = ui.String(
+        x = ui.Text(
             name='DevName',
             description="Device name.",
             value='Destiny001',
@@ -42,7 +42,7 @@ class TestString:
             x.value = None
 
     def test_callback(self):
-        x = ui.String(
+        x = ui.Text(
             name='DevName',
             description="Device name.",
             value='Destiny001',
@@ -51,16 +51,16 @@ class TestString:
 
         x.value = 'Destiny002'
         assert x.value == 'Destiny002'
-        assert TestString.cval == 'Destiny002'
-        assert TestString.callbacks['DevName'] == 1
+        assert TestText.cval == 'Destiny002'
+        assert TestText.callbacks['DevName'] == 1
 
         x.value = 'DestinyXXX'
         assert x.value == 'DestinyXXX'
-        assert TestString.cval == 'DestinyXXX'
-        assert TestString.callbacks['DevName'] == 2
+        assert TestText.cval == 'DestinyXXX'
+        assert TestText.callbacks['DevName'] == 2
 
     def test_disable(self):
-        x = ui.String(
+        x = ui.Text(
             name='DevName',
             description="Device name.",
             value='Destiny001',
@@ -72,3 +72,4 @@ class TestString:
         assert x.disabled is True
         x.disabled = False
         assert x.disabled is False
+

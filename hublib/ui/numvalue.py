@@ -2,42 +2,51 @@ import ipywidgets as widgets
 from IPython.display import display, HTML
 import pint
 
-
 ureg = pint.UnitRegistry()
 ureg.autoconvert_offset_to_baseunit = True
 
 
-def find_unit(xpr):
-    if hasattr(xpr, 'compatible_units'):
-        return xpr
-    return ureg.parse_expression(xpr).units
-
-
 class NumValue(object):
 
-    def __init__(self, name, desc, **kwargs):
+    @staticmethod
+    def find_unit(xpr):
+        if xpr is None:
+            return None
+        if hasattr(xpr, 'compatible_units'):
+            return xpr
+        return ureg.parse_expression(xpr).units
 
-        label_layout = widgets.Layout(flex='1 1 auto')
-
-        width = kwargs.get('width', 'auto')
-
-        form_item_layout = widgets.Layout(
-            display='flex',
-            flex_flow='row',
-            border='solid 1px lightgray',
-            justify_content='space-between',
-            width=width
-        )
-
-        cb = kwargs.get('cb')
-
-        self.min = kwargs.get('min')
-        self.max = kwargs.get('max')
+    def __init__(self, name, **kwargs):
+        # print "INIT:%s" % name
+        self._width = kwargs.get('width', 'auto')
+        self._cb = kwargs.get('cb')
+        self._desc = kwargs.get('desc', '')
         self.default = self.dd.value
+        self.disabled = kwargs.get('disabled', False)
+        units = kwargs.get('units')
+        self.units = self.find_unit(units)
+        self.valid = widgets.Valid(value=True, layout=widgets.Layout(flex='0 1 auto'))
+        try:
+            self.dd.on_submit(lambda x: self.cb(None))
+        except:
+            pass
+        self.dd.observe(lambda x: self.cb(x['new']), names='value')
+        self.oldval = None
+        self.no_cb = False
+        self.name = name
 
-        self.units = kwargs.get('units')
+        self._min = kwargs.get('min')
+        self._max = kwargs.get('max')
+        if self._min is not None:
+            self._min = self.type(self.parse_expr(self._min, True))
+        if self._max is not None:
+            self._max = self.type(self.parse_expr(self._max, True))
+
+        self._build()
+
+    def _build(self):
+        desc = self.desc
         if self.units is not None:
-            self.units = find_unit(self.units)
             desc += "\n\nValues with no units will be assumed to be %s [%s]." % (self.units, '{:~}'.format(self.units))
 
         if self.min is not None or self.max is not None:
@@ -51,29 +60,60 @@ class NumValue(object):
         if self.units:
             desc += "You can type expressions using other units and they will be converted if possible."
 
-        self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
-                                  layout=widgets.Layout(flex='2 1 auto'))
-        self.valid = widgets.Valid(value=True, layout=widgets.Layout(flex='0 1 auto'))
-        self.w = widgets.Box([self.label, self.dd, self.valid], layout=form_item_layout)
-        try:
-            self.dd.on_submit(lambda x: self.cb(None))
-        except:
-            pass
-        self.dd.observe(lambda x: self.cb(x['new']), names='value')
-
-        self._cb = cb
-        self.name = name
-        self.oldval = None
-        self.no_cb = False
-
         if self.min is not None:
-            self.min = self.type(self.parse_expr(self.min, True))
-        if self.max is not None:
-            self.max = self.type(self.parse_expr(self.max, True))
+            desc += "\n\n"
+            if self.min is not None:
+                desc += "Min: %s\n" % self.min
+            if self.max is not None:
+                desc += "Max: %s\n" % self.max
+            desc += "\n"
 
+        label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, self.name),
+                             layout=widgets.Layout(flex='2 1 auto'))
+        form_item_layout = widgets.Layout(
+            display='flex',
+            flex_flow='row',
+            border='solid 1px lightgray',
+            justify_content='space-between',
+            width=self._width
+        )
+        self.w = widgets.Box([label, self.dd, self.valid], layout=form_item_layout)
+
+    @property
+    def desc(self):
+        return self._desc
+
+    @desc.setter
+    def desc(self, val):
+        self._desc = desc
+        self._build()
+
+    @property
+    def min(self):
+        return self._min
+
+    @min.setter
+    def min(self, val):
+        if val is None or val == '':
+            self._min = None
+            return
+        self._min = self.type(self.parse_expr(val, True))
+        self._build()
+
+    @property
+    def max(self):
+        return self._max
+
+    @max.setter
+    def max(self, val):
+        if val is None or val == '':
+            self._max = None
+            return
+        self._max = self.type(self.parse_expr(val, True))
+        self._build()
 
     def parse_expr(self, val, magnitude=False):
-        print "parse_expr", str(val), self.units
+        # print "parse_expr", str(val), self.units
         if val is None:
             return val
 
@@ -93,17 +133,15 @@ class NumValue(object):
         except:
             raise ValueError("Bad input value.")
 
-
     def check(self, val):
         # Does range checking
-        print "check", val, self.units, self.type
+        # print "check", val, self.units, self.type
         if val is None:
             return False
 
         if self.units:
             mag = self.type(val.magnitude)
         else:
-            print("VAL:", val, type(val))
             mag = self.type(val)
 
         if self.max is not None and mag > self.max:
@@ -112,18 +150,20 @@ class NumValue(object):
             return False
         return True
 
-
     def cb(self, _):
         '''
         Called when the value changed.  It is called after every keystroke, so
         we check on the fly and only reformat on <enter> or when the value property is read.
         '''
-        print "cb val=%s oldval=%s no_cb=%s" % (self.dd.value, self.oldval, self.no_cb)
+        # print "cb val=%s oldval=%s no_cb=%s" % (self.dd.value, self.oldval, self.no_cb)
         if self.no_cb:
             self.no_cb = False
             return
 
-        val = self.parse_expr(self.dd.value)
+        try:
+            val = self.parse_expr(self.dd.value)
+        except:
+            val = None
 
         if self.oldval == self.dd.value:
             # The value did not change; the user hit enter.
@@ -191,7 +231,7 @@ class NumValue(object):
         if newval is None:
             raise ValueError("Cannot set value to None")
         val = self.parse_expr(newval)
-        if self.check(val) == False:
+        if self.check(val) is False:
             raise ValueError("Range Error")
         if self.units is None:
             val = str(val)
@@ -203,26 +243,40 @@ class NumValue(object):
         self.w._ipython_display_()
 
     @property
-    def enabled(self):
-        return not self.dd.disabled
+    def disabled(self):
+        return self.dd.disabled
 
-    @enabled.setter
-    def enabled(self, newval):
-        self.dd.disabled = not newval
+    @disabled.setter
+    def disabled(self, newval):
+        self.dd.disabled = newval
+
+    @property
+    def visible(self):
+        return self.dd.layout.visibility
+
+    @disabled.setter
+    def visible(self, newval):
+        if newval:
+            self.dd.layout.visibility = 'visible'
+            self.w.layout.visibility = 'visible'
+            return
+        self.dd.layout.visibility = 'hidden'
+        self.w.layout.visibility = 'hidden'
+
 
 class Number(NumValue):
-    def __init__(self, name, description, value, **kwargs):
+    def __init__(self, name, value, **kwargs):
         if type(value) != str:
             value = str(value)
         self.type = float
         self.dd = widgets.Text(value=value, width='auto')
-        NumValue.__init__(self, name, description, **kwargs)
+        NumValue.__init__(self, name, **kwargs)
 
 
 class Integer(NumValue):
-    def __init__(self, name, description, value, **kwargs):
+    def __init__(self, name, value, **kwargs):
         if type(value) != int:
             value = int(value)
         self.type = int
         self.dd = widgets.IntText(value=value, width='auto')
-        NumValue.__init__(self, name, description, **kwargs)
+        NumValue.__init__(self, name, **kwargs)

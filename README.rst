@@ -14,6 +14,12 @@ hublib contains three modules:
 
 The complete documentation is hosted at http://hublib.readthedocs.io.
 
+.. image::  docs/images/hublib_complam.gif
+
+.. image::  docs/images/hublib_2.gif
+
+.. image::  docs/images/hublib_3.gif
+
 .. _HUBzero: https://hubzero.org/
 .. _nanoHUB: https://nanohub.org/
 .. _Jupyter: http://jupyter.org/

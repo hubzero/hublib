@@ -14,8 +14,10 @@ import hublib.ui as ui
 def setup():
     setup_test_comm()
 
+
 def teardown():
     teardown_test_comm()
+
 
 class TestNumber:
 
@@ -30,7 +32,7 @@ class TestNumber:
     def test_val(self):
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             units='m',
             min=0,
             max=10,
@@ -51,7 +53,7 @@ class TestNumber:
         # initial value has no units
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             units='m',
             min=0,
             max=10,
@@ -72,7 +74,7 @@ class TestNumber:
         # Number without units
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             min=0,
             max=10,
             value=5
@@ -96,16 +98,16 @@ class TestNumber:
         # Number without units
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             value=5
         )
         x.value = 50000
         assert x.value == 50000
         assert x.str == '50000'
 
-        x.value = -4e12
-        assert x.value == -4e12
-        assert x.str == '-4e+12'
+        x.value = -400000
+        assert x.value == -400000
+        assert x.str == '-400000'
 
         # try some bad values
         with pytest.raises(ValueError):
@@ -118,7 +120,7 @@ class TestNumber:
     def test_val_convert(self):
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             units='m',
             min=0,
             max=10,
@@ -132,7 +134,7 @@ class TestNumber:
     def test_val_min(self):
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             units='m',
             min=5,
             max=10,
@@ -156,7 +158,7 @@ class TestNumber:
     def test_val_max(self):
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             units='m',
             min=5,
             max=10,
@@ -177,20 +179,37 @@ class TestNumber:
         with pytest.raises(ValueError):
             x.value = '1001 cm'
 
-
-    def test_val_enable(self):
+    def test_change_minmax(self):
         x = ui.Number(
             name='XX',
-            description='Mystery Parameter',
+            desc='Mystery Parameter',
             units='m',
             min=5,
             max=10,
             value=8
         )
 
-        assert x.enabled == True
-        x.enabled = False
-        assert x.enabled == False
-        x.enabled = True
-        assert x.enabled == True
+        assert x.min == 5
+        assert x.max == 10
 
+        x.min = 1
+        assert x.min == 1
+
+        x.max = 100
+        assert x.max == 100
+
+    def test_disable(self):
+        x = ui.Number(
+            name='XX',
+            desc='Mystery Parameter',
+            units='m',
+            min=5,
+            max=10,
+            value=8
+        )
+
+        assert x.disabled is False
+        x.disabled = True
+        assert x.disabled is True
+        x.disabled = False
+        assert x.disabled is False

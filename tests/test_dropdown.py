@@ -59,7 +59,7 @@ class TestDropDown:
         with pytest.raises(ValueError):
             x.value = None
 
-    def test_enable(self):
+    def test_disable(self):
         x = ui.Dropdown(
             name='Nut',
             description="Type of nut to put on the sundae.",
@@ -67,8 +67,8 @@ class TestDropDown:
             value='Walnuts',
             width='50%'
         )
-        assert x.enabled is True
-        x.enabled = False
-        assert x.enabled is False
-        x.enabled = True
-        assert x.enabled is True
+        assert x.disabled is False
+        x.disabled = True
+        assert x.disabled is True
+        x.disabled = False
+        assert x.disabled is False

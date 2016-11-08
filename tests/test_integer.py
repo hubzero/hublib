@@ -89,7 +89,6 @@ class TestInteger:
         with pytest.raises(ValueError):
             x.value = -1
 
-
     def test_val_max(self):
         x = ui.Integer(
             name='XX',
@@ -105,8 +104,7 @@ class TestInteger:
         x.value = 10
         assert x.value == 10
 
-
-    def test_val_enable(self):
+    def test_disable(self):
         x = ui.Integer(
             name='XX',
             description='Mystery Parameter',
@@ -115,8 +113,8 @@ class TestInteger:
             value=8
         )
 
-        assert x.enabled == True
-        x.enabled = False
-        assert x.enabled == False
-        x.enabled = True
-        assert x.enabled == True
+        assert x.disabled is False
+        x.disabled = True
+        assert x.disabled is True
+        x.disabled = False
+        assert x.disabled is False

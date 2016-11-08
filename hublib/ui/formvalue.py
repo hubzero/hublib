@@ -15,7 +15,7 @@ class FormValue(object):
         )
 
         cb = kwargs.get('cb')
-
+        self.disabled = kwargs.get('disabled', False)
         self.default = self.dd.value
         self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
                                   layout=widgets.Layout(flex='2 1 auto'))
@@ -60,12 +60,25 @@ class FormValue(object):
         self.w._ipython_display_()
 
     @property
-    def enabled(self):
-        return not self.dd.disabled
+    def disabled(self):
+        return self.dd.disabled
 
-    @enabled.setter
-    def enabled(self, newval):
-        self.dd.disabled = not newval
+    @disabled.setter
+    def disabled(self, newval):
+        self.dd.disabled = newval
+
+    @property
+    def visible(self):
+        return self.dd.layout.visibility
+
+    @disabled.setter
+    def visible(self, newval):
+        if newval:
+            self.dd.layout.visibility = 'visible'
+            self.w.layout.visibility = 'visible'
+            return
+        self.dd.layout.visibility = 'hidden'
+        self.w.layout.visibility = 'hidden'
 
 
 class String(FormValue):
@@ -77,4 +90,28 @@ class String(FormValue):
 class Dropdown(FormValue):
     def __init__(self, name, description, options, value, **kwargs):
         self.dd = widgets.Dropdown(options=options, value=value)
+        FormValue.__init__(self, name, description, **kwargs)
+
+
+class Checkbox(FormValue):
+    def __init__(self, name, description, value, **kwargs):
+        self.dd = widgets.Checkbox(value=value)
+        FormValue.__init__(self, name, description, **kwargs)
+
+
+class Radiobuttons(FormValue):
+    def __init__(self, name, description, options, value, **kwargs):
+        self.dd = widgets.RadioButtons(options=options, value=value)
+        FormValue.__init__(self, name, description, **kwargs)
+
+
+class Togglebuttons(FormValue):
+    def __init__(self, name, description, options, value, **kwargs):
+        self.dd = widgets.ToggleButtons(options=options, value=value)
+        FormValue.__init__(self, name, description, **kwargs)
+
+
+class Text(FormValue):
+    def __init__(self, name, description, value='', **kwargs):
+        self.dd = widgets.Textarea(value=value)
         FormValue.__init__(self, name, description, **kwargs)
