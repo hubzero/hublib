@@ -102,7 +102,7 @@ setup(
     author_email='mmh@purdue.edu',
     description='Python library for HUBzero Jupyter Notebooks',
     long_description=long_description,
-    packages=['hublib', 'hublib.uq', 'hublib.ui', 'hublib.tool'],
+    packages=['hublib', 'hublib.uq', 'hublib.ui', 'hublib.tool', 'hublib.use'],
     include_package_data=True,
     platforms='any',
     tests_require=['pytest-cov', 'pytest'],
