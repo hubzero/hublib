@@ -9,11 +9,11 @@ Welcome to hublib's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
 
-   intro.rst
-   api.rst
-
+    intro.rst
+    tools.rst
+    ui.rst
+    use.rst
 
 Indices and tables
 ==================

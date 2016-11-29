@@ -1,17 +1,13 @@
+UI Module
+=========
 
-hublib API reference
-====================
-
-.. automodule:: hublib
-   :members:
-
-ui module
-------------------
+.. module:: hublib.ui
 
 Widget Groups
 -------------
 
-.. module:: hublib.ui
+Tab
+***
 
 .. class:: Tab(wlist)
 
@@ -29,6 +25,9 @@ Widget Groups
         .. note::
             As long as the view exists, the :class:`BytesIO` object cannot be
             resized or closed.
+
+Form
+****
 
 .. class:: Form(wlist, [name="", desc="", disabled=False, width=None])
 
@@ -76,6 +75,10 @@ Widget Groups
 
 Numerical Widgets
 -----------------
+
+Number
+******
+
 .. class:: Number(name, value, [cb=None, desc='', disabled=False, units=None, width='auto', min=None, max=None])
 
     A text field that contains a floating point number with optional units and optional minimum and maximum. Units are converted and min and max checked dynamically.
@@ -139,6 +142,9 @@ Numerical Widgets
 
 .. image::  images/number.gif
 
+Integer
+*******
+
 .. class:: Integer(name, value, [cb=None, desc='', disabled=False, width='auto', min=None, max=None])
 
     A text field that contains an integer with optional minimum and maximum. Min and max are checked dynamically.
@@ -201,12 +207,18 @@ Numerical Widgets
 Input Widgets
 -------------
 
+Checkbutton
+***********
+
 .. class:: Checkbutton(name, desc, value, [cb=None, disabled=False, width='auto'])
 
 
     >>> check = ui.Checkbox('Advanced Options', 'Show the Advanced Options', value=False, width='50%')
     print check.value
     False
+
+Radiobuttons
+************
 
 .. class:: Radiobuttons(name, desc, options, value, [cb=None, disabled=False, width='auto'])
 
@@ -219,6 +231,9 @@ Input Widgets
         )
     print r.value
     'almond'
+
+Dropdown
+********
 
 .. class:: Dropdown(name, desc, options, value, [cb=None, disabled=False, width='auto'])
 
@@ -272,6 +287,9 @@ Input Widgets
     2
 
     .. image::  images/dropdown.png
+
+Togglebuttons
+*************
 
 .. class:: Togglebuttons(name, desc, options, value, [cb=None, disabled=False, width='auto'])
 
@@ -327,46 +345,3 @@ Input Widgets
     .. image::  images/togglebuttons.png
 
 .. autoclass:: String
-
-
-
-tool module
------------
-
-.. module:: hublib.tool
-
-The tool module implements the "line magics" necessary to control
-execution of notebooks run in tool mode.
-
-
-.. function:: %wait [wait_str]
-
-Set a waitpoint at the current cell.  When a "tool mode" notebook
-is loaded, it will automatically run until it finishes or hits a waitpoint.
-A button is created at the waitpoint. Clicking on the button resumes execution.
-
-:wait_str: Optional. Defaults to "Run,Running".  This is
-   the button label before and after clicking.  The two strings
-   should be separated by a comma.
-
-Example:
-
-.. image::  images/run.png
-
-After the button is clicked, the second message is displayed
-
-.. image::  images/ran.png
-
-When the notebook is run in tool mode, the code cell is not shown, just the output.
-
-Before:
-
-.. image::  images/run_tool.png
-
-After:
-
-.. image::  images/ran_tool.png
-
-.. function:: %waitdone
-
-Optional. Displays 'DONE' in a highlighted cell at the end of a tool-mode notebook.
