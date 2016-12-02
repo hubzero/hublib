@@ -30,7 +30,8 @@ def prepend(line):
         pass
     os.environ[name] = val
 
-def _use(name)
+
+def _use(name):
     fname = os.path.join(EPATH, name)
 
     with open(fname) as fp:
@@ -46,6 +47,7 @@ def _use(name)
                 continue
             if line[0] == 'use':
                 _use(line[-1])
+
 
 @register_line_magic
 def use(name):
