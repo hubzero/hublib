@@ -71,7 +71,7 @@ class FormValue(object):
     def visible(self):
         return self.dd.layout.visibility
 
-    @disabled.setter
+    @visible.setter
     def visible(self, newval):
         if newval:
             self.dd.layout.visibility = 'visible'

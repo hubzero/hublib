@@ -344,4 +344,29 @@ Togglebuttons
 
     .. image::  images/togglebuttons.png
 
-.. autoclass:: String
+
+File Upload
+-----------
+
+.. class:: FileUpload(name, desc, options, [width='auto'])
+
+    A button that opens a file browser on your computer that allows you to upload a single file.
+
+    :param name: The name that will appear in the field.
+    :param desc: An optional description. This will appear in a popover dialog.
+    :param disabled: The initial state. Defaults to False.
+    :param width: Optional width as a percent string (for example, '50%').
+
+    Attributes:
+        Attributes are parameters that may be modified or read after the object is created.
+        Unless noted, attributes are read/write.
+
+    .. attribute:: visible
+
+        Set to False to hide the widget.
+
+    .. attribute:: width
+
+
+    .. image::  images/fileupload.png
+

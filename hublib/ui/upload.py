@@ -97,6 +97,17 @@ class FileUpload(object):
         except:
             pass
 
+    @property
+    def visible(self):
+        return self.w.layout.visibility
+
+    @visible.setter
+    def visible(self, newval):
+        if newval:
+            self.w.layout.visibility = 'visible'
+            return
+        self.w.layout.visibility = 'hidden'
+
     def _ipython_display_(self):
         self.w._ipython_display_()
 
