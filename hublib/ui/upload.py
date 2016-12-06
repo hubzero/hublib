@@ -65,7 +65,7 @@ class FileUpload(object):
         if name is None:
             name = self.name
 
-        with open(name,'w') as f:
+        with open(name, 'w') as f:
             f.write(self.data)
 
         try:
@@ -84,7 +84,7 @@ class FileUpload(object):
         if self.vname not in FileUpload.fvals:
             return None
         data = FileUpload.fvals[self.vname]['data']
-        if data.startswith('data:'):
+        if type(data) == str and data.startswith('data:'):
             try:
                 FileUpload.fvals[self.vname]['data'] = base64.b64decode(data.split(',', 1)[1])
             except:
