@@ -9,22 +9,24 @@ Widget Groups
 Tab
 ***
 
-.. class:: Tab(wlist)
+.. class:: Tab(wlist, [titles=None])
 
     Creates a tabbed dialog containing *wlist*, the list of widgets.  The name of each widget
     will appear in the tabs.
 
-        Attributes:
+    :param wlist: A list of widgets that make up the form.
 
-        .. attribute:: disabled
+    :param titles:  An optional list of titles for the tabs.  If None, the names of
+        the widgets in *wlist* will be used.
 
-            Set to True to disable all the contained widgets.
+    Attributes:
 
-        >>> f = ui.Tab([form1, form2])
+    .. attribute:: disabled
 
-        .. note::
-            As long as the view exists, the :class:`BytesIO` object cannot be
-            resized or closed.
+        Set to True to disable all the contained widgets.
+
+    >>> f = ui.Tab([form1, form2])
+
 
 Form
 ****

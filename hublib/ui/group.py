@@ -3,7 +3,11 @@ import ipywidgets as widgets
 
 class Tab(object):
     def __init__(self, wlist, **kwargs):
-        titles = {i: w.name for i, w in enumerate(wlist)}
+        titles = kwargs.get('titles')
+        if titles is None:
+            titles = {i: w.name for i, w in enumerate(wlist)}
+        else:
+            titles = {i: w for i, w in enumerate(titles)}
         self.w = widgets.Tab([w.w for w in wlist], _titles=titles)
         self.wlist = wlist
         self._disabled = False
