@@ -82,7 +82,16 @@ class TestNumber:
         assert x.value == 5
         assert x.str == '5'
 
+        # simulate pressing enter
+        x.cb('')
+        assert x.value == 5
+        assert x.str == '5'
+
         x.value = 4.4
+        assert x.value == 4.4
+        assert x.str == '4.4'
+
+        x.cb('')
         assert x.value == 4.4
         assert x.str == '4.4'
 

@@ -173,7 +173,8 @@ class NumValue(object):
                     self.dd.value = self.default
                 return
 
-            val = '{:~}'.format(val)
+            if self.units is not None:
+                val = '{:~}'.format(val)
             if val != self.oldval:
                 self.no_cb = True
                 self.dd.value = val
