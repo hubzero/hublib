@@ -1,0 +1,5 @@
+include *.rst
+include setup.py
+include LICENSE
+recursive-include hublib *.py
+
