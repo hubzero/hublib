@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<run>
+    <tool>
+        <title>curve</title>
+        <about>Example of a Rappture &lt;curve&gt; object.
+
+Curves are a list of (x,y) data points, representing discrete samples of a function y(x).
+
+When you click the Simulate button, the inputs will be used to generate output curves.
+  </about>
+        <command>
+    tclsh @tool/curve.tcl @driver
+  </command>
+        <name>Workspace (800x600)</name>
+        <version>
+            <rappture>
+                <revision>$LastChangedRevision: 1018 $</revision>
+                <modified>$LastChangedDate: 2008-06-08 21:24:34 -0400 (Sun, 08 Jun 2008) $</modified>
+                <language>tcl</language>
+            </rappture>
+        </version>
+    </tool>
+    <input>
+        <integer id="points">
+            <about>
+                <label>Number of points</label>
+                <description>Determines the number of data points in all output curves.</description>
+            </about>
+            <min>2</min>
+            <max>1000</max>
+            <default>10</default>
+            <current>10</current>
+        </integer>
+    </input>
+    <output>
+        <curve id="single">
+            <about>
+                <label>Single curve</label>
+                <description>This is an example of a single curve.</description>
+            </about>
+            <xaxis>
+                <label>Time</label>
+                <description>Time during the experiment.</description>
+                <units>s</units>
+            </xaxis>
+            <yaxis>
+                <label>Voltage v(11)</label>
+                <description>Output from the amplifier.</description>
+                <units>V</units>
+            </yaxis>
+            <component>
+                <xy>0.01 0.990049505363
+1.009 0.265160421676
+2.008 -0.140760579036
+3.007 -0.247306232561
+4.006 -0.129662618375
+5.005 0.0480355105893
+6.004 0.137247325002
+7.003 0.0939557547102
+8.002 -0.016382854697
+9.001 -0.0911450779658
+</xy>
+            </component>
+        </curve>
+        <curve id="multi1">
+            <about>
+                <group>Multiple curves</group>
+                <label>Factor a=1</label>
+                <description>This is an example of multiple curves on the same plot.</description>
+            </about>
+            <xaxis>
+                <label>Frequency</label>
+                <description>Frequency of the input source.</description>
+                <units>Hz</units>
+                <scale>log</scale>
+            </xaxis>
+            <yaxis>
+                <label>Current</label>
+                <description>Current through the pull-down resistor.</description>
+                <units>uA</units>
+                <scale>log</scale>
+            </yaxis>
+            <component>
+                <xy>0.01 100.695555006
+1.009 1.9945645659
+2.008 2.00310872589
+3.007 2.67339892364
+4.006 4.01065419167
+5.005 60.41580338707
+6.004 100.689155879
+7.003 1800.3159282379
+8.002 3200.036383087
+9.001 5600.9220102634
+</xy>
+            </component>
+        </curve>
+        <curve id="multi2">
+            <about>
+                <group>Multiple curves</group>
+                <label>Factor a=2</label>
+                <description>This is an example of multiple curves on the same plot.</description>
+            </about>
+            <xaxis>
+                <label>Frequency</label>
+                <description>Frequency of the input source.</description>
+                <units>Hz</units>
+                <scale>log</scale>
+            </xaxis>
+            <yaxis>
+                <label>Current</label>
+                <description>Current through the pull-down resistor.</description>
+                <units>uA</units>
+                <scale>log</scale>
+            </yaxis>
+            <component>
+                <xy>0.01 101.395947979
+1.009 4.01409239782
+2.008 8.05698869204
+3.007 21.4912148474
+4.006 64.4379002629
+5.005 206.018478173
+6.004 686.00535265
+7.003 2349.3190102
+8.002 8212.69139005
+9.001 29164.2773871
+</xy>
+            </component>
+        </curve>
+        <curve id="multiA">
+            <about>
+                <group>Multiple Curve 2</group>
+                <label>Factor a=1</label>
+                <description>This is an example of multiple curves on the same plot.</description>
+            </about>
+            <xaxis>
+                <label>Frequency</label>
+                <description>Frequency of the input source.</description>
+                <units>Hz</units>
+                <scale>log</scale>
+            </xaxis>
+            <yaxis>
+                <label>Current</label>
+                <description>Current through the pull-down resistor.</description>
+                <units>uA</units>
+                <scale>log</scale>
+            </yaxis>
+            <component>
+                <xy>0.01 100.695555006
+1.009 1.9945645659
+2.008 2.00310872589
+3.007 2.67339892364
+4.006 4.01065419167
+5.005 6.41580338707
+6.004 10.689155879
+7.003 18.3159282379
+8.002 32.036383087
+9.001 56.9220102634
+</xy>
+            </component>
+        </curve>
+        <curve id="multiB">
+            <about>
+                <group>Multiple Curve 2</group>
+                <label>Factor a=2</label>
+                <description>This is an example of multiple curves on the same plot.</description>
+            </about>
+            <xaxis>
+                <label>Frequency</label>
+                <description>Frequency of the input source.</description>
+                <units>Hz</units>
+                <scale>log</scale>
+            </xaxis>
+            <yaxis>
+                <label>Current</label>
+                <description>Current through the pull-down resistor.</description>
+                <units>uA</units>
+                <scale>log</scale>
+            </yaxis>
+            <component>
+                <xy>0.01 101.395947979
+1.009 4.01409239782
+2.008 8.05698869204
+3.007 21.4912148474
+4.006 64.4379002629
+5.005 206.018478173
+6.004 686.00535265
+7.003 2349.3190102
+8.002 8212.69139005
+9.001 29164.2773871
+</xy>
+            </component>
+        </curve>
+        <time>Wed Dec 10 00:40:46 EST 2008</time>
+        <status>ok</status>
+        <user>dkearney</user>
+    </output>
+</run>
+

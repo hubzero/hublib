@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<run>
+    <tool>
+        <title>boolean</title>
+        <about>Example of a Rappture &lt;boolean&gt; object.
+
+Booleans are logical true/false values.
+The description appears in a tooltip when you hover over the boolean control with your mouse.
+
+When you click the Simulate button, the input boolean will be used to generate the output boolean.
+  </about>
+        <command>
+    tclsh @tool/boolean.tcl @driver
+  </command>
+        <version>
+            <rappture>
+                <revision>$LastChangedRevision: 1018 $</revision>
+                <modified>$LastChangedDate: 2008-06-08 21:24:34 -0400 (Sun, 08 Jun 2008) $</modified>
+                <language>tcl</language>
+            </rappture>
+        </version>
+    </tool>
+    <input>
+        <boolean id="iimodel">
+            <about>
+                <label>Impact Ionization Model</label>
+                <description>Used to enable/disable the effects of impact ionization on the mobility model.</description>
+            </about>
+            <default>on</default>
+            <current>off</current>
+        </boolean>
+        <boolean id="iimodel1">
+            <about>
+                <label>Impact Ionization Model</label>
+                <description>Used to enable/disable the effects of impact ionization on the mobility model.</description>
+            </about>
+            <default>yes</default>
+            <current>yes</current>
+        </boolean>
+        <boolean id="iimodel2">
+            <about>
+                <label>Impact Ionization Model</label>
+                <description>Used to enable/disable the effects of impact ionization on the mobility model.</description>
+                <color>purple</color>
+            </about>
+            <default>true</default>
+            <current>true</current>
+        </boolean>
+        <boolean id="iimodel3">
+            <about>
+                <label>Impact Ionization Model</label>
+                <description>Used to enable/disable the effects of impact ionization on the mobility model.</description>
+                <icon>R0lGODlhGQAZAPAAAP///wAAACH5BAAAAAAALAAAAAAZABkAAAJQhI+py+0dYnByphoZtmDn
+9WGgxl1ieYiGhHyg+1AVBbFtl0IavtbzToJ1Zqjc6wQ0nVDC1Ian4LhUwmorMyn2bpdV0eb8
+aa+02NAzNqvXigIAOw==
+      </icon>
+            </about>
+            <default>1</default>
+            <current>1</current>
+        </boolean>
+    </input>
+    <output>
+        <boolean id="outb">
+            <about>
+                <label>Echo of boolean value iimodel</label>
+            </about>
+            <current>off</current>
+        </boolean>
+        <boolean id="outb1">
+            <about>
+                <label>Echo of boolean value iimodel1</label>
+            </about>
+            <current>yes</current>
+        </boolean>
+        <boolean id="outb2">
+            <about>
+                <label>Echo of boolean value iimodel2</label>
+            </about>
+            <current>true</current>
+        </boolean>
+        <boolean id="outb3">
+            <about>
+                <label>Echo of boolean value iimodel3</label>
+            </about>
+            <current>1</current>
+        </boolean>
+        <time>Tue Dec 09 23:37:29 EST 2008</time>
+        <status>ok</status>
+        <user>dkearney</user>
+    </output>
+</run>
+

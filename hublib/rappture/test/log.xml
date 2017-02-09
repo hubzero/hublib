@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<run>
+    <tool>
+        <title>log</title>
+        <about>Example of Rappture &lt;log&gt; output.
+
+Each run can produce an output log--a textual record of simulation results.
+
+When you click the Simulate button, this tool will produce a single &lt;log&gt; element.
+  </about>
+        <command>
+    tclsh @tool/log.tcl @driver
+  </command>
+        <name>Workspace (800x600)</name>
+        <version>
+            <rappture>
+                <revision>$LastChangedRevision: 1018 $</revision>
+                <modified>$LastChangedDate: 2008-06-08 21:24:34 -0400 (Sun, 08 Jun 2008) $</modified>
+                <language>tcl</language>
+            </rappture>
+        </version>
+    </tool>
+    <input/>
+    <output>
+        <log>This is a log message.</log>
+        <time>Wed Dec 10 01:49:59 EST 2008</time>
+        <status>ok</status>
+        <user>dkearney</user>
+    </output>
+</run>
+

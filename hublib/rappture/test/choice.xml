@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<run>
+    <tool>
+        <title>choice</title>
+        <about>Example of a Rappture &lt;choice&gt; object.
+
+Choices are a set of mutually exclusive options.
+The description appears in a tooltip when you hover over the choice control with your mouse.
+
+When you click the Simulate button, the input choice will be used to generate the output choice.  An output choice is constant, just like a number, boolean, etc.
+  </about>
+        <command>
+    tclsh @tool/choice.tcl @driver
+  </command>
+        <name>Workspace (800x600)</name>
+        <version>
+            <rappture>
+                <revision>$LastChangedRevision: 1018 $</revision>
+                <modified>$LastChangedDate: 2008-06-08 21:24:34 -0400 (Sun, 08 Jun 2008) $</modified>
+                <language>tcl</language>
+            </rappture>
+        </version>
+    </tool>
+    <input>
+        <choice id="stats">
+            <about>
+                <label>Carrier Statistics</label>
+                <description>Determines the model for carrier statistics used in bandgap narrowing calculations.</description>
+            </about>
+            <option>
+                <about>
+                    <label>Boltzmann</label>
+                    <description>From the Boltzmann transport equation</description>
+                </about>
+                <value>bte</value>
+            </option>
+            <option>
+                <about>
+                    <label>Fermi</label>
+                    <description>Fermi-Dirac statistics</description>
+                </about>
+            </option>
+            <option>
+                <about>
+                    <label>2D Gas</label>
+                    <description>Includes confinement at material interface</description>
+                </about>
+                <value>2deg</value>
+            </option>
+            <default>Boltzmann</default>
+            <current>Fermi</current>
+        </choice>
+    </input>
+    <output>
+        <choice id="outs">
+            <about>
+                <label>Echo of choice</label>
+            </about>
+            <current>Fermi</current>
+        </choice>
+        <time>Wed Dec 10 00:18:18 EST 2008</time>
+        <status>ok</status>
+        <user>dkearney</user>
+    </output>
+</run>
+

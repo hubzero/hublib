@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<run>
+  <tool>
+    <title>Name of the tool</title>
+    <about>Description and credits</about>
+    <command>@tool/path/to/executable @driver</command>
+    <limits>
+      <cputime>900</cputime>
+    </limits>
+    <action><label>Simulate</label></action>
+    <layout>xxx</layout>
+    <control>xxx</control>
+    <uq>true</uq>
+    <analyzer>xxx</analyzer>
+    <reportJobFailures>1</reportJobFailures>
+  </tool>
+</run>

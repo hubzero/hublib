@@ -1,9 +1,7 @@
 import ipywidgets as widgets
 from IPython.display import display, HTML
 import pint
-
-ureg = pint.UnitRegistry()
-ureg.autoconvert_offset_to_baseunit = True
+from .. import ureg, Q_
 
 
 class NumValue(object):
