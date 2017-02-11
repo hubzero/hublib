@@ -1,4 +1,13 @@
-class Tool(Node):
+from __future__ import print_function
+from .node import Node
+import numpy as np
+from lxml import etree as ET
+import os
+import subprocess
+import sys
+from .rappture import RapXML
+
+class Tool(RapXML):
     def __init__(self, tool):
         """
         tool can be any of the following:
@@ -26,36 +35,39 @@ class Tool(Node):
         if not os.path.isdir(self.bin):
             self.bin = ""
 
+        # FIXME; why are run*.xml files created in local directory?
         sessdir = os.path.join(os.environ['HOME'], 'data/sessions', os.environ['SESSION'])
         self.tmp_name = os.path.join(sessdir, 'tool_driver_%s.xml' % os.getpid())
         self.run_name = os.path.join(sessdir, 'tool_run_%s.xml' % os.getpid())
-        self.tool_file = xml
-        self.lib = library(xml)
+        self.fname = xml
+        self.tree = ET.parse(xml)
         self.path = ''
 
+
     def run(self):
+        print("Writing", self.tmp_name)
         with open(self.tmp_name, 'w') as f:
-            f.write(self.xml(pretty=False))
+            f.write(self.xml(pretty=False, header=True))
 
         if self.bin:
             cmd = "PATH=%s:$PATH /apps/bin/rappture -execute %s -tool %s > %s" % \
-                (self.bin, self.tmp_name, self.tool_file, self.run_name)
+                (self.bin, self.tmp_name, self.fname, self.run_name)
         else:
             cmd = "/apps/bin/rappture -execute %s -tool %s > %s" % \
-                (self.tmp_name, self.tool_file, self.run_name)
+                (self.tmp_name, self.fname, self.run_name)
 
+        print("cmd=", cmd)
         try:
             ret = subprocess.call(cmd, shell=True)
             if ret:
-                print >>sys.stderr, 'Error: "%s"' % cmd
+                print('Error: "%s"' % cmd, file=sys.stderr)
                 if ret < 0:
-                    print >>sys.stderr, "Terminated by signal", -ret
+                    print("Terminated by signal", -ret, file=sys.stderr)
                 else:
-                    print >>sys.stderr, "Returncode", ret
+                    print("Returncode", ret, file=sys.stderr)
         except OSError as e:
-            print >>sys.stderr, 'Error: "%s"' % cmd
-            print >>sys.stderr, "Failed:", e
+            print('Error: "%s"' % cmd, file=sys.stderr)
+            print("Failed:", e, file=sys.stderr)
             sys.exit(1)
 
-        self.lib = library(self.run_name)
-
+        self.tree = ET.parse(self.run_name)

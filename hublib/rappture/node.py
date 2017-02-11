@@ -12,7 +12,6 @@ from IPython.display import HTML
 from .image import RapImage
 from .curve import curve_plot, mcurve_plot
 
-
 def _to_xpath(path):
     xpath = []
     for a in path.split('.'):
@@ -78,7 +77,7 @@ def parse_expr(units, val):
 
 
 # convert XML values to python values
-def _convert(elem, val):
+def _convert(elem, val, magnitude=False, units=False):
     tag = elem.tag
     # print("CONVERT", tag, val)
     if tag == 'boolean':
@@ -88,10 +87,18 @@ def _convert(elem, val):
             return False
 
     if tag == 'number':
-        units = elem.find('units')
-        if units is None or units == '':
+        u = elem.find('units')
+        if units:
+            if u is None or u.text == '':
+                return ''
+            return ureg.parse_expression(u.text).units
+        if u is None or u == '':
             return float(val)
-        return parse_expr(units.text, val)
+
+        val = parse_expr(u.text, val)
+        if magnitude:
+            return val.magnitude
+        return val
 
     if tag == 'xy':
         return np.fromstring(val, sep=' \n').reshape(-1, 2)
@@ -105,7 +112,7 @@ def _convert(elem, val):
 # format python values for writing to Rappture XML
 def _format(elem, val):
     tag = elem.tag
-    print("FORMAT", tag, val)
+    # print("FORMAT", tag, val)
 
     if tag == 'number':
         return str(val)
@@ -161,8 +168,7 @@ class Node(object):
             path = self.path + '.' + path
         return Node(self.tree, path)
 
-    @property
-    def value(self):
+    def _value(self, magnitude=False, units=False):
         xpath = _to_xpath(self.path)
         x = self.tree.find(xpath)
         if x is None:
@@ -177,7 +183,19 @@ class Node(object):
                 val = x.text
             else:
                 val = current.text
-        return _convert(elem, val)
+        return _convert(elem, val, magnitude, units)
+
+    @property
+    def value(self):
+        return self._value()
+
+    @property
+    def magnitude(self):
+        return self._value(magnitude=True)
+
+    @property
+    def units(self):
+        return self._value(units=True)
 
     @property
     def rvalue(self):
@@ -221,11 +239,13 @@ class Node(object):
         p.text(self.__str__())
     """
 
-    def xml(self, pretty=True):
-        xpath = _to_xpath(self.path)
-        elem = self.tree.find(xpath)
-        xml = ET.tostring(elem)
-        if pretty:
-            return BeautifulSoup(xml, "xml").prettify()
+    def xml(self, pretty=True, header=False):
+        if self.path == '':
+            elem = self.tree.getroot()
+        else:
+            xpath = _to_xpath(self.path)
+            elem = self.tree.find(xpath)
+        xml = ET.tostring(elem, pretty_print=pretty)
+        if header is True:
+            xml = '<?xml version="1.0"?>\n' + xml
         return xml
-

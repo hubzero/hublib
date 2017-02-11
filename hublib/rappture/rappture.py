@@ -41,31 +41,13 @@ class RapXML(Node):
         self.tree = ET.parse(fname)
         self.path = ''
 
-    # FIXME: self._modified = False. self._info = self.info('all')
-
-
     def _repr_html_(self):
         return self.info('all')._repr_html_()
 
     def __str__(self):
         return self.info('all').__str__()
 
-    def xml(self, pretty=True):
-        xml = ET.tostring(self.tree.getroot())
-        if pretty:
-            return BeautifulSoup(xml, "xml").prettify()
-        return xml
-
     def info(self, which='all'):
-        """
-        if self.path == '':
-            start = self.tree.find('input')
-        else:
-            start = self
-
-        if start is None:
-            return ''
-        """
         d = RapXMLInfo(which)
 
         if which == 'all' or which == 'inputs':
@@ -89,7 +71,7 @@ class RapXML(Node):
         return self.info('outputs')
 
     def parse_elem(self, d, path, elem):
-
+        # print("parse:", path, elem.tag)
         if elem.tag == 'number' or \
            elem.tag == 'integer' or \
            elem.tag == 'curve' or \
@@ -172,7 +154,10 @@ class RapXMLInfo(object):
                 for path, pelem in self.elist:
                     if pelem is None:
                         continue
-                    pid = pelem.attrib['id']
+                    try:
+                        pid = pelem.attrib['id']
+                    except:
+                        pid = ""
                     if pid == id:
                         rnum += 1
                         if rnum % 2:
