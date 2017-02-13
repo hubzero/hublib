@@ -11,6 +11,7 @@ import imghdr
 from IPython.display import HTML
 from .image import RapImage
 from .curve import curve_plot, mcurve_plot
+from .structure import structure_plot
 
 def _to_xpath(path):
     xpath = []
@@ -221,12 +222,16 @@ class Node(object):
     def plot(self, single=False, **kwargs):
         xpath = _to_xpath(self.path)
         elem = self.tree.find(xpath)
-        if elem is None or elem.tag != 'curve':
-            return None
 
-        if single is False and elem.find("about/group") is not None:
-            return mcurve_plot(elem)
-        return curve_plot(elem, **kwargs)
+        if elem.tag == 'curve':
+            if single is False and elem.find("about/group") is not None:
+                return mcurve_plot(elem)
+            return curve_plot(elem, **kwargs)
+
+        if elem.tag == 'structure':
+            return structure_plot(elem, **kwargs)
+
+        return
 
     def __str__(self):
         return("%s['%s']" % (self.tree, self.path))
@@ -249,3 +254,4 @@ class Node(object):
         if header is True:
             xml = '<?xml version="1.0"?>\n' + xml
         return xml
+
