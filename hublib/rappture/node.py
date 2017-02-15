@@ -9,9 +9,11 @@ from base64 import b64decode, b64encode
 import zlib
 import imghdr
 from IPython.display import HTML
-from .image import RapImage
+from .image import RapImage, encode
 from .curve import curve_plot, mcurve_plot
 from .structure import structure_plot
+from .hist import hist_plot
+
 
 def _to_xpath(path):
     xpath = []
@@ -52,35 +54,70 @@ def _create_path(root, path):
             root = nt
     return root
 
+def parse_py_num(val, uelem):
+    # units are rappture units
+    # val is a python string, for example, "100 C", or "100"
+    # OR a number OR a PINT expression
 
-def parse_expr(units, val):
+    vunits = ''
+    if hasattr(val, 'units'):
+        vunits = val.units
+
+    if vunits == '':
+        # Not PINT, so just set to string value
+        return str(val)
+
+    if uelem is None or uelem.text == '':
+        # Rappture doesn't want units, but our expression has them!!!!
+        raise ValueError("This Rappture element does not have Units!!")
+
+    # Rappture wants units and we have them
+
+    # convert Rappture units to PINT units
+    if uelem.text == 'C':
+        units = ureg.degC
+    else:
+        units = ureg.parse_expression(uelem.text).units
+
+    # let PINT do the conversion
+    val = val.to(units)
+
+    # return a Rappture-friendly string
+    return '%s %s' % (val.magnitude, uelem.text)
+
+
+
+def parse_rap_expr(units, val):
+    # units and val are strings from rappture
+    # We need to convert them to PINT expressions
     # print("PARSE:", units, val)
     if units is None or units == '':
         return val
 
     # Rappture compatibility. C is Celsius, not Coulombs
     if units == 'C':
-        units = 'degC'
+        units = ureg.degC
+    else :
+        units = ureg.parse_expression(units).units
 
-    units = ureg.parse_expression(units).units
     try:
         val = ureg.parse_expression(val)
-        # print("val=", val)
         if hasattr(val, 'units'):
-            # print("UNITS")
+            if val.units == ureg.coulomb and (units == ureg.K or units == ureg.degC):
+                # C -> Celsius
+                val = Q_(val.magnitude, ureg.degC)
             val = val.to(units)
-            # print("val=", val)
         else:
-            val *= units
+            val = Q_(val, units)
         return val
     except:
         raise ValueError("Bad input value.")
-
 
 # convert XML values to python values
 def _convert(elem, val, magnitude=False, units=False):
     tag = elem.tag
     # print("CONVERT", tag, val)
+
     if tag == 'boolean':
         if val in ['true', '1', 'yes', 'on', 1]:
             return True
@@ -96,7 +133,7 @@ def _convert(elem, val, magnitude=False, units=False):
         if u is None or u == '':
             return float(val)
 
-        val = parse_expr(u.text, val)
+        val = parse_rap_expr(u.text, val)
         if magnitude:
             return val.magnitude
         return val
@@ -116,12 +153,16 @@ def _format(elem, val):
     # print("FORMAT", tag, val)
 
     if tag == 'number':
-        return str(val)
+        u = elem.find('units')
+        return parse_py_num(val, u)
 
     if tag == 'boolean':
         if val in [True, 1, '1', 'true', 'True', 'yes', 'Yes', 'On', 'on']:
             return 'true'
         return 'false'
+
+    if tag == 'image':
+        return encode(val)
 
     if tag == 'xy':
         if type(val) == np.ndarray:
@@ -231,6 +272,9 @@ class Node(object):
         if elem.tag == 'structure':
             return structure_plot(elem, **kwargs)
 
+        if elem.tag == 'histogram':
+            return hist_plot(elem, **kwargs)
+
         return
 
     def __str__(self):
@@ -253,5 +297,16 @@ class Node(object):
         xml = ET.tostring(elem, pretty_print=pretty)
         if header is True:
             xml = '<?xml version="1.0"?>\n' + xml
-        return xml
+        return XMLOut(xml)
 
+class XMLOut(object):
+    def __init__(self, xml):
+        self.xml = xml
+
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            return
+        p.text(self.__str__())
+
+    def __str__(self):
+        return self.xml

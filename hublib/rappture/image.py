@@ -20,3 +20,8 @@ class RapImage(Image):
         if compressed:
             data = zlib.decompress(data, zlib.MAX_WBITS | 32)
         Image.__init__(self, data)
+
+def encode(data):
+    if type(data) == Image:
+        return b64encode(data.data)
+    return b64encode(data)
