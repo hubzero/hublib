@@ -1,8 +1,3 @@
-import sys
-import os
-from IPython.core.magic import register_line_magic
-from string import Template
-
 """
 Line magic to allow the 'use' command to load hub environment modules.
 This works on the current environment, so we cannot simply fork a shell.
@@ -10,6 +5,11 @@ Maybe some trick to fork a shell and return the modified environment would work?
 For now lets see how this works.  Just implement "setenv", "prepend", and "use".
 Works for all currently installed modules except two old ones that use local shell variables.
 """
+
+import sys
+import os
+from string import Template
+from IPython.core.magic import register_line_magic
 
 EPATH = '/apps/share64/debian7/environ.d'
 d = {}
@@ -59,9 +59,14 @@ def _use(name):
             if len(line) == 2:
                 _set(line[0].strip(), line[1].strip())
 
-@register_line_magic
-def use(name):
-    _use(name)
+try:
+    get_ipython()
 
-# We delete this to avoid name conflicts for automagic to work
-del use
+    @register_line_magic
+    def use(name):
+        _use(name)
+
+    # We delete this to avoid name conflicts for automagic to work
+    del use
+except:
+    pass

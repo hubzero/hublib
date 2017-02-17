@@ -1,8 +1,7 @@
 from __future__ import print_function
 import pytest
 import os, sys
-
-sys.path.insert(0, os.path.abspath('../../..'))
+sys.path.insert(0, os.path.abspath('../..'))
 import hublib.rappture as rappture
 
 
@@ -33,54 +32,33 @@ class TestBasic:
         assert self.io['tool.title'].value == 'New Title'
 
     def test_xml_output(self):
-        xml = self.io.xml()
-        expected = """<?xml version="1.0" encoding="utf-8"?>
-<run>
- <tool>
-  <title>
-   New Title
-  </title>
-  <about>
-   Description and credits
-  </about>
-  <command>
-   @tool/path/to/executable @driver
-  </command>
-  <limits>
-   <cputime>
-    900
-   </cputime>
-  </limits>
-  <action>
-   <label>
-    Simulate
-   </label>
-  </action>
-  <layout>
-   xxx
-  </layout>
-  <control>
-   xxx
-  </control>
-  <uq>
-   true
-  </uq>
-  <analyzer>
-   xxx
-  </analyzer>
-  <reportJobFailures>
-   1
-  </reportJobFailures>
- </tool>
-</run>"""
+        xml = str(self.io.xml())
+        print("XML=", xml)
+        print()
+        expected = """<run>
+  <tool>
+    <title>New Title</title>
+    <about>Description and credits</about>
+    <command>@tool/path/to/executable @driver</command>
+    <limits>
+      <cputime>900</cputime>
+    </limits>
+    <action><label>Simulate</label></action>
+    <layout>xxx</layout>
+    <control>xxx</control>
+    <uq>true</uq>
+    <analyzer>xxx</analyzer>
+    <reportJobFailures>1</reportJobFailures>
+  </tool>
+</run>
+"""
         assert xml == expected
 
     def test_xml_partial_output(self):
-        xml = self.io['tool.title'].xml()
-        expected = """<?xml version="1.0" encoding="utf-8"?>
-<title>
- New Title
-</title>"""
+        xml = str(self.io['tool.title'].xml()).strip()
+        print("XML=", xml)
+        print()
+        expected = """<title>New Title</title>"""
         assert expected == xml
 
     def test_escaping(self):

@@ -2,7 +2,8 @@ from __future__ import print_function
 from lxml import etree as ET
 import numpy as np
 from bs4 import BeautifulSoup
-from cStringIO import StringIO
+
+from io import BytesIO
 import pint
 from .. import ureg, Q_
 from base64 import b64decode, b64encode
@@ -166,7 +167,7 @@ def _format(elem, val):
 
     if tag == 'xy':
         if type(val) == np.ndarray:
-            s = StringIO()
+            s = BytesIO()
             np.savetxt(s, val, fmt='%.6e %.6e', newline="\n")
             return s.getvalue()
         elif type(val) == list or type(val) == tuple:
@@ -261,6 +262,11 @@ class Node(object):
         return self.path
 
     def plot(self, single=False, **kwargs):
+        """
+        Plots a curve, curve group, structure(molecule), or histogram.
+
+        :param single: Plot just a single curve instead of an entire group.
+        """
         xpath = _to_xpath(self.path)
         elem = self.tree.find(xpath)
 
@@ -309,4 +315,4 @@ class XMLOut(object):
         p.text(self.__str__())
 
     def __str__(self):
-        return self.xml
+        return self.xml.decode("utf-8")

@@ -44,8 +44,6 @@ output.number(outv)\t"Voltage Sweep +/-"
         val = self.io['input.number(temperature2)'].value
         assert np.isclose(val.m, 26.85)
         assert val.u == ureg.degC
-        assert '{:~}'.format(val) == '26.85 celsius'
-
         assert self.io['input.number(temperature2)'].rvalue == '300K'
         assert self.io['input.number(temperature2).units'].rvalue == 'C'
 

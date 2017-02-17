@@ -35,10 +35,7 @@ class TestCurve:
         self.io['output.curve(single).component.xy'] = a
         val = self.io['output.curve(single).component.xy'].value
         assert np.allclose(a, val)
-
-        expected = """<?xml version="1.0" encoding="utf-8"?>
-<xy>
- 0.000000e+00 1.000000e+00
+        expected = """<xy>0.000000e+00 1.000000e+00
 2.000000e+00 3.000000e+00
 4.000000e+00 5.000000e+00
 6.000000e+00 7.000000e+00
@@ -49,7 +46,7 @@ class TestCurve:
 1.600000e+01 1.700000e+01
 1.800000e+01 1.900000e+01
 </xy>"""
-        val = self.io['output.curve(single).component.xy'].xml()
+        val = str(self.io['output.curve(single).component.xy'].xml()).strip()
         assert val == expected
 
     def test_write_single_tuple(self):

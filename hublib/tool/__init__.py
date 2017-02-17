@@ -9,6 +9,7 @@ Works with the autorun notebook extension to mark points where the execution sto
 # HTML5 code for a button
 input_form = "<button name=\"%s,%s\" class=\"continue_button\" onclick=\"IPython.wait_button_clicked()\">%s</button>"
 
+
 @register_line_magic
 def wait(line):
     """ Set a waitpoint.  Optional line should contain a
@@ -24,6 +25,7 @@ def wait(line):
         name, wname = line
     button = input_form % (name, wname, name)
     display(HTML(button))
+
 
 @register_line_magic
 def waitdone(line):
