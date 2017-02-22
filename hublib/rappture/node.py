@@ -56,6 +56,19 @@ def _create_path(root, path):
     return root
 
 
+# Why do we need this? Because elem.text will not see the text that
+# is after child nodes, for example
+# <log><about><label>TEXT</label></about> Here is my log file info... </log>
+def _all_text(elem):
+    s = []
+    if elem.text:
+        s.append(elem.text)
+    for child in elem.getchildren():
+        if child.tail:
+            s.append(child.tail)
+    return ''.join(s)
+
+
 def parse_py_num(val, uelem):
     # units are rappture units
     # val is a python string, for example, "100 C", or "100"
@@ -222,14 +235,14 @@ class Node(object):
             return None
         if x.tag == 'current' or x.tag == 'default':
             elem = x.find('..')
-            val = x.text
+            val = _all_text(x)
         else:
             elem = x
             current = x.find('current')
             if current is None:
-                val = x.text
+                val = _all_text(x)
             else:
-                val = current.text
+                val = _all_text(current)
         return _convert(elem, val, magnitude, units)
 
     @property
@@ -251,14 +264,14 @@ class Node(object):
         if x is None:
             return None
         if x.tag == 'current' or x.tag == 'default':
-            val = x.text
+            val = _all_text(x)
         else:
             tag = x.tag
             current = x.find('current')
             if current is None:
-                val = x.text
+                val = _all_text(x)
             else:
-                val = current.text
+                val = _all_text(current)
         return val
 
     @property
