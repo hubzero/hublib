@@ -9,9 +9,11 @@ hublib contains four modules:
 
 * hublib.ui - Makes it easy to create a simple GUI for scientific code in a Jupyter notebook.  Built
   on top of `ipywidgets`_ and `pint`_.
+* hublib.rappture - Compatibility library for running and interacting with `Rappture`_
+  tools on the hubs.
 * hublib.tool - Convenience functions for controlling and running tools on the hubs.
 * hublib.use - Loads hub environment modules.
-* hublib.uq - Simplified interface and GUI components for uncertainty quantification.
+* hublib.uq - (Future) Simplified interface and GUI components for uncertainty quantification.
 
 .. image::  images/hublib_complam.gif
 
@@ -24,3 +26,4 @@ hublib contains four modules:
 .. _Jupyter: http://jupyter.org/
 .. _ipywidgets: https://github.com/ipython/ipywidgets
 .. _pint: https://pint.readthedocs.io/
+.. _Rappture: https://nanohub.org/infrastructure/rappture

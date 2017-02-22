@@ -55,6 +55,7 @@ def _create_path(root, path):
             root = nt
     return root
 
+
 def parse_py_num(val, uelem):
     # units are rappture units
     # val is a python string, for example, "100 C", or "100"
@@ -87,7 +88,6 @@ def parse_py_num(val, uelem):
     return '%s %s' % (val.magnitude, uelem.text)
 
 
-
 def parse_rap_expr(units, val):
     # units and val are strings from rappture
     # We need to convert them to PINT expressions
@@ -114,10 +114,14 @@ def parse_rap_expr(units, val):
     except:
         raise ValueError("Bad input value.")
 
+
 # convert XML values to python values
 def _convert(elem, val, magnitude=False, units=False):
     tag = elem.tag
     # print("CONVERT", tag, val)
+
+    if tag == 'integer':
+        return int(val)
 
     if tag == 'boolean':
         if val in ['true', '1', 'yes', 'on', 1]:
@@ -193,11 +197,11 @@ class Node(object):
             return False
         # print("PUT:", x, x.tag)
 
-        # If there is a 'current' child, set that.
         if x.tag == 'current' or x.tag == 'default':
             elem = x.find('..')
             # print("x=%s elem=%s" % (x, elem))
         else:
+            # If there is a 'current' child, set that.
             elem = x
             x = elem.find('current')
             if x is None:
@@ -304,6 +308,7 @@ class Node(object):
         if header is True:
             xml = '<?xml version="1.0"?>\n' + xml
         return XMLOut(xml)
+
 
 class XMLOut(object):
     def __init__(self, xml):

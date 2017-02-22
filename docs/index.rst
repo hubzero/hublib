@@ -11,6 +11,7 @@ Contents:
 .. toctree::
 
     intro.rst
+    rappture.rst
     tools.rst
     ui.rst
     use.rst

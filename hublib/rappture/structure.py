@@ -48,8 +48,9 @@ def component_plot(elem, label):
 
 
 def molecule_plot(elem, label):
+    " Read in a list of atoms and write a PDB file for nglview."
     formula = efind(elem, 'formula')
-    f = tempfile.NamedTemporaryFile(delete=False, suffix='.pdb')
+    f = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.pdb')
 
     for child in elem:
         if child.tag == 'atom':
