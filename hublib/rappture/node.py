@@ -10,10 +10,6 @@ from base64 import b64decode, b64encode
 import zlib
 import imghdr
 from IPython.display import HTML
-from .image import RapImage, encode
-from .curve import curve_plot, mcurve_plot
-from .structure import structure_plot
-from .hist import hist_plot
 
 
 def _to_xpath(path):
@@ -111,7 +107,7 @@ def parse_rap_expr(units, val):
     # Rappture compatibility. C is Celsius, not Coulombs
     if units == 'C':
         units = ureg.degC
-    else :
+    else:
         units = ureg.parse_expression(units).units
 
     try:
@@ -196,9 +192,27 @@ def _format(elem, val):
 
 
 class Node(object):
-    def __init__(self, tree, path):
+    def __init__(self, tree, path, elem=None):
         self.tree = tree
         self.path = path
+        self.elem = elem
+
+    def create(self, path):
+        xpath = _to_xpath(path)
+        x = self.tree.find(xpath)
+
+        if x is None:
+            return Node(self.tree, path)
+        if x.tag == 'curve':
+            return Curve(self.tree, path, x)
+        if x.tag == 'structure':
+            return Structure(self.tree, path, x)
+        if x.tag == 'histogram':
+            return Histogram(self.tree, path, x)
+        if x.tag == 'image':
+            return RapImage(self.tree, path, x)
+
+        return Node(self.tree, path, x)
 
     def __setitem__(self, path, val):
         if self.path != '':
@@ -224,9 +238,10 @@ class Node(object):
         return True
 
     def __getitem__(self, path):
+        # print("GETITEM ", self.tree, self.path, path)
         if self.path != '':
             path = self.path + '.' + path
-        return Node(self.tree, path)
+        return self.create(path)
 
     def _value(self, magnitude=False, units=False):
         xpath = _to_xpath(self.path)
@@ -287,14 +302,6 @@ class Node(object):
         xpath = _to_xpath(self.path)
         elem = self.tree.find(xpath)
 
-        if elem.tag == 'curve':
-            if single is False and elem.find("about/group") is not None:
-                return mcurve_plot(elem)
-            return curve_plot(elem, **kwargs)
-
-        if elem.tag == 'structure':
-            return structure_plot(elem, **kwargs)
-
         if elem.tag == 'histogram':
             return hist_plot(elem, **kwargs)
 
@@ -334,3 +341,9 @@ class XMLOut(object):
 
     def __str__(self):
         return self.xml.decode("utf-8")
+
+
+from .curve import Curve
+from .structure import Structure
+from .hist import Histogram
+from .image import RapImage

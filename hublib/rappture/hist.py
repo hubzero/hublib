@@ -7,14 +7,10 @@ from .. import ureg, Q_
 import matplotlib
 import matplotlib.pyplot as plt
 from IPython.display import display
+import shlex
 
-
-def efind(elem, path):
-    try:
-        text = elem.find(path).text
-    except:
-        text = ""
-    return text
+from .node import Node
+from .util import efind
 
 
 class HInfo:
@@ -33,32 +29,63 @@ class HInfo:
         self.type = efind(elem, "about/type")
 
 
-def hist_plot(elem, ax=None):
-    """
-    Plot a rappture histogram
-    """
-    plt.style.use('ggplot')
+class Histogram(Node):
 
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+    @staticmethod
+    def format(lab):
+        a = []
+        for t in lab:
+            try:
+                num = float(t)
+                a.append("{:.5g}".format(num))
+            except:
+                a.append(t)
+        return a
 
-    ci = CInfo(elem)
-    xy_elem = elem.find('component/xy')
-    data = np.fromstring(xy_elem.text, sep=' \n').reshape(-1, 2)
+    def plot(self, ax=None, horizontal=None):
+        """
+        Plot a rappture histogram
+        """
+        plt.style.use('ggplot')
+        elem = self.elem
 
-    ax.plot(data[:, 0], data[:, 1])
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
 
-    ax.set_title(ci.label)
+        ci = HInfo(elem)
 
-    lab = ci.xlab
-    if ci.xunits:
-        lab += " [%s]" % ci.xunits
-    ax.set_xlabel(lab)
+        xy_elem = elem.find('component/xy')
+        xy = shlex.split(xy_elem.text)
 
-    lab = ci.ylab
-    if ci.yunits:
-        lab += " [%s]" % ci.yunits
-    ax.set_ylabel(lab)
+        labels = Histogram.format(xy[::2])
 
+        x_pos = np.arange(len(labels))
+        y_pos = [float(x) for x in xy[1::2]]
 
+        ax.set_title(ci.label)
+
+        if len(labels) > 10 or horizontal is True:
+            ax.barh(x_pos, y_pos, align='center')
+            ax.set_yticks(x_pos)
+            ax.set_yticklabels(labels)
+            xlab = ci.ylab
+            xunits = ci.yunits
+            ylab = ci.xlab
+            yunits = ci.xunits
+        else:
+            ax.bar(x_pos, y_pos, align='center')
+            ax.set_xticks(x_pos)
+            ax.set_xticklabels(labels)
+            xlab = ci.xlab
+            xunits = ci.xunits
+            ylab = ci.ylab
+            yunits = ci.yunits
+
+        if ci.xunits:
+            xlab += " [%s]" % xunits
+        ax.set_xlabel(xlab)
+
+        if ci.yunits:
+            ylab += " [%s]" % yunits
+        ax.set_ylabel(ylab)

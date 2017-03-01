@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+<run>
+    <tool>
+        <title>histogram</title>
+        <about>Example of a Rappture &lt;histogram&gt; object.
+
+histograms are a list of (x,y) data points, representing discrete samples of a function y(x).
+
+When you click the Simulate button, the inputs will be used to generate output histograms.</about>
+        <command>python @tool/histogram.py @driver</command>
+        <version>
+            <application>
+                <directory id="tool">/home/nanohub/mmh/rap/rappture/examples/zoo/histogram</directory>
+            </application>
+            <rappture>
+                <language>python</language>
+                <version>1.7</version>
+                <revision>6645</revision>
+                <modified>$LastChangedDate: 2016-05-04 14:27:36 -0400 (Wed, 04 May 2016) $</modified>
+            </rappture>
+        </version>
+        <name>Workspace</name>
+        <execute>submit --local python /home/nanohub/mmh/rap/rappture/examples/zoo/histogram/histogram.py /home/nanohub/mmh/rap/rappture/examples/zoo/histogram/driver5399.xml</execute>
+    </tool>
+    <input>
+        <integer id="points">
+            <about>
+                <label>Number of points</label>
+                <description>Determines the number of data points in all output histograms.</description>
+            </about>
+            <min>2</min>
+            <max>1000</max>
+            <default>10</default>
+            <current>28</current>
+        </integer>
+    </input>
+    <output>
+        <histogram id="example">
+            <about>
+                <label>Single dataset</label>
+                <description>This is an example of a single histogram.</description>
+            </about>
+            <xaxis>
+                <label>Time</label>
+                <description>Time during the experiment.</description>
+                <units>s</units>
+                <marker>
+                    <at>5</at>
+                    <label>Look here</label>
+                    <style>-foreground red -linewidth 2</style>
+                </marker>
+            </xaxis>
+            <yaxis>
+                <label>Voltage v(11)</label>
+                <description>Output from the amplifier.</description>
+                <units>V</units>
+            </yaxis>
+            <component>
+                <xy>1 0.99
+       2 0.34
+       4 0.57
+       6 0.22
+       7 0.11</xy>
+            </component>
+        </histogram>
+        <histogram id="single">
+            <about>
+                <label>Single histogram</label>
+                <description>This is an example of a single histogram.</description>
+            </about>
+            <xaxis>
+                <label>Time</label>
+                <description>Time during the experiment.</description>
+                <units>s</units>
+            </xaxis>
+            <yaxis>
+                <label>Voltage v(11)</label>
+                <description>Output from the amplifier.</description>
+                <units>V</units>
+            </yaxis>
+            <component>
+                <xy>1.0 0.27015115293406988
+1.3333333333333333 0.10081610284413833
+1.6666666666666665 -0.035896330505390789
+2.0 -0.13871561218238079
+2.333333333333333 -0.20722744192496284
+2.6666666666666665 -0.24254360951264764
+3.0 -0.24749812415011135
+3.333333333333333 -0.22654015493332597
+3.6666666666666665 -0.185418609200622
+4.0 -0.13072872417272238
+4.333333333333333 -0.069383121930475897
+4.6666666666666661 -0.0080658326009261198
+5.0 0.047277030910537705
+5.333333333333333 0.091863708925132209
+5.6666666666666661 0.12238444692028989
+6.0 0.13716718380719514
+6.333333333333333 0.13619220698572085
+6.6666666666666661 0.12096100474577944
+7.0 0.094237781792913075
+7.333333333333333 0.059693116934053998
+7.6666666666666661 0.021487096602719108
+8.0 -0.016166670423179281
+8.3333333333333321 -0.049414718481770113
+8.6666666666666661 -0.075117505566488815
+9.0 -0.0911130261884677
+9.3333333333333321 -0.096369856721444283
+9.6666666666666661 -0.091020683651613338
+10.0 -0.076279229916041136</xy>
+            </component>
+        </histogram>
+        <histogram id="multi1">
+            <about>
+                <group>Multiple histogram</group>
+                <label>Factor a=1</label>
+                <description>This is an example of a multiple histograms on the same plot.</description>
+            </about>
+            <xaxis>
+                <label>Frequency</label>
+                <description>Frequency of the input source.</description>
+                <units>Hz</units>
+            </xaxis>
+            <yaxis>
+                <label>Current</label>
+                <description>Current through the pull-down resistor.</description>
+                <units>uA</units>
+                <log>log</log>
+            </yaxis>
+            <component>
+                <xy>1.0 2.0
+1.3333333333333333 1.8898815748423099
+1.6666666666666665 1.9048812623618394
+2.0 2.0
+2.333333333333333 2.1598646569626396
+2.6666666666666665 2.381101577952299
+3.0 2.6666666666666665
+3.333333333333333 3.0238105197476952
+3.6666666666666665 3.463420477021526
+4.0 4.0
+4.333333333333333 4.6520161842272234
+4.6666666666666661 5.4425178924623969
+5.0 6.4000000000000004
+5.333333333333333 7.5595262993692378
+5.6666666666666661 8.9641471169968892
+6.0 10.666666666666666
+6.333333333333333 12.731833767358717
+6.6666666666666661 15.239050098894712
+7.0 18.285714285714285
+7.333333333333333 21.991349234528691
+7.6666666666666661 26.502695824164714
+8.0 32.0
+8.3333333333333321 38.704774652770475
+8.6666666666666661 46.889384919676033
+9.0 56.888888888888886
+9.3333333333333321 69.115669022804425
+9.6666666666666661 84.077517787005306
+10.0 102.40000000000001</xy>
+            </component>
+        </histogram>
+        <histogram id="multi2">
+            <about>
+                <group>Multiple histogram</group>
+                <label>Factor a=2</label>
+                <description>This is an example of a multiple histograms on the same plot.</description>
+            </about>
+            <xaxis>
+                <label>Frequency</label>
+                <description>Frequency of the input source.</description>
+                <units>Hz</units>
+            </xaxis>
+            <yaxis>
+                <label>Current</label>
+                <description>Current through the pull-down resistor.</description>
+                <units>uA</units>
+                <log>log</log>
+            </yaxis>
+            <component>
+                <xy>1.0 4.0
+1.3333333333333333 4.7622031559045981
+1.6666666666666665 6.0476210394953904
+2.0 8.0
+2.333333333333333 10.885035784924794
+2.6666666666666665 15.119052598738476
+3.0 21.333333333333332
+3.333333333333333 30.478100197789423
+3.6666666666666665 43.982698469057382
+4.0 64.0
+4.333333333333333 93.778769839352066
+4.6666666666666661 138.23133804560885
+5.0 204.80000000000001
+5.333333333333333 304.78100197789422
+5.6666666666666661 455.35029003259382
+6.0 682.66666666666663
+6.333333333333333 1026.6307435044857
+6.6666666666666661 1548.190986110819
+7.0 2340.5714285714284
+7.333333333333333 3546.5425684700417
+7.6666666666666661 5385.0121256028488
+8.0 8192.0
+8.3333333333333321 12483.829841014533
+8.6666666666666661 19054.658290594696
+9.0 29127.111111111109
+9.3333333333333321 44585.106575051897
+9.6666666666666661 68333.946973167185
+10.0 104857.60000000001</xy>
+            </component>
+        </histogram>
+        <histogram id="namevalue">
+            <about>
+                <label>Name value histogram</label>
+                <description>This is an example of a name value histogram.</description>
+                <type>scatter</type>
+            </about>
+            <xaxis>
+                <label>Time</label>
+                <description>Time during the experiment.</description>
+                <units>s</units>
+            </xaxis>
+            <yaxis>
+                <label>Voltage v(11)</label>
+                <description>Output from the amplifier.</description>
+                <units>V</units>
+            </yaxis>
+            <component>
+                <xy>&quot;Bengal Tigers&quot; 0.27015115293406988
+&quot;Bears&quot; -0.13871561218238079
+&quot;Lions&quot; -0.24749812415011135
+&quot;Monkeys&quot; -0.13072872417272238
+&quot;Hawks&quot; 0.047277030910537705
+&quot;Elephants&quot; 0.13716718380719514
+&quot;Foxes&quot; 0.094237781792913075
+&quot;Geckos&quot; -0.016166670423179281
+&quot;Zebras&quot; -0.0911130261884677
+&quot;Giraffes&quot; -0.076279229916041136</xy>
+            </component>
+        </histogram>
+        <histogram id="width">
+            <about>
+                <label>Variable-Width histogram</label>
+                <description>This is an example of an &lt;xhw&gt; histogram.</description>
+            </about>
+            <xaxis>
+                <label>Time</label>
+                <description>Time during the experiment.</description>
+                <units>s</units>
+            </xaxis>
+            <yaxis>
+                <label>Voltage v(11)</label>
+                <description>Output from the amplifier.</description>
+                <units>V</units>
+            </yaxis>
+            <component>
+                <xhw>&quot;Bengal Tigers&quot; 1.0 0.10000000000000001
+&quot;Bears&quot; 2.0 0.20000000000000001
+&quot;Lions&quot; 3.0 0.29999999999999999
+&quot;Monkeys&quot; 4.0 0.40000000000000002
+&quot;Hawks&quot; 5.0 0.5
+&quot;Elephants&quot; 6.0 0.59999999999999998
+&quot;Foxes&quot; 7.0 0.69999999999999996
+&quot;Geckos&quot; 8.0 0.80000000000000004
+&quot;Zebras&quot; 9.0 0.90000000000000002
+&quot;Giraffes&quot; 10.0 1.0</xhw>
+            </component>
+        </histogram>
+        <time>Wed Feb 15 00:42:26 2017 EST</time>
+        <status>0</status>
+        <user>mmh</user>
+        <host></host>
+    </output>
+</run>

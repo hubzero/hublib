@@ -7,14 +7,8 @@ from .. import ureg, Q_
 import matplotlib
 import matplotlib.pyplot as plt
 from IPython.display import display
-
-
-def efind(elem, path):
-    try:
-        text = elem.find(path).text
-    except:
-        text = ""
-    return text
+from .node import Node
+from .util import efind
 
 
 class CInfo:
@@ -34,69 +28,79 @@ class CInfo:
         self.type = efind(elem, "about/type")
 
 
-def curve_plot(elem, ax=None):
-    """
-    Plot a rappture curve
-    """
-    plt.style.use('ggplot')
+class Curve(Node):
+    def __init__(self, tree, path, elem=None):
+        self.tree = tree
+        self.path = path
+        self.elem = elem
 
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+    def plot(self, single=False, ax=None):
+        elem = self.elem
 
-    ci = CInfo(elem)
-    xy_elem = elem.find('component/xy')
-    data = np.fromstring(xy_elem.text, sep=' \n').reshape(-1, 2)
-    ax.plot(data[:, 0], data[:, 1])
+        if single is False and elem.find("about/group") is not None:
+            return self.mplot(ax=ax)
 
-    ax.set_title(ci.label)
+        """
+        Plot a rappture curve
+        """
+        plt.style.use('ggplot')
 
-    lab = ci.xlab
-    if ci.xunits:
-        lab += " [%s]" % ci.xunits
-    ax.set_xlabel(lab)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
 
-    lab = ci.ylab
-    if ci.yunits:
-        lab += " [%s]" % ci.yunits
-    ax.set_ylabel(lab)
-
-
-def get_group_list(parent, gname):
-    glist = []
-    for child in parent:
-        group = child.find("about/[group='%s']" % gname)
-        if group is not None:
-            glist.append(child)
-    return glist
-
-
-def mcurve_plot(elem, ax=None):
-    plt.style.use('ggplot')
-
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-
-    parent = elem.find('..')
-    ci = CInfo(elem)
-    glist = get_group_list(parent, ci.group)
-    if len(glist) < 2:
-        return curve_plot(elem, ax)
-    for elem in glist:
+        ci = CInfo(elem)
         xy_elem = elem.find('component/xy')
-        label = efind(elem, "about/label")
         data = np.fromstring(xy_elem.text, sep=' \n').reshape(-1, 2)
-        ax.plot(data[:, 0], data[:, 1], label=label)
-        ax.legend()
-    ax.set_title(ci.desc)
+        ax.plot(data[:, 0], data[:, 1])
 
-    lab = ci.xlab
-    if ci.xunits:
-        lab += " [%s]" % ci.xunits
-    ax.set_xlabel(lab)
+        ax.set_title(ci.label)
 
-    lab = ci.ylab
-    if ci.yunits:
-        lab += " [%s]" % ci.yunits
-    ax.set_ylabel(lab)
+        lab = ci.xlab
+        if ci.xunits:
+            lab += " [%s]" % ci.xunits
+        ax.set_xlabel(lab)
+
+        lab = ci.ylab
+        if ci.yunits:
+            lab += " [%s]" % ci.yunits
+        ax.set_ylabel(lab)
+
+    def get_group_list(self, parent, gname):
+        glist = []
+        for child in parent:
+            group = child.find("about/[group='%s']" % gname)
+            if group is not None:
+                glist.append(child)
+        return glist
+
+    def mplot(self, ax=None):
+        plt.style.use('ggplot')
+        elem = self.elem
+
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+
+        parent = elem.find('..')
+        ci = CInfo(elem)
+        glist = self.get_group_list(parent, ci.group)
+        if len(glist) < 2:
+            return self.plot(single=True, ax=ax)
+        for elem in glist:
+            xy_elem = elem.find('component/xy')
+            label = efind(elem, "about/label")
+            data = np.fromstring(xy_elem.text, sep=' \n').reshape(-1, 2)
+            ax.plot(data[:, 0], data[:, 1], label=label)
+            ax.legend()
+        ax.set_title(ci.desc)
+
+        lab = ci.xlab
+        if ci.xunits:
+            lab += " [%s]" % ci.xunits
+        ax.set_xlabel(lab)
+
+        lab = ci.ylab
+        if ci.yunits:
+            lab += " [%s]" % ci.yunits
+        ax.set_ylabel(lab)
