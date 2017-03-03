@@ -23,9 +23,10 @@ When you click the Simulate button, this tool will produce a single &lt;log&gt; 
     <input/>
     <output>
         <log>This is a log message.</log>
-        <time>Wed Dec 10 01:49:59 EST 2008</time>
-        <status>ok</status>
-        <user>dkearney</user>
+        <log id="output_log">
+            <about><label>Output Log</label></about>
+            This is another log message.
+        </log>
     </output>
 </run>
 

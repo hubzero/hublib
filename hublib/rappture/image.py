@@ -19,6 +19,8 @@ class RapImage(Node):
         if elem is None:
             return
 
+        val = elem.text
+
         compressed_header = '@@RP-ENC:zb64\n'
         hlen = len(compressed_header)
         compressed = False

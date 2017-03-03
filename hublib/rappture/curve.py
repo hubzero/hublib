@@ -29,10 +29,6 @@ class CInfo:
 
 
 class Curve(Node):
-    def __init__(self, tree, path, elem=None):
-        self.tree = tree
-        self.path = path
-        self.elem = elem
 
     def plot(self, single=False, ax=None):
         elem = self.elem

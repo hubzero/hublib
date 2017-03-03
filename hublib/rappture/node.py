@@ -3,13 +3,41 @@ from lxml import etree as ET
 import numpy as np
 from bs4 import BeautifulSoup
 
-from io import BytesIO
+
 import pint
 from .. import ureg, Q_
 from base64 import b64decode, b64encode
 import zlib
 import imghdr
 from IPython.display import HTML
+
+
+"""
+foo = node[path]
+    Looks up path from node and returns a Node.
+
+foo = node[path].value
+    Looks up path from node and creates a Node. calls Node.value()
+
+node[path].display(..)
+    Looks up path from node and creates a Node. calls Node.display()
+
+node[path] = val
+    Looks up path from node and creates a Node. Creates path if necessary.
+    Calls Node._setval()
+
+node[path].value = val
+    Same as previous.
+
+node[path].rvalue = val
+    Looks up path from node and creates a Node. Sets the node text to val (a string)
+
+Dealing with current and default. When looking up a node and its
+tag is 'current' or 'default', the parent Node is returned with self.child
+set to the 'current' or 'default' element.
+
+
+"""
 
 
 def _to_xpath(path):
@@ -52,260 +80,120 @@ def _create_path(root, path):
     return root
 
 
-# Why do we need this? Because elem.text will not see the text that
-# is after child nodes, for example
-# <log><about><label>TEXT</label></about> Here is my log file info... </log>
-def _all_text(elem):
-    s = []
-    if elem.text:
-        s.append(elem.text)
-    for child in elem.getchildren():
-        if child.tail:
-            s.append(child.tail)
-    return ''.join(s)
-
-
-def parse_py_num(val, uelem):
-    # units are rappture units
-    # val is a python string, for example, "100 C", or "100"
-    # OR a number OR a PINT expression
-
-    vunits = ''
-    if hasattr(val, 'units'):
-        vunits = val.units
-
-    if vunits == '':
-        # Not PINT, so just set to string value
-        return str(val)
-
-    if uelem is None or uelem.text == '':
-        # Rappture doesn't want units, but our expression has them!!!!
-        raise ValueError("This Rappture element does not have Units!!")
-
-    # Rappture wants units and we have them
-
-    # convert Rappture units to PINT units
-    if uelem.text == 'C':
-        units = ureg.degC
-    else:
-        units = ureg.parse_expression(uelem.text).units
-
-    # let PINT do the conversion
-    val = val.to(units)
-
-    # return a Rappture-friendly string
-    return '%s %s' % (val.magnitude, uelem.text)
-
-
-def parse_rap_expr(units, val):
-    # units and val are strings from rappture
-    # We need to convert them to PINT expressions
-    # print("PARSE:", units, val)
-    if units is None or units == '':
-        return val
-
-    # Rappture compatibility. C is Celsius, not Coulombs
-    if units == 'C':
-        units = ureg.degC
-    else:
-        units = ureg.parse_expression(units).units
-
-    try:
-        val = ureg.parse_expression(val)
-        if hasattr(val, 'units'):
-            if val.units == ureg.coulomb and (units == ureg.K or units == ureg.degC):
-                # C -> Celsius
-                val = Q_(val.magnitude, ureg.degC)
-            val = val.to(units)
-        else:
-            val = Q_(val, units)
-        return val
-    except:
-        raise ValueError("Bad input value.")
-
-
-# convert XML values to python values
-def _convert(elem, val, magnitude=False, units=False):
-    tag = elem.tag
-    # print("CONVERT", tag, val)
-
-    if tag == 'integer':
-        return int(val)
-
-    if tag == 'boolean':
-        if val in ['true', '1', 'yes', 'on', 1]:
-            return True
-        else:
-            return False
-
-    if tag == 'number':
-        u = elem.find('units')
-        if units:
-            if u is None or u.text == '':
-                return ''
-            return ureg.parse_expression(u.text).units
-        if u is None or u == '':
-            return float(val)
-
-        val = parse_rap_expr(u.text, val)
-        if magnitude:
-            return val.magnitude
-        return val
-
-    if tag == 'xy':
-        return np.fromstring(val, sep=' \n').reshape(-1, 2)
-
-    if tag == 'image':
-        return RapImage(val)
-
-    return val
-
-
-# format python values for writing to Rappture XML
-def _format(elem, val):
-    tag = elem.tag
-    # print("FORMAT", tag, val)
-
-    if tag == 'number':
-        u = elem.find('units')
-        return parse_py_num(val, u)
-
-    if tag == 'boolean':
-        if val in [True, 1, '1', 'true', 'True', 'yes', 'Yes', 'On', 'on']:
-            return 'true'
-        return 'false'
-
-    if tag == 'image':
-        return encode(val)
-
-    if tag == 'xy':
-        if type(val) == np.ndarray:
-            s = BytesIO()
-            np.savetxt(s, val, fmt='%.6e %.6e', newline="\n")
-            return s.getvalue()
-        elif type(val) == list or type(val) == tuple:
-            val = '\n'.join([' '.join(map(repr, x)) for x in zip(*val)])
-            # we need the strings double quoted for tcl
-            return val.replace("'", '"')
-
-    return str(val)
-
-
 class Node(object):
-    def __init__(self, tree, path, elem=None):
+    def __init__(self, tree, path, elem=None, child=None):
         self.tree = tree
         self.path = path
         self.elem = elem
+        self.child = child
 
-    def create(self, path):
-        xpath = _to_xpath(path)
-        x = self.tree.find(xpath)
-
-        if x is None:
-            return Node(self.tree, path)
-        if x.tag == 'curve':
-            return Curve(self.tree, path, x)
-        if x.tag == 'structure':
-            return Structure(self.tree, path, x)
-        if x.tag == 'histogram':
-            return Histogram(self.tree, path, x)
-        if x.tag == 'image':
-            return RapImage(self.tree, path, x)
-
-        return Node(self.tree, path, x)
-
-    def __setitem__(self, path, val):
+    def create(self, path='', create=False):
+        print("Create", self.path, path)
         if self.path != '':
-            path = self.path + '.' + path
+            if path != '':
+                path = self.path + '.' + path
+            else:
+                path = self.path
 
-        # print("PUT: path=", path)
-        x = _create_path(self.tree.getroot(), path)
+        print("create", path)
+        # find the xml element from a node path
+        xpath = _to_xpath(path)
+        if create:
+            x = _create_path(self.tree.getroot(), path)
+        else:
+            x = self.tree.find(xpath)
+
         if x is None:
-            return False
-        # print("PUT:", x, x.tag)
+            return None
 
         if x.tag == 'current' or x.tag == 'default':
-            elem = x.find('..')
-            # print("x=%s elem=%s" % (x, elem))
+            child = x
+            x = child.find('..')
         else:
-            # If there is a 'current' child, set that.
-            elem = x
-            x = elem.find('current')
-            if x is None:
-                x = elem
-        # print("setting %s to %s" % (elem, val))
-        x.text = _format(elem, val)
+            child = x.find('current')
+
+        # Create an object corresponding to the tag.
+        if x.tag == 'curve':
+            return Curve(self.tree, path, x, child)
+        if x.tag == 'number':
+            return Number(self.tree, path, x, child)
+        if x.tag == 'integer':
+            return RapInt(self.tree, path, x, child)
+        if x.tag == 'boolean':
+            return RapBool(self.tree, path, x, child)
+        if x.tag == 'structure':
+            return Structure(self.tree, path, x, child)
+        if x.tag == 'histogram':
+            return Histogram(self.tree, path, x, child)
+        if x.tag == 'image':
+            return RapImage(self.tree, path, x, child)
+        if x.tag == 'xy':
+            return XY(self.tree, path, x, child)
+        if x.tag == 'min' or x.tag == 'max':
+            return RapMinMax(self.tree, path, x, child)
+        if x.tag == 'log':
+            return RapLog(self.tree, path, x, child)
+
+        return Node(self.tree, path, x, child)
+
+    def __setitem__(self, path, val):
+        print("SETITEM ", self.tree, self.path, path, val)
+        n = self.create(path, create=True)
+        if n is None:
+            return False
+        print(n, n.elem, n.elem.tag)
+        n.value = val
         return True
 
     def __getitem__(self, path):
-        # print("GETITEM ", self.tree, self.path, path)
-        if self.path != '':
-            path = self.path + '.' + path
+        print("GETITEM ", self.tree, self.path, path)
         return self.create(path)
 
-    def _value(self, magnitude=False, units=False):
-        xpath = _to_xpath(self.path)
-        x = self.tree.find(xpath)
-        if x is None:
-            return None
-        if x.tag == 'current' or x.tag == 'default':
-            elem = x.find('..')
-            val = _all_text(x)
+    # Why do we need this? Because elem.text will not see the text that
+    # is after child nodes, for example
+    # <log><about><label>TEXT</label></about> Here is my log file info... </log>
+    # Probably only need for log messages
+    def all_text(self):
+        s = []
+        if self.elem.text:
+            s.append(self.elem.text)
+        for child in self.elem.getchildren():
+            if child.tail:
+                s.append(child.tail)
+        return ''.join(s).strip()
+
+    # get text from a Node or its child(current or default) if present
+    def get_text(self):
+        if self.child is not None:
+            return self.child.text
+        return self.elem.text
+
+    # set text in a Node or its child(current or default) if present
+    def set_text(self, val):
+        if self.child is not None:
+            self.child.text = val
         else:
-            elem = x
-            current = x.find('current')
-            if current is None:
-                val = _all_text(x)
-            else:
-                val = _all_text(current)
-        return _convert(elem, val, magnitude, units)
+            self.elem.text = val
 
     @property
     def value(self):
-        return self._value()
+        return self.rvalue
 
-    @property
-    def magnitude(self):
-        return self._value(magnitude=True)
-
-    @property
-    def units(self):
-        return self._value(units=True)
+    @value.setter
+    def value(self, val):
+        self.set_text(str(val))
 
     @property
     def rvalue(self):
-        xpath = _to_xpath(self.path)
-        x = self.tree.find(xpath)
-        if x is None:
-            return None
-        if x.tag == 'current' or x.tag == 'default':
-            val = _all_text(x)
-        else:
-            tag = x.tag
-            current = x.find('current')
-            if current is None:
-                val = _all_text(x)
-            else:
-                val = _all_text(current)
-        return val
+        return self.get_text()
+
+    @rvalue.setter
+    def rvalue(self, val):
+        self.set_text(val)
 
     @property
     def name(self):
         return self.path
-
-    def plot(self, single=False, **kwargs):
-        """
-        Plots a curve, curve group, structure(molecule), or histogram.
-
-        :param single: Plot just a single curve instead of an entire group.
-        """
-        xpath = _to_xpath(self.path)
-        elem = self.tree.find(xpath)
-
-        if elem.tag == 'histogram':
-            return hist_plot(elem, **kwargs)
-
-        return
 
     def __str__(self):
         return("%s['%s']" % (self.tree, self.path))
@@ -347,3 +235,5 @@ from .curve import Curve
 from .structure import Structure
 from .hist import Histogram
 from .image import RapImage
+from .number import Number
+from .integer import RapInt, RapBool, XY, RapMinMax, RapLog

@@ -94,3 +94,35 @@ class TestBoolean:
         assert self.io['output.boolean(outb1)'].value is True
         assert self.io['output.boolean(outb2)'].value is True
         assert self.io['output.boolean(outb3)'].value is True
+
+    def test_write_values_current(self):
+        self.io['input.boolean(iimodel)'] = True
+        self.io['input.boolean(iimodel1)'] = True
+        self.io['input.boolean(iimodel2)'] = False
+        self.io['input.boolean(iimodel3)'] = False
+
+        assert self.io['input.boolean(iimodel).current'].value == True
+        assert self.io['input.boolean(iimodel1).current'].value == True
+        assert self.io['input.boolean(iimodel2).current'].value == False
+        assert self.io['input.boolean(iimodel3).current'].value == False
+
+    def test_write_values_current2(self):
+        self.io['input.boolean(iimodel)'] = False
+        self.io['input.boolean(iimodel1)'] = True
+        self.io['input.boolean(iimodel2)'] = False
+        self.io['input.boolean(iimodel3)'] = True
+
+        assert self.io['input.boolean(iimodel)'].value == False
+        assert self.io['input.boolean(iimodel1)'].value == True
+        assert self.io['input.boolean(iimodel2)'].value == False
+        assert self.io['input.boolean(iimodel3)'].value == True
+
+    def test_write_rvalues_current(self):
+        self.io['input.boolean(iimodel)'].rvalue = 'on'
+        self.io['input.boolean(iimodel1)'].rvalue = 'true'
+        self.io['input.boolean(iimodel2)'].rvalue = 'False'
+        self.io['input.boolean(iimodel3)'].rvalue = 'off'
+        assert self.io['input.boolean(iimodel).current'].rvalue == 'on'
+        assert self.io['input.boolean(iimodel1).current'].rvalue == 'true'
+        assert self.io['input.boolean(iimodel2).current'].rvalue == 'False'
+        assert self.io['input.boolean(iimodel3).current'].rvalue == 'off'

@@ -17,3 +17,13 @@ class TestLog:
         val = self.io['output.log'].value
         expected = "This is a log message."
         assert val == expected
+
+    def test_log2(self):
+        val = self.io['output.log(output_log)'].value
+        expected = "This is another log message."
+        assert val == expected
+
+    def test_log3(self):
+        log = self.io['output.log(output_log)']
+        assert log['about/label'].value == "Output Log"
+
