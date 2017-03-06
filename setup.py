@@ -97,17 +97,17 @@ setup(
     url='https://github.com/martin-hunt/hublib',
     license='MIT Software License',
     author='Martin Hunt',
-    install_requires=['ipywidgets>5.2'
-                    ],
+    install_requires=['ipywidgets>5.2'],
     author_email='mmh@purdue.edu',
     description='Python library for HUBzero Jupyter Notebooks',
     long_description=long_description,
-    packages=['hublib', 'hublib.uq', 'hublib.ui', 'hublib.tool', 'hublib.use'],
+    packages=['hublib', 'hublib.uq', 'hublib.ui',
+              'hublib.tool', 'hublib.use', 'hublib.rappture'],
     include_package_data=True,
     platforms='any',
     tests_require=['pytest-cov', 'pytest'],
     cmdclass=cmdclass,
-    classifiers = [
+    classifiers=[
         'Programming Language :: Python',
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
