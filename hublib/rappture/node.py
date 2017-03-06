@@ -40,9 +40,28 @@ set to the 'current' or 'default' element.
 """
 
 
+# parse a rappture path and return a list
+def _parse_rappath(path):
+    a = ""
+    res = []
+    paren = False
+    for s in path:
+        if s == '.' and paren is False:
+            res.append(a)
+            a = ""
+        else:
+            a += s
+            if s == '(':
+                paren = True
+            elif s == ')':
+                paren = False
+    res.append(a)
+    return res
+
+
 def _to_xpath(path):
     xpath = []
-    for a in path.split('.'):
+    for a in _parse_rappath(path):
         par = a.find('(')
         if par > -1:
             id = a[par+1:-1]
@@ -88,14 +107,14 @@ class Node(object):
         self.child = child
 
     def create(self, path='', create=False):
-        print("Create", self.path, path)
+        # print("Create", self.path, path)
         if self.path != '':
             if path != '':
                 path = self.path + '.' + path
             else:
                 path = self.path
 
-        print("create", path)
+        # print("create", path)
         # find the xml element from a node path
         xpath = _to_xpath(path)
         if create:
@@ -137,16 +156,15 @@ class Node(object):
         return Node(self.tree, path, x, child)
 
     def __setitem__(self, path, val):
-        print("SETITEM ", self.tree, self.path, path, val)
+        # print("SETITEM ", self.tree, self.path, path, val)
         n = self.create(path, create=True)
         if n is None:
             return False
-        print(n, n.elem, n.elem.tag)
         n.value = val
         return True
 
     def __getitem__(self, path):
-        print("GETITEM ", self.tree, self.path, path)
+        # print("GETITEM ", self.tree, self.path, path)
         return self.create(path)
 
     # Why do we need this? Because elem.text will not see the text that

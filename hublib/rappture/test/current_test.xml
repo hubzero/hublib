@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<run>
+    <input>
+        <number id="temperature">
+            <about>
+                <label>Ambient temperature</label>
+                <description>This is the temperature in the environment around the device.</description>
+            </about>
+            <units>K</units>
+            <min>50K</min>
+            <max>1000K</max>
+            <default>300K</default>
+            <preset>
+                <value>300K</value>
+                <label>300K (room temperature)</label>
+            </preset>
+            <preset>
+                <value>77K</value>
+                <label>77K (liquid nitrogen)</label>
+            </preset>
+            <current>300K</current>
+        </number>
+        <number id="temperature2">
+            <about>
+                <label>Ambient Temperature Celsius</label>
+                <description>This is the temperature in the environment around the device.</description>
+            </about>
+            <units>C</units>
+            <min>50K</min>
+            <max>1000K</max>
+            <default>300K</default>
+            <preset>
+                <value>300K</value>
+                <label>300K (room temperature)</label>
+            </preset>
+            <preset>
+                <value>77K</value>
+                <label>77K (liquid nitrogen)</label>
+            </preset>
+            </number>
+        <number id="temperature3">
+            <about>
+                <label>Ambient Temperature Current No Units</label>
+                <description>This is the temperature in the environment around the device.</description>
+            </about>
+            <units>C</units>
+            <min>50K</min>
+            <max>1000K</max>
+            <default>300K</default>
+            <preset>
+                <value>300K</value>
+                <label>300K (room temperature)</label>
+            </preset>
+            <preset>
+                <value>77K</value>
+                <label>77K (liquid nitrogen)</label>
+            </preset>
+            <current>222</current>
+        </number>
+        <number id="temperature4">
+            <about>
+                <label>Ambient Temperature Unitless</label>
+                <description>This is the temperature in the environment around the device.</description>
+            </about>
+            <min>50</min>
+            <max>1000</max>
+            <default>333</default>
+            <preset>
+                <value>300</value>
+                <label>300 (room temperature)</label>
+            </preset>
+            <preset>
+                <value>77</value>
+                <label>77 (liquid nitrogen)</label>
+            </preset>
+        </number>
+        <separator/>
+        <number id="vsweep">
+            <about>
+                <label>Voltage Sweep +/-</label>
+                <description>This determines the voltage sweep used to obtain results from the model.</description>
+                <icon>
+R0lGODlhGgASAKEBAAAAAP///////////yH+FUNyZWF0ZWQgd2l0aCBUaGUgR0lNUAAh+QQBCgAB
+ACwAAAAAGgASAAACLoyPqcvtD8CRj8VZrYw8h/tRn2eA4Eiaosa1qttC1EmW81qrtbYvdG8DCodE
+RQEAOw==
+      </icon>
+            </about>
+            <units>V</units>
+            <min>0V</min>
+            <max>10V</max>
+            <default>4V</default>
+            <color>purple</color>
+        </number>
+    </input>
+    <output>
+        <number id="outt">
+            <about>
+                <label>Ambient temperature</label>
+                <description>This is the temperature in the environment around the device.</description>
+            </about>
+            <units>K</units>
+            <min>50K</min>
+            <max>1000K</max>
+            <default>300K</default>
+            <preset>
+                <value>300K</value>
+                <label>300K (room temperature)</label>
+            </preset>
+            <preset>
+                <value>77K</value>
+                <label>77K (liquid nitrogen)</label>
+            </preset>
+            <current>300K</current>
+        </number>
+        <number id="outv">
+            <about>
+                <label>Voltage Sweep +/-</label>
+                <description>This determines the voltage sweep used to obtain results from the model.</description>
+                <icon>
+R0lGODlhGgASAKEBAAAAAP///////////yH+FUNyZWF0ZWQgd2l0aCBUaGUgR0lNUAAh+QQBCgAB
+ACwAAAAAGgASAAACLoyPqcvtD8CRj8VZrYw8h/tRn2eA4Eiaosa1qttC1EmW81qrtbYvdG8DCodE
+RQEAOw==
+      </icon>
+            </about>
+            <units>V</units>
+            <min>0V</min>
+            <max>10V</max>
+            <default>4V</default>
+            <color>purple</color>
+            <current>4V</current>
+        </number>
+        <time>Wed Dec 10 01:54:42 EST 2008</time>
+        <status>ok</status>
+        <user>dkearney</user>
+    </output>
+</run>
+

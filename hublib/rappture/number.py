@@ -49,12 +49,12 @@ class Number(Node):
 
     @property
     def value(self):
-        print("GET NUMBER VALUE")
+        # print("GET NUMBER VALUE")
         return self.text_to_number()
 
     @value.setter
     def value(self, val):
-        print("SET NUMBER VALUE to", val)
+        # print("SET NUMBER VALUE to", val)
 
         vunits = ''
         if hasattr(val, 'units'):

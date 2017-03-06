@@ -40,6 +40,17 @@ class RapXML(Node):
         self.fname = fname
         self.tree = ET.parse(fname)
         self.path = ''
+        self.copy_defaults()
+
+    def copy_defaults(self):
+        # When loading an XML file, check the input section and copy any missing
+        # <current> values from their <default>
+        for default in self.tree.findall("input//default"):
+            current = default.find("../current")
+            if current is None:
+                par = default.find("..")
+                current = ET.SubElement(par, 'current')
+                current.text = default.text
 
     def _repr_html_(self):
         return self.info('all')._repr_html_()
