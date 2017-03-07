@@ -16,11 +16,6 @@ from .node import Node
 
 class Structure(Node):
 
-    def __init__(self, tree, path, elem=None):
-        self.tree = tree
-        self.path = path
-        self.elem = elem
-
     def plot(self):
         """
         Display a rappture structure
