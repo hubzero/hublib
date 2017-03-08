@@ -48,8 +48,14 @@ class Curve(Node):
         ci = CInfo(elem)
         xy_elem = elem.find('component/xy')
         data = np.fromstring(xy_elem.text, sep=' \n').reshape(-1, 2)
-        ax.plot(data[:, 0], data[:, 1])
-
+        if ci.xscale == 'log':
+            ax.set_xscale('log')
+        if ci.yscale == 'log':
+            ax.set_yscale('log')
+        if ci.type == 'scatter':
+            ax.scatter(data[:, 0], data[:, 1])
+        else:
+            ax.plot(data[:, 0], data[:, 1])
         ax.set_title(ci.label)
 
         lab = ci.xlab
@@ -87,7 +93,14 @@ class Curve(Node):
             xy_elem = elem.find('component/xy')
             label = efind(elem, "about/label")
             data = np.fromstring(xy_elem.text, sep=' \n').reshape(-1, 2)
-            ax.plot(data[:, 0], data[:, 1], label=label)
+            if ci.xscale == 'log':
+                ax.set_xscale('log')
+            if ci.yscale == 'log':
+                ax.set_yscale('log')
+            if ci.type == 'scatter':
+                ax.scatter(data[:, 0], data[:, 1], label=label)
+            else:
+                ax.plot(data[:, 0], data[:, 1], label=label)
             ax.legend()
         ax.set_title(ci.desc)
 

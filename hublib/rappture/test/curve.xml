@@ -126,57 +126,12 @@ When you click the Simulate button, the inputs will be used to generate output c
 </xy>
             </component>
         </curve>
-        <curve id="multiA">
-            <about>
-                <group>Multiple Curve 2</group>
-                <label>Factor a=1</label>
-                <description>This is an example of multiple curves on the same plot.</description>
-            </about>
-            <xaxis>
-                <label>Frequency</label>
-                <description>Frequency of the input source.</description>
-                <units>Hz</units>
-                <scale>log</scale>
-            </xaxis>
-            <yaxis>
-                <label>Current</label>
-                <description>Current through the pull-down resistor.</description>
-                <units>uA</units>
-                <scale>log</scale>
-            </yaxis>
-            <component>
-                <xy>0.01 100.695555006
-1.009 1.9945645659
-2.008 2.00310872589
-3.007 2.67339892364
-4.006 4.01065419167
-5.005 6.41580338707
-6.004 10.689155879
-7.003 18.3159282379
-8.002 32.036383087
-9.001 56.9220102634
-</xy>
-            </component>
-        </curve>
-        <curve id="multiB">
-            <about>
-                <group>Multiple Curve 2</group>
-                <label>Factor a=2</label>
-                <description>This is an example of multiple curves on the same plot.</description>
-            </about>
-            <xaxis>
-                <label>Frequency</label>
-                <description>Frequency of the input source.</description>
-                <units>Hz</units>
-                <scale>log</scale>
-            </xaxis>
-            <yaxis>
-                <label>Current</label>
-                <description>Current through the pull-down resistor.</description>
-                <units>uA</units>
-                <scale>log</scale>
-            </yaxis>
-            <component>
+
+        <curve id="scatterplot">
+        <about>
+            <type>scatter</type>
+        </about>
+               <component>
                 <xy>0.01 101.395947979
 1.009 4.01409239782
 2.008 8.05698869204
@@ -188,8 +143,8 @@ When you click the Simulate button, the inputs will be used to generate output c
 8.002 8212.69139005
 9.001 29164.2773871
 </xy>
-            </component>
-        </curve>
+            </component>     
+    </curve>
         <time>Wed Dec 10 00:40:46 EST 2008</time>
         <status>ok</status>
         <user>dkearney</user>
