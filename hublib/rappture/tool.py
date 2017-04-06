@@ -3,7 +3,7 @@ from .node import Node
 import numpy as np
 from lxml import etree as ET
 import os
-import subprocess
+from subprocess import call, Popen, PIPE
 import sys
 from .rappture import RapXML
 from hublib.use import _use
@@ -49,20 +49,20 @@ class Tool(RapXML):
         - Name of a published tool.  The current version will be run.
 
         """
-        dirname, xml = os.path.split(tool)
+        dirname, toolname = os.path.split(tool)
         if dirname == "":
-            if xml != "tool.xml":
+            if toolname != "tool.xml":
                 # must be tool name
-                dirname = "/apps/%s/current" % xml
-                xml = dirname + "/rappture/tool.xml"
+                dirname = "/apps/%s/current" % toolname
+                toolname = dirname + "/rappture/tool.xml"
             else:
                 dirname = os.getcwd()
         else:
-            xml = tool
+            toolname = tool
             dirname = os.path.abspath(os.path.join(dirname, '..'))
 
-        xml = os.path.abspath(xml)
-        if not os.path.isfile(xml):
+        toolname = os.path.abspath(toolname)
+        if not os.path.isfile(toolname):
             raise ValueError("tool must be a toolname or path to a tool.xml file.")
 
         self.bin = os.path.join(dirname, 'bin')
@@ -82,10 +82,13 @@ class Tool(RapXML):
         sessdir = os.environ['SESSIONDIR']
         self.tmp_name = os.path.join(sessdir, 'tool_driver_%s.xml' % os.getpid())
         self.run_name = os.path.join(sessdir, 'tool_run_%s.xml' % os.getpid())
-        self.fname = xml
-        self.tree = ET.parse(xml)
-        self.path = ''
+        self.dirname = dirname
+        self.tool = toolname
+        RapXML.__init__(self, toolname)
 
+    def load(self, fname):
+        # FIXME: parse and set all elemments with current values
+        RapXML.__init__(self, fname)
 
     def run(self, verbose=False):
         # print("Writing", self.tmp_name)
@@ -94,27 +97,39 @@ class Tool(RapXML):
 
         if self.bin:
             cmd = "PATH=%s:$PATH /apps/bin/rappture -execute %s -tool %s > %s" % \
-                (self.bin, self.tmp_name, self.fname, self.run_name)
+                (self.bin, self.tmp_name, self.tool, self.run_name)
         else:
             cmd = "/apps/bin/rappture -execute %s -tool %s > %s" % \
-                (self.tmp_name, self.fname, self.run_name)
-
-        if verbose:
-            print("cmd=", cmd)
+                (self.tmp_name, self.tool, self.run_name)
 
         cwd = os.getcwd()
         os.chdir(os.environ['SESSIONDIR'])
-        try:
-            ret = subprocess.call(cmd, shell=True)
-            if ret:
-                print('Error: "%s"' % cmd, file=sys.stderr)
-                if ret < 0:
-                    print("Terminated by signal", -ret, file=sys.stderr)
-                else:
-                    print("Returncode", ret, file=sys.stderr)
-        except OSError as e:
+        failed = False
+
+        if verbose:
+            print("cmd=", cmd)
+            try:
+                p1 = Popen(cmd, shell=True, stderr=PIPE)
+                print(p1.communicate()[1])
+                ret = p1.returncode
+            except OSError as e:
+                failed = e
+        else:
+            try:
+                ret = call(cmd, shell=True)
+            except OSError as e:
+                failed = e
+
+        if failed:
             print('Error: "%s"' % cmd, file=sys.stderr)
-            print("Failed:", e, file=sys.stderr)
+            print("Failed:", failed, file=sys.stderr)
             sys.exit(1)
+
+        if ret:
+            print('Error: "%s"' % cmd, file=sys.stderr)
+            if ret < 0:
+                print("Terminated by signal", -ret, file=sys.stderr)
+            else:
+                print("Returncode", ret, file=sys.stderr)
         os.chdir(cwd)
         self.tree = ET.parse(self.run_name)

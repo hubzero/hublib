@@ -232,7 +232,7 @@ class Node(object):
             elem = self.tree.find(xpath)
         xml = ET.tostring(elem, pretty_print=pretty)
         if header is True:
-            xml = '<?xml version="1.0"?>\n' + xml
+            xml = b'<?xml version="1.0"?>\n' + xml
         return XMLOut(xml)
 
 

@@ -19,7 +19,6 @@ def setenv(line):
     name, val = line
     os.environ[name] = val
 
-
 def prepend(line):
     name, val = line
     try:
@@ -29,13 +28,11 @@ def prepend(line):
         pass
     os.environ[name] = val
 
-
 def _set(a, b):
     global d
     t = Template(b)
     b = t.safe_substitute(d)
     d[a] = b
-
 
 def _use(name):
     if not name[0] == '.':
