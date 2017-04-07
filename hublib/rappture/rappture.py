@@ -9,6 +9,7 @@
 #  redistribution of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # ======================================================================
 from __future__ import print_function
+import os
 from .node import Node
 import numpy as np
 from lxml import etree as ET
@@ -181,6 +182,7 @@ class RapXMLInfo(object):
 
     @staticmethod
     def loader_html(llist, dirname):
+        # print("LOADER: dirname=%s llist=%s" % (dirname, llist))
         s = "<h3>Loaders</h3><table>"
         for val in llist:
             rnum = 0
@@ -192,7 +194,7 @@ class RapXMLInfo(object):
                 s += '<tr bgcolor="%s"><td>%s</td></tr>' % (bg, val)
                 rnum += 1
             else:
-                path = '%s/rappture/examples/%s' % (dirname, val)
+                path = '%s/examples/%s' % (dirname, val)
                 for file in glob(path):
                     if rnum % 2:
                         bg = '#ffffff'
@@ -235,7 +237,8 @@ class RapXMLInfo(object):
         if self.ilist:
             outstr += RapXMLInfo.html_info(self.ilist, 'INPUTS')
             if self.llist:
-                outstr += RapXMLInfo.loader_html(self.llist, self.parent.dirname)
+                tdir = os.path.split(self.parent.tool)[0]
+                outstr += RapXMLInfo.loader_html(self.llist, tdir)
 
         if self.olist:
             outstr += RapXMLInfo.html_info(self.olist, 'OUTPUTS')
