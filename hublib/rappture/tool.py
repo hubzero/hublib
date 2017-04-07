@@ -7,6 +7,8 @@ from subprocess import call, Popen, PIPE
 import sys
 from .rappture import RapXML
 from hublib.use import _use
+from .loader import loader
+
 
 def get_info(tname):
     modlist = []
@@ -39,6 +41,7 @@ def get_invoke_line(f):
         if first.endswith('invoke_app'):
             return line
         line = ""
+
 
 class Tool(RapXML):
     def __init__(self, tool):
@@ -87,8 +90,8 @@ class Tool(RapXML):
         RapXML.__init__(self, toolname)
 
     def load(self, fname):
-        # FIXME: parse and set all elemments with current values
-        RapXML.__init__(self, fname)
+        loader(self, fname)
+
 
     def run(self, verbose=False):
         # print("Writing", self.tmp_name)
