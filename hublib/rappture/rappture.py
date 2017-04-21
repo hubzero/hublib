@@ -16,6 +16,10 @@ from lxml import etree as ET
 from bs4 import BeautifulSoup
 from .util import efind
 from glob import glob
+import pint
+from .. import ureg, Q_
+import re
+from .loader import RapLoader
 
 def get_elem_info(elem):
     try:
@@ -40,22 +44,32 @@ def get_elem_info(elem):
 class RapXML(Node):
     def __init__(self, fname):
         self.fname = fname
-        self.tree = ET.parse(fname)
+        parser = ET.XMLParser(remove_comments=True)
+        self.tree = ET.parse(fname, parser)
         self.path = ''
-        self.copy_defaults()
-        if not hasattr(self, 'dirname'):
-            self.dirname = None
         self.info = None
+        if hasattr(self, 'dirname'):
+            # only Tools have dirname
+            self.load_loaders()
+            RapLoader.copy_defaults(self.tree)
+        else:
+            self.dirname = None
 
-    def copy_defaults(self):
-        # When loading an XML file, check the input section and copy any missing
-        # <current> values from their <default>
-        for default in self.tree.findall("input//default"):
-            current = default.find("../current")
+
+    def load_loaders(self):
+        # now load all the default loaders
+        for loader in self.tree.findall("input//loader"):
+            default = loader.find("default")
+            current = loader.find("current")
             if current is None:
-                par = default.find("..")
-                current = ET.SubElement(par, 'current')
-                current.text = default.text
+                current = ET.SubElement(loader, 'current')
+
+            for ex in loader.findall('example'):
+                path = os.path.join(self.dirname, "rappture", "examples", ex.text)
+                for file in glob(path):
+                    if os.path.basename(file) == default.text:
+                        RapLoader.load(self.tree, loader, current, file)
+                        return
 
     def _repr_html_(self):
         self.info = RapXMLInfo(self)
@@ -82,7 +96,8 @@ class RapXMLInfo(object):
     def __init__(self, parent, section=''):
         self.ilist = []
         self.olist = []
-        self.llist = []
+        self.llist = {}
+        self.lpath = {}
         self.cgroups = {}
         self.parent = parent
 
@@ -108,9 +123,19 @@ class RapXMLInfo(object):
         else:
             self.olist.append((path, elem))
 
-    def parse_loader(self, elem):
-        for ex in elem.findall('example'):
-            self.llist.append(ex.text)
+    def parse_loader(self, elem, path):
+        try:
+            label = elem.find('about/label').text
+            # print("LOADER: label=%s path=%s" % (label, path))
+            for ex in elem.findall('example'):
+                if label in self.llist:
+                    self.llist[label].append(ex.text)
+                else:
+                    self.llist[label] = [ex.text]
+                    self.lpath[label] = path + '.loader'
+        except:
+            pass
+
 
     def parse_elem(self, path, elem):
         # print("parse:", path, elem.tag)
@@ -139,7 +164,7 @@ class RapXMLInfo(object):
                 else:
                     self.cgroups[group.text] = [(elem, path)]
         elif elem.tag == 'loader':
-            self.parse_loader(elem)
+            self.parse_loader(elem, path)
         else:
             if path == '':
                 path += elem.tag
@@ -181,28 +206,33 @@ class RapXMLInfo(object):
         return s
 
     @staticmethod
-    def loader_html(llist, dirname):
-        # print("LOADER: dirname=%s llist=%s" % (dirname, llist))
-        s = "<h3>Loaders</h3><table>"
-        for val in llist:
-            rnum = 0
-            if dirname is None:
-                if rnum % 2:
-                    bg = '#ffffff'
-                else:
-                    bg = '#dddddd'
-                s += '<tr bgcolor="%s"><td>%s</td></tr>' % (bg, val)
-                rnum += 1
-            else:
-                path = '%s/examples/%s' % (dirname, val)
-                for file in glob(path):
+    def loader_html(llist, lpath, dirname):
+        s = "<h3>LOADERS</h3>\n"
+        for key in llist:
+            s += '<table><tr bgcolor="#cccccc"><th>%s</th><th>Label</th>\n' % lpath[key]
+            for path in llist[key]:
+                rnum = 0
+                if dirname is None:
                     if rnum % 2:
                         bg = '#ffffff'
                     else:
                         bg = '#dddddd'
-                    s += '<tr bgcolor="%s"><td>%s</td></tr>' % (bg, file)
+                    s += '<tr bgcolor="%s"><td>%s</td><td>%s</td></tr>' % (bg, path, desc)
                     rnum += 1
-        s += '</table>'
+                else:
+                    path = '%s/examples/%s' % (dirname, path)
+                    for file in glob(path):
+                        if file.endswith('.'):
+                            continue
+                        if rnum % 2:
+                            bg = '#ffffff'
+                        else:
+                            bg = '#dddddd'
+                        r = ET.parse(file).getroot()
+                        desc = r.find('about/label').text
+                        s += '<tr bgcolor="%s"><td>%s</td><td>%s</td></tr>' % (bg, file, desc)
+                        rnum += 1
+            s += '</table>\n'
         return s
 
     @staticmethod
@@ -238,7 +268,7 @@ class RapXMLInfo(object):
             outstr += RapXMLInfo.html_info(self.ilist, 'INPUTS')
             if self.llist:
                 tdir = os.path.split(self.parent.tool)[0]
-                outstr += RapXMLInfo.loader_html(self.llist, tdir)
+                outstr += RapXMLInfo.loader_html(self.llist, self.lpath, tdir)
 
         if self.olist:
             outstr += RapXMLInfo.html_info(self.olist, 'OUTPUTS')
@@ -259,4 +289,3 @@ class RapXMLInfo(object):
                 outstr += RapXMLInfo.str_groups(self.cgroups)
 
         return outstr
-

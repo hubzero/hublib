@@ -152,7 +152,8 @@ class Node(object):
             return RapMinMax(self.tree, path, x, child)
         if x.tag == 'log':
             return RapLog(self.tree, path, x, child)
-
+        if x.tag == 'loader':
+            return RapLoader(self.tree, path, x, child)
         return Node(self.tree, path, x, child)
 
     def __setitem__(self, path, val):
@@ -255,3 +256,4 @@ from .hist import Histogram
 from .image import RapImage
 from .number import Number
 from .integer import RapInt, RapBool, XY, RapMinMax, RapLog
+from .loader import RapLoader

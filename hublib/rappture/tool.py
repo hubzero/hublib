@@ -7,7 +7,6 @@ from subprocess import call, Popen, PIPE
 import sys
 from .rappture import RapXML
 from hublib.use import _use
-from .loader import loader
 
 
 def get_info(tname):
@@ -89,14 +88,11 @@ class Tool(RapXML):
         self.tool = toolname
         RapXML.__init__(self, toolname)
 
-    def load(self, fname):
-        loader(self, fname)
-
 
     def run(self, verbose=False):
         # print("Writing", self.tmp_name)
         with open(self.tmp_name, 'w') as f:
-            f.write(str(self.xml(pretty=False, header=True)))
+            f.write(str(self.xml(pretty=True, header=True)))
 
         if self.bin:
             cmd = "PATH=%s:$PATH /apps/bin/rappture -execute %s -tool %s > %s" % \
