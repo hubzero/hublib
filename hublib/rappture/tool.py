@@ -3,10 +3,9 @@ from .node import Node
 import numpy as np
 from lxml import etree as ET
 import os
-from subprocess import call, Popen, PIPE
+import subprocess
 import sys
 from .rappture import RapXML
-from hublib.use import _use
 
 
 class Tool(RapXML):
