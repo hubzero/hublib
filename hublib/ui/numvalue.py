@@ -15,7 +15,7 @@ class NumValue(object):
         return ureg.parse_expression(xpr).units
 
     def __init__(self, name, **kwargs):
-        # print "INIT:%s" % name
+        # print("INIT:%s" % name)
         self._width = kwargs.get('width', 'auto')
         self._cb = kwargs.get('cb')
         self._desc = kwargs.get('desc', '')
@@ -187,7 +187,8 @@ class NumValue(object):
             return
 
         if self._cb is not None:
-            val = '{:~}'.format(val)
+            if self.units is not None:
+                val = '{:~}'.format(val)
             self._cb(self.name, val)
 
     @property
