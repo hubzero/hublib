@@ -27,24 +27,30 @@ class Tool(RapXML):
                 dirname = os.getcwd()
         else:
             xml = tool
-            dirname = os.path.abspath(os.path.join(dirname, '..'))
+            dirname = os.path.abspath(dirname)
 
         xml = os.path.abspath(xml)
         if not os.path.isfile(xml):
             raise ValueError("tool must be a toolname or path to a tool.xml file.")
 
+        sessdir = os.environ['SESSIONDIR']
         invoke_file = os.path.join(dirname, 'middleware', 'invoke')
         if os.path.isfile(invoke_file):
             self.invoke_file = invoke_file
+        else:
+            self.invoke_file = os.path.join(sessdir, 'invoke_%s' % os.getpid())
+            with open(self.invoke_file, 'w') as f:
+                print('#!/bin/sh', file=f)
+                print('/usr/bin/invoke_app -T %s -C rappture' % dirname, file=f)
+            subprocess.call('chmod +x %s' % self.invoke_file, shell=True)
 
-        sessdir = os.environ['SESSIONDIR']
         self.tmp_name = os.path.join(sessdir, 'tool_driver_%s.xml' % os.getpid())
         self.run_name = ""
         self.toolparameters_name = os.path.join(sessdir, 'driver_%s.hz' % os.getpid())
         self.rappturestatus_name = os.path.join(sessdir, 'rappture.status')
-        self.fname = xml
-        self.tree = ET.parse(xml)
-        self.path = ''
+        self.dirname = dirname
+        self.tool = xml
+        RapXML.__init__(self, xml)
 
     def run(self, verbose=True):
         # print("Writing", self.tmp_name)
@@ -53,8 +59,7 @@ class Tool(RapXML):
 
         with open(self.toolparameters_name, 'w') as f:
             f.write("file(execute):%s" % (self.tmp_name))
-
-        cmd = "TOOL_PARAMETERS=%s %s" % (self.toolparameters_name,self.invoke_file)
+        cmd = "TOOL_PARAMETERS=%s %s" % (self.toolparameters_name, self.invoke_file)
 
         if verbose:
             print("cmd=", cmd)
