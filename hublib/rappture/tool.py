@@ -33,39 +33,41 @@ class Tool(RapXML):
         if not os.path.isfile(xml):
             raise ValueError("tool must be a toolname or path to a tool.xml file.")
 
-        sessdir = os.environ['SESSIONDIR']
+        sessdir = os.path.join(os.environ['SESSIONDIR'], str(os.getpid()))
+        subprocess.call('mkdir -p %s' % sessdir, shell=True)
+
         invoke_file = os.path.join(dirname, 'middleware', 'invoke')
         if os.path.isfile(invoke_file):
             self.invoke_file = invoke_file
         else:
-            self.invoke_file = os.path.join(sessdir, 'invoke_%s' % os.getpid())
+            self.invoke_file = os.path.join(sessdir, 'invoke')
             with open(self.invoke_file, 'w') as f:
                 print('#!/bin/sh', file=f)
-                print('/usr/bin/invoke_app -T %s -C rappture' % dirname, file=f)
+                print('/usr/bin/invoke_app "$@" -T %s -C rappture' % (dirname), file=f)
             subprocess.call('chmod +x %s' % self.invoke_file, shell=True)
 
-        self.tmp_name = os.path.join(sessdir, 'tool_driver_%s.xml' % os.getpid())
-        self.run_name = ""
-        self.toolparameters_name = os.path.join(sessdir, 'driver_%s.hz' % os.getpid())
+        self.driver_name = os.path.join(sessdir, 'tool_driver.xml')
+        self.toolparameters_name = os.path.join(sessdir, 'driver.hz')
         self.rappturestatus_name = os.path.join(sessdir, 'rappture.status')
         self.dirname = dirname
+        self.sessdir = sessdir
         self.tool = xml
         RapXML.__init__(self, xml)
 
-    def run(self, verbose=True):
-        # print("Writing", self.tmp_name)
-        with open(self.tmp_name, 'w') as f:
+    def run(self, verbose=False):
+        with open(self.driver_name, 'w') as f:
             f.write(str(self.xml(pretty=False, header=True)))
 
         with open(self.toolparameters_name, 'w') as f:
-            f.write("file(execute):%s" % (self.tmp_name))
-        cmd = "TOOL_PARAMETERS=%s %s" % (self.toolparameters_name, self.invoke_file)
+            f.write("file(execute):%s" % (self.driver_name))
+        cmd = "TOOL_PARAMETERS=%s %s -d %s" % (self.toolparameters_name, self.invoke_file, self.sessdir)
 
         if verbose:
-            print("cmd=", cmd)
+            print(cmd)
 
         cwd = os.getcwd()
-        os.chdir(os.environ['SESSIONDIR'])
+        os.chdir(os.path.join(os.environ['SESSIONDIR'], str(os.getpid())))
+
         try:
             ret = subprocess.call(cmd, shell=True)
             if ret:
@@ -82,12 +84,13 @@ class Tool(RapXML):
         with(open(self.rappturestatus_name, 'r')) as f:
             statusData = f.readlines()
 
+        run_name = None
         for record in statusData:
             if 'output saved in' in record:
-                self.run_name = record.strip().split()[-1]
+                run_name = record.strip().split()[-1]
                 break
 
-        if self.run_name:
-            self.tree = ET.parse(self.run_name)
+        if run_name is not None:
+            self.tree = ET.parse(run_name)
 
         os.chdir(cwd)
