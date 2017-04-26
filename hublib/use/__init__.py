@@ -16,7 +16,8 @@ d = {}
 
 
 def setenv(line):
-    name, val = line
+    name = line[0]
+    val = ' '.join(line[1:])
     os.environ[name] = val
 
 def prepend(line):
