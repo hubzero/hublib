@@ -4,7 +4,8 @@ Tool Module
 .. module:: hublib.tool
 
 The tool module implements the "line magics" necessary to control
-execution of notebooks run in tool mode.
+execution of notebooks run in tool mode.  It is now deprecated in favor
+of the new dashboards tool. It will liekly be removed in the future.
 
 
 %wait

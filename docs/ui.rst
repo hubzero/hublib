@@ -72,7 +72,7 @@ Form
         The form width.
 
 
-    >>> f = ui.Form([checkbutton1, checkbutton2, num1, string1], name="My Parameters")
+    >>> f = ui.Form([checkbox1, checkbox2, num1, string1], name="My Parameters")
 
 
 Numerical Widgets
@@ -209,10 +209,10 @@ Integer
 Input Widgets
 -------------
 
-Checkbutton
+Checkbox
 ***********
 
-.. class:: Checkbutton(name, desc, value, [cb=None, disabled=False, width='auto'])
+.. class:: Checkbox(name, desc, value, [cb=None, disabled=False, width='auto'])
 
 
     >>> check = ui.Checkbox('Advanced Options', 'Show the Advanced Options', value=False, width='50%')
@@ -346,6 +346,30 @@ Togglebuttons
 
     .. image::  images/togglebuttons.png
 
+String
+***********
+
+.. class:: String(name, desc, value='', [cb=None, disabled=False, width='auto'])
+
+    A single-line text input box.
+
+    >>> xstr = ui.String(name="Name", description='Name (First and Last)', value='<name>')
+    >>> print xstr.value
+    <name>
+
+Text
+***********
+
+.. class:: Text(name, desc, value='', [cb=None, disabled=False, width='auto'])
+
+    A multi-line text input box.
+
+    >>> xtxt = ui.Text(name="Description",
+                       description='Experiment Description',
+                       value='Starting Content')
+    >>> print xtxt.value
+    Starting Content
+
 
 File Upload
 -----------
@@ -353,6 +377,7 @@ File Upload
 .. class:: FileUpload(name, desc, options, [width='auto'])
 
     A button that opens a file browser on your computer that allows you to upload a single file.
+    Note there is currently no callback function.
 
     :param name: The name that will appear in the field.
     :param desc: An optional description. This will appear in a popover dialog.
