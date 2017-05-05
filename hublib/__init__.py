@@ -3,4 +3,5 @@ ureg = UnitRegistry()
 ureg.autoconvert_offset_to_baseunit = True
 Q_ = ureg.Quantity
 
-__version__ = "0.6.5"
+__version__ = "0.6.6"
+
