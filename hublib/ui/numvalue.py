@@ -153,7 +153,7 @@ class NumValue(object):
         Called when the value changed.  It is called after every keystroke, so
         we check on the fly and only reformat on <enter> or when the value property is read.
         '''
-        # print "cb val=%s oldval=%s no_cb=%s" % (self.dd.value, self.oldval, self.no_cb)
+        # print("cb val=%s oldval=%s no_cb=%s" % (self.dd.value, self.oldval, self.no_cb))
         if self.no_cb:
             self.no_cb = False
             return
@@ -217,10 +217,11 @@ class NumValue(object):
         str_val = val
         if self.units is not None:
             str_val = '{:~}'.format(val)
-        if str_val != self.oldval:
-            self.no_cb = True
-            self.dd.value = str_val
-            self.oldval = str_val
+
+        # if str_val != self.oldval:
+            # self.no_cb = True
+            # self.dd.value = str_val
+            # self.oldval = str_val
 
         if self.units is None:
             return self.type(val)
