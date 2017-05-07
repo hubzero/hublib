@@ -151,7 +151,7 @@ class NumValue(object):
     def cb(self, _):
         '''
         Called when the value changed.  It is called after every keystroke, so
-        we check on the fly and only reformat on <enter> or when the value property is read.
+        we check on the fly and only reformat on <enter>.
         '''
         # print("cb val=%s oldval=%s no_cb=%s" % (self.dd.value, self.oldval, self.no_cb))
         if self.no_cb:
