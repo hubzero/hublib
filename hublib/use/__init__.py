@@ -21,7 +21,9 @@ def setenv(line):
     os.environ[name] = val
 
 def prepend(line):
+    global d
     name, val = line
+    val = Template(val).safe_substitute(d)
     try:
         oldval = os.environ[name]
         val = '%s:%s' % (val, oldval)
