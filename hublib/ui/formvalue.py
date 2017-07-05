@@ -11,14 +11,14 @@ class FormValue(object):
             flex_flow='row',
             border='solid 1px lightgray',
             justify_content='space-between',
+            padding='3px',
             width=width
         )
 
         cb = kwargs.get('cb')
         self.disabled = kwargs.get('disabled', False)
         self.default = self.dd.value
-        self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
-                                  layout=widgets.Layout(flex='2 1 auto'))
+        self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name))
         self.w = widgets.Box([self.label, self.dd], layout=form_item_layout)
         try:
             self.dd.on_submit(lambda x: self.cb(None))

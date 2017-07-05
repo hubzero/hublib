@@ -23,7 +23,7 @@ class NumValue(object):
         self.disabled = kwargs.get('disabled', False)
         units = kwargs.get('units')
         self.units = self.find_unit(units)
-        self.valid = widgets.Valid(value=True, layout=widgets.Layout(flex='0 1 auto'))
+        self.valid = widgets.Valid(value=True, layout=widgets.Layout(flex='0 1 0'))
         try:
             self.dd.on_submit(lambda x: self.cb(None))
         except:
@@ -73,6 +73,7 @@ class NumValue(object):
             flex_flow='row',
             border='solid 1px lightgray',
             justify_content='space-between',
+            padding='5px',
             width=self._width
         )
         self.w = widgets.Box([label, self.dd, self.valid], layout=form_item_layout)
@@ -83,7 +84,7 @@ class NumValue(object):
 
     @desc.setter
     def desc(self, val):
-        self._desc = desc
+        self._desc = val
         self._build()
 
     @property
@@ -214,9 +215,9 @@ class NumValue(object):
             return None
 
         # if we reformat the displayed value, then update it
-        str_val = val
-        if self.units is not None:
-            str_val = '{:~}'.format(val)
+        # str_val = val
+        # if self.units is not None:
+        #     str_val = '{:~}'.format(val)
 
         # if str_val != self.oldval:
             # self.no_cb = True
@@ -255,7 +256,7 @@ class NumValue(object):
     def visible(self):
         return self.dd.layout.visibility
 
-    @disabled.setter
+    @visible.setter
     def visible(self, newval):
         if newval:
             self.dd.layout.visibility = 'visible'
