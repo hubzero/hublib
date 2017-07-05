@@ -56,7 +56,7 @@ class TestRunCommand:
         code, out, err = runCommand('does_not_exist')
         assert code != 0
         assert out == b''
-        assert err.decode('utf-8').endswith('command not found\n')
+        assert err.decode('utf-8').endswith('not found\n')
 
     def test_exe_not_exist2(self):
         code, out, err = executeCommand('does_not_exist')
