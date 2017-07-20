@@ -2,7 +2,6 @@ from __future__ import print_function
 import ipywidgets as widgets
 from IPython.display import HTML, Javascript, display
 from string import Template
-import json
 from traitlets import Unicode, Bool, Int
 
 # NOT FINISHED.  DO NOT USE
@@ -46,7 +45,7 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
 
         // Render the view.
         render: function() {
-            var ignore = false;
+            this.ignorex = false;
             //console.log('RENDER '+this.model.get('name'));
             this.div = document.createElement('div');
             this.div.setAttribute('id', this.model.get('name'));
@@ -74,7 +73,7 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
                 var that = this;
                 this._ed = ace.edit(this.model.get('name'));
                 this._ed.getSession().on('change', function(e) {
-                    ignore = true;
+                    that.ignorex = true;
                     that.model.set('value2', that._ed.getValue());
                     that.touch();
                 });
@@ -89,12 +88,13 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
             this._ed.getSession().setMode("ace/mode/"+this.model.get('mode'));
         },
         _value2_changed: function() {
-            if (ignore == false) {
+            console.log('value2 ' + this.ignorex);
+            if (this.ignorex == false) {
                 var val = this.model.get('value2');
-                //console.log('VALUE2 ' + val)
+                // console.log('VALUE2 ' + val)
                 this._ed.setValue(val);
             } else {
-                ignore = false;
+                this.ignorex = false;
             }
         },
         _showmargin_changed: function() {
@@ -152,31 +152,19 @@ class Editor(widgets.DOMWidget):
         height = kwargs.get('height', '500px')
         width = kwargs.get('width', 'auto')
         border = kwargs.get('border', 'solid')
-        theme = kwargs.get('theme', 'xcode')
-        mode = kwargs.get('mode', 'python')
-        fontsize = kwargs.get('fontsize', '14px')
+        self._theme = kwargs.get('theme', 'xcode')
+        self._mode = kwargs.get('mode', 'python')
+        self._fontsize = kwargs.get('fontsize', '14px')
 
         d = dict(height=height,
                  width=width,
                  border=border,
-                 editor=self.name,
-                 theme=theme,
-                 mode=mode,
-                 fontsize=fontsize)
+                 editor=self.name)
         temp = Template(css_template).substitute(d)
         display(HTML(temp))
         self.ed = EditorWidget()
         self.ed.name = self.name
-        display(self.ed)
-        self.ed.state = 'start'
-        self.ed.theme = "monokai"
-        self.ed.mode = "python"
-        self.ed.showmargin = False
-        self.ed.state = ''
         # self.ed.observe(self.value_loading, names='value2')
-
-    def value_loading(self, change):
-        print("VL", change)
 
     @property
     def value(self):
@@ -185,3 +173,36 @@ class Editor(widgets.DOMWidget):
     @value.setter
     def value(self, val):
         self.ed.value2 = val
+
+    @property
+    def theme(self):
+        return self.ed.theme
+
+    @theme.setter
+    def theme(self, val):
+        self.ed.theme = val
+
+    @property
+    def mode(self):
+        return self.ed.mode
+
+    @mode.setter
+    def mode(self, val):
+        self.ed.mode = val
+
+    @property
+    def fontsize(self):
+        return self.ed.fontsize
+
+    @fontsize.setter
+    def fontsize(self, val):
+        self.ed.fontsize = val
+
+    def _ipython_display_(self):
+        self.ed._ipython_display_()
+        self.ed.state = 'start'
+        self.ed.theme = self._theme
+        self.ed.mode = self._mode
+        self.ed.showmargin = False
+        self.ed.fontsize = self._fontsize
+        self.ed.state = ''
