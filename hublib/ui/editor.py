@@ -76,6 +76,7 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
                     that.ignorex = true;
                     that.model.set('value2', that._ed.getValue());
                     that.touch();
+                    that.ignorex = false;
                 });
             };
         },
@@ -93,8 +94,6 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
                 var val = this.model.get('value2');
                 // console.log('VALUE2 ' + val)
                 this._ed.setValue(val);
-            } else {
-                this.ignorex = false;
             }
         },
         _showmargin_changed: function() {
