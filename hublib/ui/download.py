@@ -20,6 +20,7 @@ class Download(object):
         icon = kwargs.get('icon', '')
         tooltip = kwargs.get('tooltip', '')
         style = kwargs.get('style', '')
+        bcb = kwargs.get('cb', None)
 
         self.w = widgets.Button(
             description=label,
@@ -29,9 +30,12 @@ class Download(object):
             )
 
         def button_cb(filename):
+
             js = Javascript("window.open('%s')" % filename)
 
             def cb(x):
+                if bcb is not None:
+                    bcb()
                 display(js)
             return cb
 
