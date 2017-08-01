@@ -46,6 +46,7 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
         // Render the view.
         render: function() {
             this.ignorex = false;
+            this.ignorev = false;
             //console.log('RENDER '+this.model.get('name'));
             this.div = document.createElement('div');
             this.div.setAttribute('id', this.model.get('name'));
@@ -68,14 +69,18 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
 
         _state_changed: function() {
             var state = this.model.get('state')
-            // console.log('state: ' + state );
+            //console.log('state: ' + state );
             if (state == 'start') {
                 var that = this;
                 this._ed = ace.edit(this.model.get('name'));
                 this._ed.getSession().on('change', function(e) {
+                    if (that.ignorev == true) { return }
                     that.ignorex = true;
+                    //console.log('CHANGE1');
                     that.model.set('value2', that._ed.getValue());
+                    //console.log('CHANGE2');
                     that.touch();
+                    //console.log('CHANGE3');
                     that.ignorex = false;
                 });
             };
@@ -89,12 +94,14 @@ define('editor', ["jupyter-js-widgets"], function(widgets) {
             this._ed.getSession().setMode("ace/mode/"+this.model.get('mode'));
         },
         _value2_changed: function() {
-            console.log('value2 ' + this.ignorex);
-            if (this.ignorex == false) {
-                var val = this.model.get('value2');
-                // console.log('VALUE2 ' + val)
-                this._ed.setValue(val);
-            }
+            //console.log('value2 ' + this.ignorex);
+            if (this.ignorex == true) { return };
+            var val = this.model.get('value2');
+            //console.log('VALUE2 ' + val);
+            this.ignorev = true;
+            this._ed.setValue(val);
+            this.ignorev = false;
+            //console.log('VALUE2 DONE');
         },
         _showmargin_changed: function() {
             this._ed.setShowPrintMargin(this.model.get('showmargin'));
