@@ -4,3 +4,4 @@ from .group import Tab, Form
 from .upload import FileUpload
 from .editor import Editor
 from .download import Download
+from .hidecode import HideCodeButton, RunAllButton
