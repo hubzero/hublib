@@ -3,6 +3,7 @@ import ipywidgets as widgets
 import base64
 import sys
 from IPython.display import display, Javascript, HTML
+from string import Template
 
 from traitlets import List, Unicode, Bool, Int
 
@@ -12,7 +13,7 @@ css_template = """
 .lmheader {
     border: solid;
     display: table;
-    width: 100%;
+    width: ${width};
 }
 
 .lmheader:after {
@@ -61,6 +62,7 @@ css_template = """
     padding: 12px 8px 12px 40px;
     background: #eee;
     transition: 0.2s;
+    width: ${width};
 
     /* make the list items unselectable */
     -webkit-user-select: none;
@@ -114,6 +116,7 @@ define('listmanager', ["jupyter-js-widgets"], function(widgets) {
             this.el.appendChild(this.ul);
 
             // set initial values
+            this.lm_list = [];
             var vals =  this.model.get('value');
             for (var i = 0; i < vals.length; i++){
                 this.add_list_element(vals[i]);
@@ -137,6 +140,7 @@ define('listmanager', ["jupyter-js-widgets"], function(widgets) {
             this.ul.innerHTML = '';
 
             var vals =  this.model.get('value');
+            //console.log('value_changed: ' + vals);
             for (var i = 0; i < vals.length; i++){
                 this.add_list_element(vals[i]);
             }
@@ -169,25 +173,27 @@ define('listmanager', ["jupyter-js-widgets"], function(widgets) {
             }
 
         },
-
         update_lm_list: function() {
-            var lm_list = [];
+            this.lm_list = [];
             var children = this.ul.childNodes;
             for (var i = 0; i < children.length; i++) {
                 var item = children[i];
                 if (item.style.display != "none") {
-                    lm_list.push(item.textContent.slice(0,-1));
+                    this.lm_list.push(item.textContent.slice(0,-1));
                 }
             }
 
-            this.model.set('value', lm_list);
+            this.model.set('value', this.lm_list);
             this.touch();
         },
 
         handle_lm_change: function(evt) {
+            // value added from UI
             // console.log("LM CHANGE", evt.target.value);
-            this.add_list_element(evt.target.value);
-            this.update_lm_list();
+            if (this.lm_list.indexOf(evt.target.value) === -1) {
+                this.add_list_element(evt.target.value);
+                this.update_lm_list();
+            }
         },
     });
 
@@ -214,7 +220,6 @@ class ListManager(widgets.DOMWidget):
     def __init__(self, **kwargs):
 
         display(Javascript(js_template))
-        display(HTML(css_template))
 
         """Constructor"""
         super(self.__class__, self).__init__(**kwargs)
@@ -228,15 +233,25 @@ class ListManager(widgets.DOMWidget):
         self.on_msg(self._handle_custom_msg)
 
 
+        width = kwargs.get('width', '100%')
+        d = dict(width=width)
+        temp = Template(css_template).substitute(d)
+        display(HTML(temp))
+
         self.value = kwargs.get('value', [])
 
+        self.in_cb = False
         self.cb = kwargs.get('cb')
         if self.cb:
             self.observe(self._cb, names='value')
 
 
     def _cb(self, change):
+        if self.in_cb:
+            return
+        self.in_cb = True
         self.cb(change['name'], change['new'])
+        self.in_cb = False
 
     def _handle_custom_msg(self, content):
         """Handle a msg from the front-end.
