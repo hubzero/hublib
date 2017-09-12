@@ -63,12 +63,7 @@ class Modal(widgets.DOMWidget):
 
         """Constructor"""
         super(self.__class__, self).__init__(**kwargs)
-
-        icon = kwargs.get('icon', '')
-        tooltip = kwargs.get('tooltip', '')
-        style = kwargs.get('style', '')
         bcb = kwargs.get('cb', None)
-
         self.bprim = self.check_primary(kwargs.get('primary', 'OK'))
         self.cb = kwargs.get('cb')
         if self.cb:

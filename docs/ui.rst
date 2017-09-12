@@ -371,6 +371,21 @@ Text
     Starting Content
 
 
+Download
+--------
+
+.. class:: Download(filename, **kwargs)
+
+    A button that downloads a remote file to the browser.
+
+    :param filename: The file that will be downloaded.
+    :param label: The label on the button. Default is the filename.
+    :param icon: Optional icon name. Must be from http://fontawesome.io/icons/
+    :param tooltip: An optional tooltip.
+    :param style: Default is ''. Supported values are "success", "info", "warning", and "danger".
+    :param cb: Optional callback function.
+
+
 File Upload
 -----------
 
@@ -428,4 +443,90 @@ File Upload
         Saves the uploaded data to a file.
         If **name** is None, it saves the file with the same name as the uploaded
         file. When multiple files are uploaded, use **num** to specify which one to save.
+
+Modal
+--------
+
+.. class:: Modal(**kwargs)
+
+    A simple modal dialog.
+
+    :param body: The text for the dialog body.
+    :param title: The title for the dialog.
+    :param buttons: A list of button labels.
+    :param primary: The name or the index of the default button.  It will be highlighted.
+    :param cb: Optional callback function.
+
+    >>> def modal_callback(val):
+        print("Modal Dialog Returned", val)
+
+    >>> Modal(body="This is a test modal dialog.",
+      title='TEST DIALOG',
+      icon='fa-bell',
+      buttons=['CANCEL', 'OK'],
+      cb=modal_callback)
+
+
+ListManager
+-----------
+
+.. class:: ListManager(value=[], button_text='Add', list_text='New Value...')
+
+    A list manager widget. Allows adding and removing items from a list.
+
+    :param body: The text for the dialog body.
+    :param title: The title for the dialog.
+    :param buttons: A list of button labels.
+    :param primary: The name or the index of the default button.  It will be highlighted.
+    :param cb: Optional callback function.
+
+    Attributes:
+        Attributes are parameters that may be modified or read after the object is created.
+        Unless noted, attributes are read/write.
+
+    .. attribute:: value
+
+        Sets or gets the values in the widgets's list.
+
+    .. attribute:: visible
+
+        Set to False to hide the widget.
+
+    .. attribute:: width
+
+    >>> initial_list = ['Hydrogen', 'Helium', 'Lithium']
+    >>> lm = ListManager(value = initial_list, list_text='Element..', button_text='', cb=LMCB)
+    >>> print(lm.value)
+    ['Hydrogen', 'Helium', 'Lithium']
+
+    .. image::  images/listmanager.gif
+
+RunAllButton
+------------
+
+.. class:: RunAllButton(label='Run All Cells', icon='', tooltip='', style='', cb=None, hide=False)
+
+    A button that runs all the code cells.
+
+    :param label: The text for button.
+    :param icon: Optional icon name. Must be from http://fontawesome.io/icons/
+    :param tooltip: optional tooltip.
+    :param style: Default is ''. Supported values are "success", "info", "warning", and "danger".
+    :param cb: Optional callback function.
+    :param hide: If True, hide code cells.
+
+
+HideCodeButton
+--------------
+
+.. class:: HideCodeButton(label, icon='', tooltip='', style='', cb=None)
+
+    A button that hides all the code cells.
+
+    :param label: The text for button. It can be a string or a list of two strings.
+        The default is ['Hide Code Cells', 'Show Code Cells']
+    :param icon: Optional icon name. Must be from http://fontawesome.io/icons/
+    :param tooltip: optional tooltip.
+    :param style: Default is ''. Supported values are "success", "info", "warning", and "danger".
+    :param cb: Optional callback function.
 
