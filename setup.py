@@ -4,7 +4,7 @@ import io
 import os
 import sys
 from setuptools.command.test import test as TestCommand
-import hublib
+#import hublib
 
 class PyTest(TestCommand):
     user_options = [("cov=", None, "Run coverage"),
@@ -91,13 +91,28 @@ cmdclass = {
     'test': PyTest
 }
 
+# get the version string
+import re
+verstr = "unknown"
+try:
+    verstrline = open('hublib/__init__.py', "rt").read()
+except:
+    pass
+else:
+    VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+    mo = re.search(VSRE, verstrline, re.M)
+    if mo:
+        verstr = mo.group(1)
+    else:
+        raise RuntimeError("unable to find version in hublib/__init__.py")
+
 setup(
     name='hublib',
-    version=hublib.__version__,
+    version=verstr,
     url='https://github.com/hubzero/hublib',
     license='MIT Software License',
     author='Martin Hunt',
-    install_requires=['ipywidgets>5.2'],
+    install_requires=['ipywidgets>5.2', 'pint'],
     author_email='mmh@purdue.edu',
     description='Python library for HUBzero Jupyter Notebooks',
     long_description=long_description,
