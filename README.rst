@@ -13,7 +13,7 @@ include HUBzero and `nanoHUB`_.  Other hubs will be supported soon.
 * hublib.uq - Simplified interface and GUI components for uncertainty quantification.
 
 
-The complete documentation is hosted at http://hublib.readthedocs.io.
+The complete documentation is hosted at https://hubzero.github.io/hublib/
 
 .. image::  docs/images/hublib_complam.gif
 
