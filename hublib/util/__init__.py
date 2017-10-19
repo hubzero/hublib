@@ -48,7 +48,7 @@ def _get_session():
 def get_proxy_addr():
     session, sessiondir = _get_session()
     if session == "":
-        return "/"
+        return "/", ""
     fn = os.path.join(sessiondir, 'resources')
     with open(fn, 'r') as f:
         res = f.read()
@@ -62,7 +62,7 @@ def get_proxy_addr():
     url_path = "/weber/%s/%s/%s/" % (session, fxc, fxp)
     proxy_url = "https://proxy." + url.split('//')[1] + url_path
     print("Connect to %s" % proxy_url, file=sys.stderr)
-    return url_path
+    return url_path, proxy_url
 
 
 if found_flask:
