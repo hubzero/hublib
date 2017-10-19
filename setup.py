@@ -1,10 +1,12 @@
 from __future__ import print_function
-from setuptools import setup, find_packages
+from setuptools import setup
 import io
-import os
 import sys
 from setuptools.command.test import test as TestCommand
-#import hublib
+import inspect
+from distutils.cmd import Command
+import re
+
 
 class PyTest(TestCommand):
     user_options = [("cov=", None, "Run coverage"),
@@ -44,6 +46,7 @@ class PyTest(TestCommand):
         errno = pytest.main(**params)
         sys.exit(errno)
 
+
 def sphinx_builder():
     try:
         from sphinx.setup_command import BuildDoc
@@ -74,6 +77,27 @@ def sphinx_builder():
     return BuildSphinxDocs
 
 
+class ObjKeeper(type):
+    instances = {}
+
+    def __init__(cls, name, bases, dct):
+        cls.instances[cls] = []
+
+    def __call__(cls, *args, **kwargs):
+        cls.instances[cls].append(super(ObjKeeper, cls).__call__(*args, **kwargs))
+        return cls.instances[cls][-1]
+
+
+def capture_objs(cls):
+    from six import add_metaclass
+    module = inspect.getmodule(cls)
+    name = cls.__name__
+    keeper_class = add_metaclass(ObjKeeper)(cls)
+    setattr(module, name, keeper_class)
+    cls = getattr(module, name)
+    return keeper_class.instances[cls]
+
+
 def read(*filenames, **kwargs):
     encoding = kwargs.get('encoding', 'utf-8')
     sep = kwargs.get('sep', '\n')
@@ -83,6 +107,7 @@ def read(*filenames, **kwargs):
             buf.append(f.read())
     return sep.join(buf)
 
+
 long_description = read('README.rst', 'CHANGES.rst')
 
 # Additional setup commands
@@ -91,8 +116,8 @@ cmdclass = {
     'test': PyTest
 }
 
+
 # get the version string
-import re
 verstr = "unknown"
 try:
     verstrline = open('hublib/__init__.py', "rt").read()
@@ -117,7 +142,7 @@ setup(
     description='Python library for HUBzero Jupyter Notebooks',
     long_description=long_description,
     packages=['hublib', 'hublib.uq', 'hublib.ui', 'hublib.cmd',
-              'hublib.tool', 'hublib.use', 'hublib.rappture'],
+              'hublib.tool', 'hublib.use', 'hublib.rappture', 'hublib.util'],
     include_package_data=True,
     platforms='any',
     tests_require=['pytest-cov', 'pytest'],
@@ -130,5 +155,5 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
         "Topic :: Scientific/Engineering :: Information Analysis"
-        ],
+    ],
 )
