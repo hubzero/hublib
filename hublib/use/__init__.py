@@ -31,6 +31,11 @@ def prepend(line):
         pass
     os.environ[name] = val
 
+    if name == 'PYTHONPATH':
+        for p in reversed(val.split(':')):
+            sys.path.insert(1,p)
+
+
 def _set(a, b):
     global d
     t = Template(b)
