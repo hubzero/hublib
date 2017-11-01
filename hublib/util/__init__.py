@@ -19,7 +19,8 @@ def get_cookie():
         session = int(os.environ['SESSION'])
         pwfile = glob.glob('/var/run/Xvnc/passwd-*')[0]
         with open(pwfile, 'rb') as f:
-            token = "%d:%s" % (session, binascii.hexlify(f.read()))
+            pwd = binascii.hexlify(f.read()).decode('utf-8')
+            token = "%d:%s" % (session, str(pwd))
 
         fn = os.path.join(os.environ['SESSIONDIR'], 'resources')
         with open(fn, 'r') as f:
