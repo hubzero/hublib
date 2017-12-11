@@ -14,12 +14,21 @@ class RapLoader(Node):
     def value(self, fname):
         RapLoader.load(self.tree, self.elem, self.child, fname)
 
+
     @staticmethod
     def copy_defaults(tree):
         # print("copy_defaults", tree)
         # Set <current> values from their <default>.  If units are required,
         # be sure to set them. Do some horrible hack to set choices.
         parse = re.compile(r"^[\s]*([0-9.]*)([\S]*)")
+
+        for default in tree.findall(".//default"):
+            par = default.find("..")
+            current = par.find("current")
+            if current is None:
+                current = ET.SubElement(par, 'current')
+                for elem in default:
+                    current.append(deepcopy(elem))
 
         for default in tree.findall(".//default"):
             par = default.find("..")
@@ -43,7 +52,7 @@ class RapLoader(Node):
             current = par.find("current")
             units = par.find("units")
             if current is None:
-                current = ET.SubElement(par, 'current')
+                current = ET.SubElement(par, 'current')                
             if units is not None and units.text is not None and units.text != "":
                 v, u = parse.findall(newtext)[0]
                 if u == "":
