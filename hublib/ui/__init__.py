@@ -7,3 +7,4 @@ from .download import Download
 from .hidecode import HideCodeButton, RunAllButton
 from .listmanager import ListManager
 from .modal import Modal
+from .pathselect import PathSelector
