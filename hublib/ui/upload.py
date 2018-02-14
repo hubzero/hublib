@@ -46,7 +46,7 @@ define('filepicker', ["jupyter-js-widgets"], function(widgets) {
             this.label.setAttribute('style', 'border: 1px solid; border-radius: 5px; display: inline-block; padding: 6px 12px');
 
             this.icon = document.createElement('i');
-            this.icon.setAttribute("class", "fs fa-upload");
+            this.icon.setAttribute("class", "fa fa-upload");
 
             if (this.file.multiple) {
                 this.labelstr = "  Upload Files";
