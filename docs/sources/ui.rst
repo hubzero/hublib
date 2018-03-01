@@ -530,3 +530,24 @@ HideCodeButton
     :param style: Default is ''. Supported values are "success", "info", "warning", and "danger".
     :param cb: Optional callback function.
 
+
+Submit
+------
+
+Submit Widget Rocks!
+
+.. autoclass:: Submit
+   :members: run, visible, disabled
+
+   foo bar grep
+   
+1 2 3
+
+
+This is more information about Submit.
+blah
+blah
+blah
+
+and blah
+

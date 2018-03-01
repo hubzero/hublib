@@ -19,7 +19,19 @@ colors = ["rgb(60,179,113)", "rgb(255,165,0)", "rgb(255,99,71)", "rgb(51,153,255
 
 
 class Submit(object):
-    
+    """
+    A widget to run the submit command and monitor progress.
+    Includes optional local caching of results.
+
+    :param label: The label for the start button.
+    :param tooltip: The tooltip for the start button.
+    :param start_func: Required. Function to be called when the
+        start button is pressed.
+    :param done_func: Optional function to be called when the
+        submit function is completed.
+    :param cachename: Optional. Name of the tool or other unique
+        name that will be used for the cache directory.
+    """
     SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n)
         for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
@@ -33,8 +45,7 @@ class Submit(object):
                  tooltip='Run Simulation',
                  start_func=None,
                  done_func=None,
-                 cachename=None,
-                 **kwargs):
+                 cachename=None):
         self.label = label
         self.tooltip = tooltip
         self.start_func = start_func
@@ -91,6 +102,13 @@ class Submit(object):
                 os.killpg(self.pid, signal.SIGTERM)
 
     def run(self, runname, cmd):
+        """
+        Starts the submit command.
+
+        :param runname: Directory name for the results.
+        :param cmd: The command to pass along to the
+            command-line submit.
+        """
 
         if self.thread:
             # cleanup old thread
