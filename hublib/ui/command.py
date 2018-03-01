@@ -20,27 +20,30 @@ class RunCommand(object):
     SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n)
         for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
-    def __init__(self, name='Run',
-                 desc='Run Simulation',
+    def __init__(self, 
+                 label='Run',
+                 tooltip='Run Simulation',
                  start_func=None,
                  done_func=None,
+                 outcb=None,
                  **kwargs):
 
-        self.name = name
-        self.desc = desc
+        self.label = label
+        self.tooltip = tooltip
         self.start_func = start_func
         self.done_func = done_func
+        self.outcb = outcb
         self.q = Queue()
         self.thread = 0
         self.status = None
-        self.txt = None
+        self.output = None
 
         if start_func is None:
             print("start_func is required", file=sys.stderr)
 
         self.but = widgets.Button(
-            description=self.name,
-            tooltip=self.desc,
+            description=self.label,
+            tooltip=self.tooltip,
             button_style='success'
         )
         self.but.on_click(self._but_cb)
@@ -48,7 +51,7 @@ class RunCommand(object):
         self.w = widgets.VBox([self.but])
 
     def _but_cb(self, change):
-        if self.but.description == self.name:
+        if self.but.description == self.label:
             self.but.description = 'Cancel'
             self.but.button_style = 'danger'
             self.start_func(self)
@@ -60,16 +63,16 @@ class RunCommand(object):
                 os.killpg(self.pid, signal.SIGTERM)
 
     def run(self, cmd):
-        if self.txt is None:
-            self.txt = widgets.Textarea(
+        if self.output is None:
+            self.output = widgets.Textarea(
                 layout={'width': '100%', 'height': '400px'}
             )
-            self.acc = widgets.Accordion(children=[self.txt])
+            self.acc = widgets.Accordion(children=[self.output])
             self.acc.set_title(0, 'Output')
             self.acc.selected_index = None
             self.w.children = (self.acc, self.but)
         else:
-            self.txt.value = ""
+            self.output.value = ""
 
         if self.thread:
             # cleanup old thread
@@ -149,10 +152,12 @@ def poll_thread(cmd, self):
                 if fd == child.stderr.fileno():
                     if c.endswith('\n'):
                         c = c[:-1]
-                    self.txt.value += u'⇉ ' + c + u' ⇇\n'
+                    self.output.value += u'⇉ ' + c + u' ⇇\n'
                 else:
                     # write c to output widget
-                    self.txt.value += c
+                    self.output.value += c
+                    if self.outcb:
+                        self.outcb(c)
 
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
@@ -161,7 +166,7 @@ def poll_thread(cmd, self):
     pid, exitStatus = os.waitpid(child.pid, 0)
     elapsed_time = time.time() - start_time
 
-    self.but.description = self.name
+    self.but.description = self.label
     self.but.button_style = 'success'  # green
     
     errStr = ""
@@ -180,7 +185,7 @@ def poll_thread(cmd, self):
             errStr = "\"%s\" failed w/ exit code %d\n" % (cmd, exitStatus)
             errNum = 2
             errState = "Last Run: Failed"
-        self.txt.value += '\n' + '='*20 + '\n' + errStr
+        self.output.value += '\n' + '='*20 + '\n' + errStr
 
     errState += ".  Run Time: %s" % time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
     self.status.value = color_rect % (colors[errNum], errState)
