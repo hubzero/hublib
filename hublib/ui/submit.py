@@ -142,7 +142,6 @@ class Submit(object):
             tfile = os.path.join(rdir, '.submit_time')
             if os.path.exists(tfile):
                 # cache hit
-                # set status line
                 try:
                     with open(tfile, 'r') as f:
                         etime = f.read() 
