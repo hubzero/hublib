@@ -9,4 +9,4 @@ from .listmanager import ListManager
 from .modal import Modal
 from .pathselect import PathSelector
 from .command import RunCommand
-from .submit import Submit, rname
+from .submit import Submit

@@ -10,6 +10,13 @@ import ipywidgets as ui
 
 
 class PathSelector():
+    """
+    The PathSelector widget allows the user to choose a path in the server (container).  It cannot access files
+    from the user's computer.
+
+    :param start_dir: The directory to display.
+    :param select_file: True for file select.  False for directory select.
+    """
 
     def __init__(self, start_dir, select_file=True):
         self.file = None
@@ -75,6 +82,7 @@ class PathSelector():
 
     @disabled.setter
     def disabled(self, newval):
+        self.accord.disabled = newval
         self.select.disabled = newval
 
     @property

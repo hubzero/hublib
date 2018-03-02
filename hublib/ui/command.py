@@ -2,7 +2,6 @@
 from __future__ import print_function
 import ipywidgets as widgets
 import sys
-import re
 import os
 import signal
 import threading
@@ -16,7 +15,23 @@ colors = ["rgb(60,179,113)", "rgb(255,165,0)", "rgb(255,99,71)", "rgb(51,153,255
 
 
 class RunCommand(object):
-    
+    """
+    A widget to run a Linux command and monitor progress.
+
+    Use this to run external code locally that might take a couple of
+    minutes.  If you are using 'submit',
+    you should probably use the Submit widget.
+
+    :param label: The label for the start button.
+    :param tooltip: The tooltip for the start button.
+    :param start_func: Required. Function to be called when the
+        start button is pressed.
+    :param done_func: Optional function to be called when the
+        command is completed.
+    :param outcb: Optional function to be called when
+        standard output is received..
+    """
+
     SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n)
         for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
@@ -25,8 +40,7 @@ class RunCommand(object):
                  tooltip='Run Simulation',
                  start_func=None,
                  done_func=None,
-                 outcb=None,
-                 **kwargs):
+                 outcb=None):
 
         self.label = label
         self.tooltip = tooltip
@@ -47,7 +61,7 @@ class RunCommand(object):
             button_style='success'
         )
         self.but.on_click(self._but_cb)
-        self.disabled = kwargs.get('disabled', False)
+        self.disabled = False
         self.w = widgets.VBox([self.but])
 
     def _but_cb(self, change):
@@ -63,6 +77,11 @@ class RunCommand(object):
                 os.killpg(self.pid, signal.SIGTERM)
 
     def run(self, cmd):
+        """
+        Starts the command.
+
+        :param cmd: The Linux shell command to run.
+        """
         if self.output is None:
             self.output = widgets.Textarea(
                 layout={'width': '100%', 'height': '400px'}

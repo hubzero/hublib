@@ -74,7 +74,7 @@ class Submit(object):
             def make_rname(*args):
                 # uuid should be unique, but check just in case
                 while True:
-                    fname = str(uuid.uuid4()).replace('-','')
+                    fname = str(uuid.uuid4()).replace('-', '')
                     if not os.path.isdir(os.path.join(cachedir, fname)):
                         break
                 return fname
@@ -88,7 +88,7 @@ class Submit(object):
         )
 
         self.but.on_click(self._but_cb)
-        self.disabled = kwargs.get('disabled', False)
+        self.disabled = False
         self.w = w.VBox([self.but])
 
     def _but_cb(self, change):
@@ -107,7 +107,8 @@ class Submit(object):
 
         :param runname: Directory name for the results.
         :param cmd: The command to pass along to the
-            command-line submit.
+            command-line submit. Do not include runName
+            or progress.
         """
 
         if self.thread:
@@ -208,7 +209,7 @@ class Submit(object):
             self.prog[i].value = val
 
     def clear_cache(self, x):
-        x.disabled=True
+        x.disabled = True
         if x.description == "Clear All":
             tooldir = os.path.join(Submit.CACHEDIR, self.cachename)
             if os.path.exists(tooldir):
@@ -406,7 +407,3 @@ def pwidget(name, num, style):
         bar_style=style,
         orientation='horizontal'
     )
-
-
-def rname(*args):
-    return
