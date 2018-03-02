@@ -530,3 +530,38 @@ HideCodeButton
     :param style: Default is ''. Supported values are "success", "info", "warning", and "danger".
     :param cb: Optional callback function.
 
+
+PathSelector
+------------
+
+.. autoclass:: PathSelector
+   :members: visible, disabled
+
+RunCommand
+----------
+
+.. autoclass:: RunCommand
+   :members: run
+
+
+Submit
+------
+
+.. autoclass:: Submit
+   :members: run
+
+   .. method:: make_rname(*args)
+
+    Creates a unique directory name given a variable number
+    of input arguments.
+
+   :returns: A long string which is guaranteed to be a unique
+    directory in ``~/data/results/.submit_cache/${cachename}``
+
+Submit() can cache results.  If *cachename* is not None, it must
+be a unique name for the tool or notebook.  A user 
+directory will be created for storing results in ``~/data/results/.submit_cache/${cachename}``  Each run will need a unique name, *runname*.  The developer is responsible for generating this.  For
+very simple cases, the runs can be simply named, like "run1", or "volt5cap6".  However, submit requires alphanumeric characters only, so no dashes, underscores or  periods.  This makes naming challenging.  To assist with this, Submit includes a handy method, make_rname().  make_rname() takes a variable number or args of any type and produces a unique runname.  
+
+For more information, see the example notebooks.
+

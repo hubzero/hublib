@@ -1,0 +1,25 @@
+UI Module
+=========
+
+.. module:: hublib.ui
+
+Command Widgets
+***************
+
+.. class:: Submit(wlist, [titles=None])
+
+    Creates a tabbed dialog containing *wlist*, the list of widgets.  The name of each widget
+    will appear in the tabs.
+
+    :param wlist: A list of widgets that make up the form.
+
+    :param titles:  An optional list of titles for the tabs.  If None, the names of
+        the widgets in *wlist* will be used.
+
+    Attributes:
+
+    .. attribute:: disabled
+
+        Set to True to disable all the contained widgets.
+
+    >>> f = ui.Tab([form1, form2])

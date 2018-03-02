@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; hublib 1.0 documentation</title>
+  <title>&lt;no title&gt; &mdash; hublib 1.0 documentation</title>
   
 
   
@@ -29,8 +29,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Command Module" href="cmd.html" />
-    <link rel="prev" title="Welcome to hublib’s documentation!" href="index.html" /> 
+    <link rel="next" title="Use Module" href="use.html" />
+    <link rel="prev" title="UI Module" href="ui.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,8 +83,8 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cmd.html">Command Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rappture.html">Rappture Module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rappture.html#getting-started">Getting Started</a><ul>
@@ -138,7 +138,6 @@
 <li class="toctree-l2"><a class="reference internal" href="ui.html#hidecodebutton">HideCodeButton</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="submit.html">Command Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="use.html">Use Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Util Module</a></li>
 </ul>
@@ -186,13 +185,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Introduction</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/intro.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/submit.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -205,24 +204,36 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>hublib is a Python library for the <a class="reference external" href="https://hubzero.org/">HUBzero</a> science gateway platform.  It is designed
-to be used with  <a class="reference external" href="http://jupyter.org/">Jupyter</a> notebooks on the hubs.  Hubs running the Jupyter service
-include HUBzero and <a class="reference external" href="https://nanohub.org/">nanoHUB</a>.  Other hubs will be supported soon.</p>
-<p>hublib contains the following modules:</p>
-<ul class="simple">
-<li>hublib.cmd - Convenience functions to run a command, optionally streaming stdin and stderr.</li>
-<li>hublib.rappture - Compatibility library for running and interacting with <a class="reference external" href="https://nanohub.org/infrastructure/rappture">Rappture</a>
-tools on the HUBzero platform.</li>
-<li>hublib.ui - Makes it easy to create a simple GUI for scientific code in a Jupyter notebook.  Built on top of <a class="reference external" href="https://github.com/ipython/ipywidgets">ipywidgets</a> and <a class="reference external" href="https://pint.readthedocs.io/">pint</a>.</li>
-<li>hublib.use - Loads HUBzero environment modules.</li>
-<li>hublib.uq - (Future) Simplified interface and GUI components for uncertainty quantification.</li>
+  <span class="target" id="module-hublib.ui"></span><dl class="class">
+<dt id="hublib.ui.Submit">
+<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Submit</code><span class="sig-paren">(</span><em>wlist</em><span class="optional">[</span>, <em>titles=None</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a tabbed dialog containing <em>wlist</em>, the list of widgets.  The name of each widget
+will appear in the tabs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wlist</strong> – A list of widgets that make up the form.</li>
+<li><strong>titles</strong> – An optional list of titles for the tabs.  If None, the names of
+the widgets in <em>wlist</em> will be used.</li>
 </ul>
-<img alt="_images/hublib_complam.gif" src="_images/hublib_complam.gif" />
-<img alt="_images/hublib_2.gif" src="_images/hublib_2.gif" />
-<img alt="_images/hublib_3.gif" src="_images/hublib_3.gif" />
+</td>
+</tr>
+</tbody>
+</table>
+<p>Attributes:</p>
+<dl class="attribute">
+<dt id="hublib.ui.Submit.disabled">
+<code class="descname">disabled</code><a class="headerlink" href="#hublib.ui.Submit.disabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to True to disable all the contained widgets.</p>
+</dd></dl>
+
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Tab</span><span class="p">([</span><span class="n">form1</span><span class="p">,</span> <span class="n">form2</span><span class="p">])</span>
+</pre></div>
 </div>
+</dd></dl>
+
 
 
            </div>
@@ -232,10 +243,10 @@ tools on the HUBzero platform.</li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="cmd.html" class="btn btn-neutral float-right" title="Command Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="use.html" class="btn btn-neutral float-right" title="Use Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to hublib’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ui.html" class="btn btn-neutral" title="UI Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
