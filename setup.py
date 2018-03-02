@@ -137,7 +137,7 @@ setup(
     url='https://github.com/hubzero/hublib',
     license='MIT Software License',
     author='Martin Hunt',
-    install_requires=['ipywidgets>=7.0', 'pint'],
+    install_requires=['ipywidgets>=7.0', 'pint', 'joblib'],
     author_email='mmh@purdue.edu',
     description='Python library for HUBzero Jupyter Notebooks',
     long_description=long_description,
