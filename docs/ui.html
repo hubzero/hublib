@@ -755,7 +755,7 @@ Unless noted, attributes are read/write.</dd>
 <dt id="hublib.ui.FileUpload">
 <em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">FileUpload</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em>, <em>options</em><span class="optional">[</span>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.FileUpload" title="Permalink to this definition">¶</a></dt>
 <dd><p>A button that opens a file browser on your computer that allows you to upload a single or multiple files.
-Data from the file is saved in memory and not written to a file.</p>
+Data will be downloaded when the <em>save</em> method is called.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -764,11 +764,9 @@ Data from the file is saved in memory and not written to a file.</p>
 <li><strong>name</strong> – The name that will appear in the field.</li>
 <li><strong>desc</strong> – An optional description. This will appear in a popover dialog.</li>
 <li><strong>disabled</strong> – The initial state. Defaults to False.</li>
-<li><strong>cb</strong> – An optional callback function.</li>
+<li><strong>cb</strong> – An optional callback function called when the upload completes.</li>
 <li><strong>width</strong> – Optional width as a percent string (for example, ‘50%’).</li>
 <li><strong>multiple</strong> – Allow multiple files to be selected. Default False.</li>
-<li><strong>maxsize</strong> – Maximum allowed size for upload files. Default 1MB. Type
-can be int or string where the string can end in K[B] or M[B]</li>
 </ul>
 </td>
 </tr>
@@ -787,14 +785,6 @@ Unless noted, attributes are read/write.</dd>
 
 <img alt="_images/fileupload.png" src="_images/fileupload.png" />
 <dl class="docutils">
-<dt>data(num=0)</dt>
-<dd>Returns the data for an uploaded file.
-&gt;&gt;&gt; f.data()
-“Contents of file 1”
-&gt;&gt;&gt; f.data(0)
-“Contents of file 1”
-&gt;&gt;&gt; f.data(1)
-“Contents of file 2”</dd>
 <dt>list(sizes=False)</dt>
 <dd><p class="first">Returns a list of filenames with optional sizes.</p>
 <div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
@@ -804,18 +794,12 @@ Unless noted, attributes are read/write.</dd>
 </pre></div>
 </div>
 </dd>
-<dt>name(num=0)</dt>
-<dd>Returns the name of an uploaded file.
-&gt;&gt;&gt; f.name()
-“file1.txt”
-&gt;&gt;&gt; f.name(0)
-“file1.txt”
-&gt;&gt;&gt; f.name(1)
-“file2.txt”</dd>
-<dt>save(name=None, num=0)</dt>
-<dd>Saves the uploaded data to a file.
-If <strong>name</strong> is None, it saves the file with the same name as the uploaded
-file. When multiple files are uploaded, use <strong>num</strong> to specify which one to save.</dd>
+<dt>save(name=None, dir=None)</dt>
+<dd><p class="first">Uploads the files.</p>
+<p class="last">If <strong>name</strong> is a string and only a single file is selected, the file will be uploaded
+to that name. If <strong>dir</strong> is a string, a directory with that name will be created
+(if necessary) and the file(s) will be placed there.</p>
+</dd>
 </dl>
 </dd></dl>
 

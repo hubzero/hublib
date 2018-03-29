@@ -392,16 +392,14 @@ File Upload
 .. class:: FileUpload(name, desc, options, [width='auto'])
 
     A button that opens a file browser on your computer that allows you to upload a single or multiple files.
-    Data from the file is saved in memory and not written to a file.
+    Data will be downloaded when the *save* method is called.
 
     :param name: The name that will appear in the field.
     :param desc: An optional description. This will appear in a popover dialog.
     :param disabled: The initial state. Defaults to False.
-    :param cb: An optional callback function.
+    :param cb: An optional callback function called when the upload completes.
     :param width: Optional width as a percent string (for example, '50%').
     :param multiple: Allow multiple files to be selected. Default False.
-    :param maxsize: Maximum allowed size for upload files. Default 1MB. Type
-                    can be int or string where the string can end in K[B] or M[B]
 
     Attributes:
         Attributes are parameters that may be modified or read after the object is created.
@@ -413,15 +411,6 @@ File Upload
 
     .. image::  images/fileupload.png
 
-    data(num=0)
-        Returns the data for an uploaded file.
-        >>> f.data()
-        "Contents of file 1"
-        >>> f.data(0)
-        "Contents of file 1"
-        >>> f.data(1)
-        "Contents of file 2"
-
     list(sizes=False)
         Returns a list of filenames with optional sizes.
 
@@ -430,19 +419,12 @@ File Upload
         >>> f.list(sizes=True)
         [('quote1.txt', 94), ('quote2.txt', 186)]
 
-    name(num=0)
-        Returns the name of an uploaded file.
-        >>> f.name()
-        "file1.txt"
-        >>> f.name(0)
-        "file1.txt"
-        >>> f.name(1)
-        "file2.txt"
+    save(name=None, dir=None)
+        Uploads the files.
 
-    save(name=None, num=0)
-        Saves the uploaded data to a file.
-        If **name** is None, it saves the file with the same name as the uploaded
-        file. When multiple files are uploaded, use **num** to specify which one to save.
+        If **name** is a string and only a single file is selected, the file will be uploaded
+        to that name. If **dir** is a string, a directory with that name will be created
+        (if necessary) and the file(s) will be placed there.
 
 Modal
 --------
