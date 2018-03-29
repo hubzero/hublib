@@ -15,11 +15,11 @@ include HUBzero and `nanoHUB`_.  Other hubs will be supported soon.
 
 The complete documentation is hosted at https://hubzero.github.io/hublib/
 
-.. image::  docs/images/hublib_complam.gif
+.. image::  docs/sources/images/hublib_complam.gif
 
-.. image::  docs/images/hublib_2.gif
+.. image::  docs/sources/images/hublib_2.gif
 
-.. image::  docs/images/hublib_3.gif
+.. image::  docs/sources/images/hublib_3.gif
 
 .. _HUBzero: https://hubzero.org/
 .. _nanoHUB: https://nanohub.org/
