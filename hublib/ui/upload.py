@@ -10,9 +10,30 @@ import ipywidgets as widgets
 import base64
 import os
 import sys
-import time
 from IPython.display import display, Javascript
-from traitlets import List, Unicode, Bool, Int, List
+from traitlets import List, Unicode, Bool, Int
+
+
+def to_bytes(numstr): 
+    try: 
+        if isinstance(numstr, int): 
+            return numstr 
+        last = numstr[-1] 
+        if last == 'B': 
+            numstr = numstr[:-1] 
+            last = numstr[-1] 
+        num = int(numstr[:-1]) 
+        if last == 'G': 
+            num *= 1024**3 
+        elif last == 'M': 
+            num *= 1024**2 
+        elif last == 'K': 
+            num *= 1024 
+        else:
+            num = int(numstr)
+        return num 
+    except: 
+        raise ValueError("Cannot parse '%s'" % numstr) 
 
 
 js_template = """
@@ -59,6 +80,7 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
         _reset: function() {
             this.label.innerHTML = this.labelstr;
             this.label.prepend(this.icon);
+            this.file.removeAttribute("disabled");
         },
 
         _send_changed: function() {
@@ -114,7 +136,6 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
         
         handle_file_change: function(evt) {
 
-            var that = this;
             var _files = evt.target.files;
             var filenames = [];
             var file_readers = [];
@@ -142,6 +163,7 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
                 this.label.innerHTML = "  " + filenames.length + " files selected";
             };
             this.label.prepend(this.icon);
+            this.file.setAttribute('disabled', 'true');           
         },
     });
 
@@ -191,9 +213,14 @@ class FileWidget(widgets.DOMWidget):
 
 class FileUpload(object):
 
-    def __init__(self, name, desc, **kwargs):
-        width = kwargs.get('width', 'auto')
-        self.cb = kwargs.get('cb')
+    def __init__(self, name, 
+                       desc, 
+                       dir='tmpdir',
+                       maxnum=1,
+                       maxsize='1M', 
+                       cb=None,
+                       width='auto'):
+
         form_item_layout = widgets.Layout(
             display='flex',
             flex_flow='row',
@@ -203,27 +230,67 @@ class FileUpload(object):
         )
 
         self.input = FileWidget()
-        self.input.multiple = kwargs.get('multiple', False)
+        if maxnum > 1:
+            self.input.multiple = True
+        self.maxnum = maxnum
+        self.maxsize = to_bytes(maxsize)
         self.input.observe(self._filenames_received, names='filenames')
         self.input.observe(self._data_received, names='sent')
         self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
                                   layout=widgets.Layout(flex='2 1 auto'))
         self.up = widgets.HBox([self.label, self.input], layout=form_item_layout)
         self.w = widgets.VBox([self.up])
+        self.dir = dir
+        self.cb = cb
         self.prog = None
+        self.fnames = []
 
     def _filenames_received(self, change):
         # print('FILENAMES', len(change['new']), change['new'])
         num = len(change['new'])
         if num == 0:
             return
+
+        # clear old progress bars, if any
         if self.prog:
             self.w.children = [self.up]
             del self.prog
             self.prog = None
             del self.progress
-        if self.cb:
-            self.cb(change['new'])
+
+        self.fnames = []
+        sizes = []
+        self.nums = []
+        for i, (name, sz) in enumerate(self.input.filenames):
+            if sz > self.maxsize:
+                print('File "%s" larger than maxsize.' % name, file=sys.stderr)
+                continue
+            self.fnames.append(name)
+            sizes.append(sz)
+            self.nums.append(i)
+
+        if sizes == []:
+            self.reset()        
+            return
+
+        # truncate list if necessary
+        if len(self.fnames) > self.maxnum:
+            print('Too many files selected (%s). Truncating...' % len(self.fnames), file=sys.stderr)
+
+        self.fnames = self.fnames[:self.maxnum]
+
+        self.prog = [pwidget(self.fnames[i], sizes[i]) for i in range(len(self.fnames))]
+        self.progress = widgets.VBox(self.prog)
+        self.w.children = [self.up, self.progress]
+
+        mkdir_p(self.dir)
+        self.fnames = [os.path.join(self.dir, n) for n in self.fnames]
+
+        self.f = open(self.fnames[0], 'wb')
+        self.fnum = 0
+        self.fcnt = 0
+        self.input.send = [self.nums[0], self.fcnt]
+        # data_changed callback will handle the rest
 
     def _data_received(self, change):
         if change['new'] == -1:
@@ -242,55 +309,31 @@ class FileUpload(object):
             self.f.close()
             if self.fnum >= len(self.fnames) - 1:
                 # done with all downloads
-                if self.rec_cb:
-                    self.rec_cb(self.fnames)
+                if self.cb:
+                    self.cb(self.fnames)
                 return
             self.fnum += 1
             self.f = open(self.fnames[self.fnum], 'wb')
             self.fcnt = 0
-            self.input.send = [self.fnum, self.fcnt]
+            self.input.send = [self.nums[self.fnum], self.fcnt]
             return
         self.f.write(data)
         self.fcnt += dlen
         self.prog[self.fnum].value = self.fcnt
-        self.input.send = [self.fnum, self.fcnt]
+        self.input.send = [self.nums[self.fnum], self.fcnt]
 
     def reset(self):
+        # clear the filenames and progress bar(s)
+        if self.prog:
+            self.w.children = [self.up]
+            del self.prog
+            self.prog = None
+            del self.progress
         self.input.reset = True
         self.input.reset = False
 
-    def list(self, sizes=False):
-        if sizes:
-            return self.input.filenames
-        return [f[0] for f in self.input.filenames]
-
-    def save(self, name=None, dir=None, cb=None):
-        self.fnames = [n[0] for n in self.input.filenames]
-        numfiles = len(self.fnames)
-        if numfiles == 0:
-            return
-        if name and numfiles != 1:
-            print("'name' should not be set for multiple file uploads.", file=sys.stderr)
-            return
-
-        self.rec_cb = cb
-        sizes = [n[1] for n in self.input.filenames]
-        self.prog = [pwidget(self.fnames[i], sizes[i]) for i in range(len(self.fnames))]
-        self.progress = widgets.VBox(self.prog)
-        self.w.children = [self.up, self.progress]
-
-        if name:
-            self.fnames = [name]
-
-        if dir:
-            mkdir_p(dir)
-            self.fnames = [os.path.join(dir, n) for n in self.fnames]
-
-        self.f = open(self.fnames[0], 'wb')
-        self.fnum = 0
-        self.fcnt = 0
-        self.input.send = [self.fnum, self.fcnt]
-        # data_changed callback will handle the rest
+    def list(self):
+        return self.fnames
 
     @property
     def visible(self):
