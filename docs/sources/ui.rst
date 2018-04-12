@@ -397,7 +397,8 @@ File Upload
     :param name: The name that will appear in the field.
     :param desc: An optional description. This will appear in a popover dialog.
     :param disabled: The initial state. Defaults to False.
-    :param cb: An optional callback function called when the upload completes.
+    :param cb: An optional callback function called when the upload completes. cb() will be called
+        with a single parameter; a list of lists containing filenames and sizes.
     :param width: Optional width as a percent string (for example, '50%').
     :param multiple: Allow multiple files to be selected. Default False.
 
@@ -419,12 +420,30 @@ File Upload
         >>> f.list(sizes=True)
         [('quote1.txt', 94), ('quote2.txt', 186)]
 
-    save(name=None, dir=None)
+    save(name=None, dir=None, cb=None)
         Uploads the files.
 
         If **name** is a string and only a single file is selected, the file will be uploaded
         to that name. If **dir** is a string, a directory with that name will be created
-        (if necessary) and the file(s) will be placed there.
+        (if necessary) and the file(s) will be placed there.  For multi-file uploads this is strongly
+        recommended and no **name** should be set.  **cb** is an optional callback function that will be
+        called when all uploads are finished with the list of names uploaded.
+
+
+        >>> # called when all files finish uploading
+        >>> def done_cb(name):
+        >>>    print("%s downloaded" % name)
+        >>>
+        >>> # this is called when the files are selected
+        >>> def file_cb(names):
+        >>>     print("FILE CB: ", names)
+        >>>     f.save(dir='tmpdir', cb=done_cb)
+        >>>
+        >>> # this will allow you to select a single file to be uploaded
+        >>> f = FileUpload("Really Interesting File", 
+               "This is a description that appears when the mouse hovers over the name.", 
+                cb=file_cb)
+        >>> display(f)
 
 Modal
 --------

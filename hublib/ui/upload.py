@@ -215,6 +215,8 @@ class FileUpload(object):
             del self.prog
             self.prog = None
             del self.progress
+        if self.cb:
+            self.cb(change['new'])
 
     def _data_received(self, change):
         if change['new'] == -1:
@@ -223,8 +225,6 @@ class FileUpload(object):
             # unexpected error
             self.prog[self.fnum].bar_style='error'
             print("Error downloading %s" % self.fnames[self.fnum], file=sys.stderr)
-            if self.cb:
-                self.cb(None)
             return
 
         data = base64.b64decode(self.input.data)
@@ -235,8 +235,8 @@ class FileUpload(object):
             self.f.close()
             if self.fnum >= len(self.fnames) - 1:
                 # done with all downloads
-                if self.cb:
-                    self.cb(self.fnames)
+                if self.rec_cb:
+                    self.rec_cb(self.fnames)
                 return
             self.fnum += 1
             self.f = open(self.fnames[self.fnum], 'wb')
@@ -253,7 +253,7 @@ class FileUpload(object):
             return self.input.filenames
         return [f[0] for f in self.input.filenames]
 
-    def save(self, name=None, dir=None):
+    def save(self, name=None, dir=None, cb=None):
         self.fnames = [n[0] for n in self.input.filenames]
         numfiles = len(self.fnames)
         if numfiles == 0:
@@ -262,6 +262,7 @@ class FileUpload(object):
             print("'name' should not be set for multiple file uploads.", file=sys.stderr)
             return
 
+        self.rec_cb = cb
         sizes = [n[1] for n in self.input.filenames]
         self.prog = [pwidget(self.fnames[i], sizes[i]) for i in range(len(self.fnames))]
         self.progress = widgets.VBox(self.prog)
