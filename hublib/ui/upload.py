@@ -47,12 +47,18 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
             this.el.appendChild(this.label);
             this.el.appendChild(this.file);
             this.listenTo(this.model, 'change:send', this._send_changed, this);
+            this.listenTo(this.model, 'change:reset', this._reset, this);
             this.update();
         },
 
         events: {
             // List of events and their handlers.
             'change': 'handle_file_change'
+        },
+
+        _reset: function() {
+            this.label.innerHTML = this.labelstr;
+            this.label.prepend(this.icon);
         },
 
         _send_changed: function() {
@@ -156,6 +162,7 @@ class FileWidget(widgets.DOMWidget):
     data = Unicode().tag(sync=True)
     send = List([]).tag(sync=True)
     sent = Int().tag(sync=True)
+    reset = Bool(False).tag(sync=True)
 
     def __init__(self, **kwargs):
 
@@ -247,6 +254,10 @@ class FileUpload(object):
         self.fcnt += dlen
         self.prog[self.fnum].value = self.fcnt
         self.input.send = [self.fnum, self.fcnt]
+
+    def reset(self):
+        self.input.reset = True
+        self.input.reset = False
 
     def list(self, sizes=False):
         if sizes:
