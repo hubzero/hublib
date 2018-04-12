@@ -753,21 +753,23 @@ Unless noted, attributes are read/write.</dd>
 <h2>File Upload<a class="headerlink" href="#file-upload" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="hublib.ui.FileUpload">
-<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">FileUpload</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em>, <em>options</em><span class="optional">[</span>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.FileUpload" title="Permalink to this definition">¶</a></dt>
-<dd><p>A button that opens a file browser on your computer that allows you to upload a single or multiple files.
-Data will be downloaded when the <em>save</em> method is called.</p>
+<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">FileUpload</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em><span class="optional">[</span>, <em>dir='tmpdir'</em>, <em>maxnum=1</em>, <em>maxsize='1M'</em>, <em>cb=None</em>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.FileUpload" title="Permalink to this definition">¶</a></dt>
+<dd><p>A button that opens a file browser on your computer that allows you to upload a single or multiple files.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>name</strong> – The name that will appear in the field.</li>
-<li><strong>desc</strong> – An optional description. This will appear in a popover dialog.</li>
-<li><strong>disabled</strong> – The initial state. Defaults to False.</li>
+<li><strong>desc</strong> – Description. This will appear in a popover dialog.</li>
+<li><strong>dir</strong> – The subdirectory name whene the files will be uploaded. Defaults to ‘tmpdir’</li>
 <li><strong>cb</strong> – An optional callback function called when the upload completes. cb() will be called
-with a single parameter; a list of lists containing filenames and sizes.</li>
+with a single parameter; a list of filenames uploaded.</li>
+<li><strong>maxnum</strong> – Maximum number of files to be selected. Default is 1.</li>
+<li><strong>maxsize</strong> – Maximum size of uploaded files. String or integer. Strings contain numbers optionally
+followed by ‘M’, ‘K’, or ‘G’.  For example ‘2G’.  Files selected larger than this number
+will not be uploaded and an error will be displayed to stderr. Default is ‘1M’.</li>
 <li><strong>width</strong> – Optional width as a percent string (for example, ‘50%’).</li>
-<li><strong>multiple</strong> – Allow multiple files to be selected. Default False.</li>
 </ul>
 </td>
 </tr>
@@ -786,35 +788,25 @@ Unless noted, attributes are read/write.</dd>
 
 <img alt="_images/fileupload.png" src="_images/fileupload.png" />
 <dl class="docutils">
-<dt>list(sizes=False)</dt>
-<dd><p class="first">Returns a list of filenames with optional sizes.</p>
+<dt>list()</dt>
+<dd><p class="first">Returns a list of filenames that were uploaded.</p>
 <div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 <span class="go">[&#39;quote1.txt&#39;, &#39;quote2.txt&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">sizes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">[(&#39;quote1.txt&#39;, 94), (&#39;quote2.txt&#39;, 186)]</span>
 </pre></div>
 </div>
 </dd>
-<dt>save(name=None, dir=None, cb=None)</dt>
-<dd><p class="first">Uploads the files.</p>
-<p>If <strong>name</strong> is a string and only a single file is selected, the file will be uploaded
-to that name. If <strong>dir</strong> is a string, a directory with that name will be created
-(if necessary) and the file(s) will be placed there.  For multi-file uploads this is strongly
-recommended and no <strong>name</strong> should be set.  <strong>cb</strong> is an optional callback function that will be
-called when all uploads are finished with the list of names uploaded.</p>
+<dt>reset()</dt>
+<dd><p class="first">Clears the filename(s) and progress bar(s). Re-enables the widget
+to allow more files to be selected for uploading.</p>
 <div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># called when all files finish uploading</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">done_cb</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> downloaded&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># this is called when the files are selected</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">file_cb</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FILE CB: &quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">f</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;tmpdir&#39;</span><span class="p">,</span> <span class="n">cb</span><span class="o">=</span><span class="n">done_cb</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">f</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># this will allow you to select a single file to be uploaded</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">FileUpload</span><span class="p">(</span><span class="s2">&quot;Really Interesting File&quot;</span><span class="p">,</span>
 <span class="go">       &quot;This is a description that appears when the mouse hovers over the name.&quot;,</span>
-<span class="go">        cb=file_cb)</span>
+<span class="go">        cb=done_cb)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">display</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 </pre></div>
 </div>

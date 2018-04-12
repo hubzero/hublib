@@ -246,6 +246,7 @@ class FileUpload(object):
         self.fnames = []
 
     def _filenames_received(self, change):
+        # We have received a list of files from the widget.
         # print('FILENAMES', len(change['new']), change['new'])
         num = len(change['new'])
         if num == 0:
@@ -293,6 +294,7 @@ class FileUpload(object):
         # data_changed callback will handle the rest
 
     def _data_received(self, change):
+        # process received blocks of data and request the next one until done.
         if change['new'] == -1:
             return
         if change['new'] == -2:
@@ -305,7 +307,7 @@ class FileUpload(object):
         dlen = len(data)
         # print("GOT DATA (%d) [%d] for file %d" % (dlen, self.fcnt, self.fnum))
         if dlen == 0:
-            self.prog[self.fnum].bar_style='success'
+            self.prog[self.fnum].bar_style = 'success'
             self.f.close()
             if self.fnum >= len(self.fnames) - 1:
                 # done with all downloads
@@ -323,7 +325,8 @@ class FileUpload(object):
         self.input.send = [self.nums[self.fnum], self.fcnt]
 
     def reset(self):
-        # clear the filenames and progress bar(s)
+        # Clear the filenames and progress bar(s)
+        # Re-enable the upload widget
         if self.prog:
             self.w.children = [self.up]
             del self.prog
@@ -357,8 +360,8 @@ def pwidget(name, num):
         max=num,
         description='%s:' % name,
         orientation='horizontal',
-        style = {'description_width': 'initial'},
-        layout = widgets.Layout(width='95%')
+        style={'description_width': 'initial'},
+        layout=widgets.Layout(width='95%')
     )
 
 
