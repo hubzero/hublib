@@ -89,13 +89,14 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
             var fnum = send[0];
             var offset = send[1];
             var chunk_size=64*1024;
-            
+            var reader;
+
             if (offset == 0) {
                 this.model.set('sent', -1);
                 this.touch();
             }
 
-            //console.log('send: ' + fnum + ' ' + offset);
+            // console.log('send: ' + fnum + ' ' + offset);
             function tob64( buffer ) {
                 var binary = '';
                 var bytes = new Uint8Array( buffer );
@@ -108,22 +109,23 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
 
             var reader_done = function (event) {
                 // chunk is finished.  Send to python
-                //console.log(event);
                 if (event.target.error == null) {
                     var b64 = tob64(event.target.result);
                     that.model.set('data', b64);
                     that.model.set('sent', offset);
+                    that.touch();
                 } else {
                     console.log("Read error: " + event.target.error);
                     that.model.set('data', '');
                     that.model.set('sent', -2);
+                    that.touch();
                 }
                 that.touch();
             }
         
             var chunk_reader = function (_offset, _f) {
                 // console.log('CR' + ' ' + _f + ' ' + _offset);
-                var reader = new FileReader();
+                reader = new FileReader();
                 var chunk = _f.slice(_offset, chunk_size + _offset);            
                 reader.readAsArrayBuffer(chunk);
                 reader.onload = reader_done;
@@ -245,6 +247,7 @@ class FileUpload(object):
         self.prog = None
         self.fnames = []
 
+
     def _filenames_received(self, change):
         # We have received a list of files from the widget.
         # print('FILENAMES', len(change['new']), change['new'])
@@ -293,7 +296,9 @@ class FileUpload(object):
         self.input.send = [self.nums[0], self.fcnt]
         # data_changed callback will handle the rest
 
+
     def _data_received(self, change):
+        # print("_data_received")
         # process received blocks of data and request the next one until done.
         if change['new'] == -1:
             return
