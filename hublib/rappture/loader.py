@@ -16,7 +16,7 @@ class RapLoader(Node):
 
 
     @staticmethod
-    def copy_defaults(tree):
+    def copy_defaults(tree, reset=False):
         # print("copy_defaults", tree)
         # Set <current> values from their <default>.  If units are required,
         # be sure to set them. Do some horrible hack to set choices.
@@ -47,12 +47,14 @@ class RapLoader(Node):
                         break
             if par.tag == 'loader':
                 continue
+            current = par.find("current")
+            if current is None:
+                current = ET.SubElement(par, 'current')
+            elif current.text is not None and reset is False:
+                continue 
             if newtext is None:
                 newtext = default.text
-            current = par.find("current")
             units = par.find("units")
-            if current is None:
-                current = ET.SubElement(par, 'current')                
             if units is not None and units.text is not None and units.text != "":
                 v, u = parse.findall(newtext)[0]
                 if u == "":
@@ -93,7 +95,6 @@ class RapLoader(Node):
 
     @staticmethod
     def create_element(root, new_elem, plist):
-        # print("CREATE_ELEMENT", plist)
         elem = root
         for p, pelem in plist:
             child = elem.find(p)
@@ -106,6 +107,8 @@ class RapLoader(Node):
         if current is not None:
             elem.remove(current)
         elem.append(deepcopy(new_elem))
+
+        # loader might have set defaults without setting current?
         RapLoader.copy_defaults(elem)
 
         # probably don't need this

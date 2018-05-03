@@ -29,15 +29,21 @@ def get_elem_info(elem):
     try:
         label = elem.find("about/label").text
     except:
-        label = ''
+        label = None
     try:
         group = elem.find("about/group").text
     except:
-        group = ''
+        group = None
     try:
         desc = elem.find("about/description").text
     except:
+        desc = None
+    if desc is None:
         desc = ''
+    if label is None:
+        label = ''
+    if group is None:
+        group = ''
     return id, label, group, desc
 
 
@@ -50,8 +56,8 @@ class RapXML(Node):
         self.info = None
         if hasattr(self, 'dirname'):
             # only Tools have dirname
+            RapLoader.copy_defaults(self.tree)  # necessary?
             self.load_loaders()
-            RapLoader.copy_defaults(self.tree)
         else:
             self.dirname = None
 
@@ -59,6 +65,7 @@ class RapXML(Node):
     def load_loaders(self):
         # now load all the default loaders
         for loader in self.tree.findall("input//loader"):
+            # print("Found loader", loader)
             default = loader.find("default")
             current = loader.find("current")
             if current is None:
@@ -66,10 +73,11 @@ class RapXML(Node):
 
             for ex in loader.findall('example'):
                 path = os.path.join(self.dirname, "rappture", "examples", ex.text)
+                # print("path=", path)
                 for file in glob(path):
                     if os.path.basename(file) == default.text:
                         RapLoader.load(self.tree, loader, current, file)
-                        return
+                        break
 
     def _repr_html_(self):
         self.info = RapXMLInfo(self)
@@ -126,13 +134,19 @@ class RapXMLInfo(object):
     def parse_loader(self, elem, path):
         try:
             label = elem.find('about/label').text
+            path += '.loader'
+            try:
+                _id = elem.attrib['id']
+                path = path + '(%s)' % _id
+            except:
+                pass
             # print("LOADER: label=%s path=%s" % (label, path))
             for ex in elem.findall('example'):
                 if label in self.llist:
                     self.llist[label].append(ex.text)
                 else:
                     self.llist[label] = [ex.text]
-                    self.lpath[label] = path + '.loader'
+                    self.lpath[label] = path
         except:
             pass
 
