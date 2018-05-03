@@ -56,7 +56,7 @@ class RapXML(Node):
         self.info = None
         if hasattr(self, 'dirname'):
             # only Tools have dirname
-            RapLoader.copy_defaults(self.tree)  # necessary?
+            RapLoader.copy_defaults(self.tree, reset=True)
             self.load_loaders()
         else:
             self.dirname = None
