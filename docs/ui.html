@@ -1023,7 +1023,7 @@ standard output is received..</li>
 <h2>Submit<a class="headerlink" href="#submit" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="hublib.ui.Submit">
-<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Submit</code><span class="sig-paren">(</span><em>label='Run'</em>, <em>tooltip='Run Simulation'</em>, <em>start_func=None</em>, <em>done_func=None</em>, <em>cachename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Submit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Submit</code><span class="sig-paren">(</span><em>label='Run'</em>, <em>tooltip='Run Simulation'</em>, <em>start_func=None</em>, <em>done_func=None</em>, <em>outcb=None</em>, <em>show_progress=True</em>, <em>width='auto'</em>, <em>cachename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Submit" title="Permalink to this definition">¶</a></dt>
 <dd><p>A widget to run the submit command and monitor progress.
 Includes optional local caching of results.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1039,6 +1039,10 @@ start button is pressed.</li>
 submit function is completed.</li>
 <li><strong>cachename</strong> – Optional. Name of the tool or other unique
 name that will be used for the cache directory.</li>
+<li><strong>outcb</strong> – Optional function to be called when
+standard output is received..</li>
+<li><strong>show_progress</strong> – Show progress bar?  Default is True.</li>
+<li><strong>width</strong> – Default is ‘auto’.</li>
 </ul>
 </td>
 </tr>

@@ -31,6 +31,10 @@ class Submit(object):
         submit function is completed.
     :param cachename: Optional. Name of the tool or other unique
         name that will be used for the cache directory.
+    :param outcb: Optional function to be called when
+        standard output is received..
+    :param show_progress: Show progress bar?  Default is True.
+    :param width: Default is 'auto'.
     """
     SIGNALS_TO_NAMES_DICT = dict((getattr(signal, n), n)
         for n in dir(signal) if n.startswith('SIG') and '_' not in n)
@@ -45,18 +49,24 @@ class Submit(object):
                  tooltip='Run Simulation',
                  start_func=None,
                  done_func=None,
+                 outcb=None,
+                 show_progress=True,
+                 width='auto',
                  cachename=None):
         self.label = label
         self.tooltip = tooltip
         self.start_func = start_func
         self.done_func = done_func
+        self.outcb = outcb
         self.cachename = cachename
         self.q = Queue()
         self.thread = 0
         self.status = None
         self.txt = None
+        self.show_progress = show_progress
         self.progress = None
         self.make_rname = None
+        self.width = width
 
         if start_func is None:
             print("start_func is required.", file=sys.stderr)
@@ -89,7 +99,12 @@ class Submit(object):
 
         self.but.on_click(self._but_cb)
         self.disabled = False
-        self.w = w.VBox([self.but])
+        _layout = w.Layout(
+            flex_flow='column',
+            justify_content='flex-start',
+            width=self.width
+        )
+        self.w = w.VBox([self.but], layout=_layout)
 
     def _but_cb(self, change):
         if self.but.description == self.label:
@@ -170,7 +185,7 @@ class Submit(object):
             self.txt = w.Textarea(
                 layout={'width': '100%', 'height': '400px'}
             )
-            self.acc = w.Accordion(children=[self.txt])
+            self.acc = w.Accordion(children=[self.txt], width=self.width)
             self.acc.set_title(0, 'Output')
             self.acc.selected_index = None
         else:
@@ -231,16 +246,18 @@ class Submit(object):
             return status
 
         b1 = w.Button(tooltip='Clear the cache for this run.', 
-                      description='Clear Entry', 
-                      layout=w.Layout(margin='0 30px 0 30px'))
+                      description='Clear Entry')
         b2 = w.Button(tooltip='Clear the entire cache for this tool.', 
                       description='Clear All', 
                       button_style='warning', 
-                      icon='trash', 
-                      layout=w.Layout(margin='0 30px 0 0'))
+                      icon='trash')
         b1.on_click(self.clear_cache)
         b2.on_click(self.clear_cache)
-        return w.HBox([status, b1, b2])
+        _layout = w.Layout(
+            flex='1 1  auto',
+            flex_flow='row wrap'
+        )
+        return w.HBox([status, b1, b2], layout=_layout)
 
     def _ipython_display_(self):
         self.w._ipython_display_()
@@ -313,7 +330,10 @@ def poll_thread(cmd, self):
                     # write c to output widget
                     self.txt.value += c
                     # parse string and update progress bars
-                    self.update(c)
+                    if self.show_progress:
+                        self.update(c)
+                    if self.outcb:
+                        self.outcb(c)
 
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
