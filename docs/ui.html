@@ -1040,7 +1040,9 @@ submit function is completed.</li>
 <li><strong>cachename</strong> – Optional. Name of the tool or other unique
 name that will be used for the cache directory.</li>
 <li><strong>outcb</strong> – Optional function to be called when
-standard output is received..</li>
+standard output is received. Any returned value
+is written to the submit output widget, otherwise that widget
+will be empty when this is used.</li>
 <li><strong>show_progress</strong> – Show progress bar?  Default is True.</li>
 <li><strong>width</strong> – Default is ‘auto’.</li>
 </ul>

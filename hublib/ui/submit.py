@@ -32,7 +32,9 @@ class Submit(object):
     :param cachename: Optional. Name of the tool or other unique
         name that will be used for the cache directory.
     :param outcb: Optional function to be called when
-        standard output is received..
+        standard output is received. Any returned value
+        is written to the submit output widget, otherwise that widget
+        will be empty when this is used.
     :param show_progress: Show progress bar?  Default is True.
     :param width: Default is 'auto'.
     """
@@ -327,13 +329,14 @@ def poll_thread(cmd, self):
                         c = c[:-1]
                     self.txt.value += u'⇉ ' + c + u' ⇇\n'
                 else:
-                    # write c to output widget
-                    self.txt.value += c
                     # parse string and update progress bars
                     if self.show_progress:
                         self.update(c)
                     if self.outcb:
-                        self.outcb(c)
+                        c = self.outcb(c)
+                    # write c to output widget
+                    if c:
+                        self.txt.value += c
 
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
