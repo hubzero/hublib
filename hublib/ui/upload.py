@@ -91,6 +91,11 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
             var chunk_size=64*1024;
             var reader;
 
+            if (fnum == -1) {
+                // ignore
+                return
+            }
+
             if (offset == 0) {
                 this.model.set('sent', -1);
                 this.touch();
@@ -151,7 +156,6 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
                 this.files.push(file);
                 filenames.push([file.name, file.size]);
             };
-
             // Set the filenames of the files.
             this.model.set('filenames', filenames);
             this.touch();
@@ -165,7 +169,7 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
                 this.label.innerHTML = "  " + filenames.length + " files selected";
             };
             this.label.prepend(this.icon);
-            this.file.setAttribute('disabled', 'true');           
+            this.file.setAttribute('disabled', 'true');
         },
     });
 
@@ -221,6 +225,7 @@ class FileUpload(object):
                        maxnum=1,
                        maxsize='1M', 
                        cb=None,
+                       basic=False,
                        width='auto'):
 
         form_item_layout = widgets.Layout(
@@ -230,7 +235,10 @@ class FileUpload(object):
             justify_content='space-between',
             width=width
         )
-
+        basic_layout = widgets.Layout(
+            flex='10 1 auto',
+            width=width
+        )
         self.input = FileWidget()
         if maxnum > 1:
             self.input.multiple = True
@@ -238,10 +246,17 @@ class FileUpload(object):
         self.maxsize = to_bytes(maxsize)
         self.input.observe(self._filenames_received, names='filenames')
         self.input.observe(self._data_received, names='sent')
-        self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
-                                  layout=widgets.Layout(flex='2 1 auto'))
-        self.up = widgets.HBox([self.label, self.input], layout=form_item_layout)
-        self.w = widgets.VBox([self.up])
+        self.basic = basic
+        if basic:
+            self.up = widgets.HBox([self.input], layout=basic_layout)
+            self.w = widgets.HBox([self.up])
+        else:
+            label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name),
+                                 layout=widgets.Layout(flex='2 1 auto'))
+
+            self.up = widgets.HBox([label, self.input], layout=form_item_layout)
+            self.w = widgets.VBox([self.up])
+
         self.dir = dir
         self.cb = cb
         self.prog = None
@@ -283,8 +298,8 @@ class FileUpload(object):
 
         self.fnames = self.fnames[:self.maxnum]
 
-        self.prog = [pwidget(self.fnames[i], sizes[i]) for i in range(len(self.fnames))]
-        self.progress = widgets.VBox(self.prog)
+        self.prog = [pwidget(self.fnames[i], sizes[i], self.basic) for i in range(len(self.fnames))]
+        self.progress = widgets.VBox(self.prog, layout={'width': '100%'})
         self.w.children = [self.up, self.progress]
 
         mkdir_p(self.dir)
@@ -293,6 +308,7 @@ class FileUpload(object):
         self.f = open(self.fnames[0], 'wb')
         self.fnum = 0
         self.fcnt = 0
+        self.input.send = [-1, 0]
         self.input.send = [self.nums[0], self.fcnt]
         # data_changed callback will handle the rest
 
@@ -317,7 +333,7 @@ class FileUpload(object):
             if self.fnum >= len(self.fnames) - 1:
                 # done with all downloads
                 if self.cb:
-                    self.cb(self.fnames)
+                    self.cb(self, self.fnames)
                 return
             self.fnum += 1
             self.f = open(self.fnames[self.fnum], 'wb')
@@ -330,6 +346,7 @@ class FileUpload(object):
         self.input.send = [self.nums[self.fnum], self.fcnt]
 
     def reset(self):
+        # print("RESET", self)
         # Clear the filenames and progress bar(s)
         # Re-enable the upload widget
         if self.prog:
@@ -358,16 +375,25 @@ class FileUpload(object):
         self.w._ipython_display_()
 
 
-def pwidget(name, num):
-    return widgets.IntProgress(
-        value=0,
-        min=0,
-        max=num,
-        description='%s:' % name,
-        orientation='horizontal',
-        style={'description_width': 'initial'},
-        layout=widgets.Layout(width='95%')
-    )
+def pwidget(name, num, basic):
+    if basic:
+        return widgets.IntProgress(
+            value=0,
+            min=0,
+            max=num,
+            orientation='horizontal',
+            layout=widgets.Layout(width='95%')
+        )
+    else:
+        return widgets.IntProgress(
+            value=0,
+            min=0,
+            max=num,
+            description='%s:' % name,
+            orientation='horizontal',
+            style={'description_width': 'initial'},
+            layout=widgets.Layout(width='95%')
+        )
 
 
 def mkdir_p(path):

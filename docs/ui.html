@@ -764,11 +764,13 @@ Unless noted, attributes are read/write.</dd>
 <li><strong>desc</strong> – Description. This will appear in a popover dialog.</li>
 <li><strong>dir</strong> – The subdirectory name whene the files will be uploaded. Defaults to ‘tmpdir’</li>
 <li><strong>cb</strong> – An optional callback function called when the upload completes. cb() will be called
-with a single parameter; a list of filenames uploaded.</li>
+with a two parameters; a widget reference and the filename that has finished uploading.</li>
 <li><strong>maxnum</strong> – Maximum number of files to be selected. Default is 1.</li>
 <li><strong>maxsize</strong> – Maximum size of uploaded files. String or integer. Strings contain numbers optionally
 followed by ‘M’, ‘K’, or ‘G’.  For example ‘2G’.  Files selected larger than this number
 will not be uploaded and an error will be displayed to stderr. Default is ‘1M’.</li>
+<li><strong>basic</strong> – Boolean (default False). No name or description. Just a basic upload widget.  Progress
+bar appears to the right of the widget when uploading.</li>
 <li><strong>width</strong> – Optional width as a percent string (for example, ‘50%’).</li>
 </ul>
 </td>
@@ -799,9 +801,9 @@ Unless noted, attributes are read/write.</dd>
 <dd><p class="first">Clears the filename(s) and progress bar(s). Re-enables the widget
 to allow more files to be selected for uploading.</p>
 <div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># called when all files finish uploading</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">done_cb</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">done_cb</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> downloaded&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span>   <span class="n">f</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">w</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># this will allow you to select a single file to be uploaded</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">FileUpload</span><span class="p">(</span><span class="s2">&quot;Really Interesting File&quot;</span><span class="p">,</span>

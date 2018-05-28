@@ -397,11 +397,13 @@ File Upload
     :param desc: Description. This will appear in a popover dialog.
     :param dir: The subdirectory name whene the files will be uploaded. Defaults to 'tmpdir'     
     :param cb: An optional callback function called when the upload completes. cb() will be called
-        with a single parameter; a list of filenames uploaded.
+        with a two parameters; a widget reference and the filename that has finished uploading.
     :param maxnum: Maximum number of files to be selected. Default is 1.
     :param maxsize: Maximum size of uploaded files. String or integer. Strings contain numbers optionally
         followed by 'M', 'K', or 'G'.  For example '2G'.  Files selected larger than this number
         will not be uploaded and an error will be displayed to stderr. Default is '1M'.
+    :param basic: Boolean (default False). No name or description. Just a basic upload widget.  Progress
+        bar appears to the right of the widget when uploading.
     :param width: Optional width as a percent string (for example, '50%').
 
     Attributes:
@@ -425,9 +427,9 @@ File Upload
         to allow more files to be selected for uploading.
 
         >>> # called when all files finish uploading
-        >>> def done_cb(name):
+        >>> def done_cb(w, name):
         >>>    print("%s downloaded" % name)
-        >>>    f.reset()
+        >>>    w.reset()
         >>>
         >>> # this will allow you to select a single file to be uploaded
         >>> f = FileUpload("Really Interesting File", 
