@@ -156,6 +156,7 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
                 this.files.push(file);
                 filenames.push([file.name, file.size]);
             };
+            
             // Set the filenames of the files.
             this.model.set('filenames', filenames);
             this.touch();
@@ -163,13 +164,15 @@ define('filepicker', ["@jupyter-widgets/base"], function(widgets) {
             // update the label
             if (filenames.length == 0) {
                 this.label.innerHTML = this.labelstr;
+                this.file.removeAttribute("disabled");
             } else if (filenames.length == 1) {
                 this.label.innerHTML = "  " + filenames[0][0];
+                this.file.setAttribute('disabled', 'true');
             } else {
                 this.label.innerHTML = "  " + filenames.length + " files selected";
+                this.file.setAttribute('disabled', 'true');           
             };
             this.label.prepend(this.icon);
-            this.file.setAttribute('disabled', 'true');
         },
     });
 
@@ -219,14 +222,15 @@ class FileWidget(widgets.DOMWidget):
 
 class FileUpload(object):
 
-    def __init__(self, name, 
-                       desc, 
-                       dir='tmpdir',
-                       maxnum=1,
-                       maxsize='1M', 
-                       cb=None,
-                       basic=False,
-                       width='auto'):
+    def __init__(self, 
+                 name, 
+                 desc, 
+                 dir='tmpdir',
+                 maxnum=1,
+                 maxsize='1M', 
+                 cb=None,
+                 basic=False,
+                 width='auto'):
 
         form_item_layout = widgets.Layout(
             display='flex',
@@ -261,7 +265,6 @@ class FileUpload(object):
         self.cb = cb
         self.prog = None
         self.fnames = []
-
 
     def _filenames_received(self, change):
         # We have received a list of files from the widget.
@@ -312,7 +315,6 @@ class FileUpload(object):
         self.input.send = [self.nums[0], self.fcnt]
         # data_changed callback will handle the rest
 
-
     def _data_received(self, change):
         # print("_data_received")
         # process received blocks of data and request the next one until done.
@@ -320,7 +322,7 @@ class FileUpload(object):
             return
         if change['new'] == -2:
             # unexpected error
-            self.prog[self.fnum].bar_style='error'
+            self.prog[self.fnum].bar_style = 'error'
             print("Error downloading %s" % self.fnames[self.fnum], file=sys.stderr)
             return
 
