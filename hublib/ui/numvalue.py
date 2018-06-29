@@ -8,6 +8,8 @@ class NumValue(object):
 
     @staticmethod
     def find_unit(xpr):
+        if type(xpr) == str and xpr.startswith('/'):
+            return None
         if xpr is None:
             return None
         if hasattr(xpr, 'compatible_units'):
@@ -19,6 +21,8 @@ class NumValue(object):
         self._width = kwargs.get('width', 'auto')
         self._cb = kwargs.get('cb')
         self._desc = kwargs.get('desc', '')
+        if self._desc == '':
+            self._desc = kwargs.get('description', '')
         self.default = self.dd.value
         self.disabled = kwargs.get('disabled', False)
         units = kwargs.get('units')
@@ -32,7 +36,7 @@ class NumValue(object):
         self.oldval = None
         self.no_cb = False
         self.name = name
-
+        self._format = kwargs.get('format', '')
         self._min = kwargs.get('min')
         self._max = kwargs.get('max')
         if self._min is not None:
@@ -58,14 +62,6 @@ class NumValue(object):
         if self.units:
             desc += "You can type expressions using other units and they will be converted if possible."
 
-        if self.min is not None:
-            desc += "\n\n"
-            if self.min is not None:
-                desc += "Min: %s\n" % self.min
-            if self.max is not None:
-                desc += "Max: %s\n" % self.max
-            desc += "\n"
-
         label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, self.name),
                              layout=widgets.Layout(flex='2 1 auto'))
         form_item_layout = widgets.Layout(
@@ -87,6 +83,15 @@ class NumValue(object):
         self._desc = val
         self._build()
 
+    @property
+    def format(self):
+        return self._format
+
+    @format.setter
+    def format(self, val):
+        self._format = val
+        self.value = self.value
+        
     @property
     def min(self):
         return self._min
@@ -174,6 +179,8 @@ class NumValue(object):
 
             if self.units is not None:
                 val = '{:~}'.format(val)
+            elif self._format:
+                val = self._format.format(self.type(val))
             if val != self.oldval:
                 self.no_cb = True
                 self.dd.value = val
@@ -236,7 +243,10 @@ class NumValue(object):
         if self.check(val) is False:
             raise ValueError("Range Error")
         if self.units is None:
-            val = str(val)
+            if self._format:
+                val = self._format.format(self.type(val))
+            else:
+                val = str(self.type(val))
         else:
             val = '{:~}'.format(val)
         self.dd.value = val
@@ -265,9 +275,15 @@ class NumValue(object):
         self.dd.layout.visibility = 'hidden'
         self.w.layout.visibility = 'hidden'
 
+    def _ipython_display_(self):
+        self.w._ipython_display_()
+
 
 class Number(NumValue):
     def __init__(self, name, value, **kwargs):
+        format = kwargs.get('format', '')
+        if format:
+            value = format.format(float(value))
         if type(value) != str:
             value = str(value)
         self.type = float
@@ -280,5 +296,8 @@ class Integer(NumValue):
         if type(value) != int:
             value = int(value)
         self.type = int
+        format = kwargs.get('format', '')
+        if format:
+            value = int(format.format(value))
         self.dd = widgets.IntText(value=value, width='auto')
         NumValue.__init__(self, name, **kwargs)

@@ -1,6 +1,8 @@
 from __future__ import print_function
 from .. import ureg, Q_
 from .node import Node
+from .. import ui as ui
+from .util import from_rap
 
 
 def parse_rap_expr(units, val):
@@ -14,8 +16,18 @@ def parse_rap_expr(units, val):
     if units == 'C':
         units = ureg.degC
     else:
-        units = ureg.parse_expression(units).units
+        try:
+            units = ureg.parse_expression(units).units
+        except:
+            pass
 
+    # Another Rappture compatibility hack
+    if type(units) == str and units.startswith('/'):
+        try:
+            ind = val.index(units)
+            return val[0:ind]
+        except:
+            return val
     try:
         val = ureg.parse_expression(val)
         if hasattr(val, 'units'):
@@ -32,25 +44,43 @@ def parse_rap_expr(units, val):
 
 class Number(Node):
 
+    @property
+    def w(self):
+        vals = from_rap(self)
+        w = ui.Number(
+            name=vals['label'],
+            desc=vals['label'],
+            units=vals['units'],
+            min=vals['min'],
+            max=vals['max'],
+            value=vals['value'],
+            cb=lambda x, y: Number.value.fset(self, w.value)
+        )
+        return w
+
     def text_to_number(self, magnitude=False, units=False):
         val = self.get_text()
         u = self.elem.find('units')
+        # print("val=%s, units=%s u=%s" % (val, units, u.text))
         if units:
             if u is None or u.text == '':
                 return ''
             return ureg.parse_expression(u.text).units
-        if u is None or u == '':
+        if u is None or u == '' or (type(u) == str and u.startswith('/')):
             return float(val)
 
         val = parse_rap_expr(u.text, val)
+        if type(val) == str:
+            return float(val)
+
         if magnitude:
             return val.magnitude
         return val
 
     @property
     def value(self):
-        # print("GET NUMBER VALUE")
-        return self.text_to_number()
+        # return self.text_to_number()
+        return self.text_to_number(magnitude=True)
 
     @value.setter
     def value(self, val):
@@ -65,7 +95,7 @@ class Number(Node):
             self.set_text(str(val))
             return
 
-        uelem = elem.find('units')
+        uelem = self.elem.find('units')
         if uelem is None or uelem.text == '':
             # Rappture doesn't want units, but our expression has them!!!!
             raise ValueError("This Rappture element does not have Units!!")
@@ -86,6 +116,7 @@ class Number(Node):
 
     @property
     def magnitude(self):
+        # same as value
         return self.text_to_number(magnitude=True)
 
     @property
