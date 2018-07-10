@@ -94,3 +94,5 @@ class Tool(RapXML):
             self.tree = ET.parse(run_name)
 
         os.chdir(cwd)
+        self.reload()
+

@@ -10,16 +10,15 @@
 # ======================================================================
 from __future__ import print_function
 import os
+import pandas as pd
+import qgrid
+from IPython.display import Markdown
 from .node import Node
-import numpy as np
 from lxml import etree as ET
-from bs4 import BeautifulSoup
-from .util import efind
 from glob import glob
-import pint
-from .. import ureg, Q_
-import re
 from .loader import RapLoader
+#qgrid.enable()
+
 
 def get_elem_info(elem):
     try:
@@ -48,21 +47,29 @@ def get_elem_info(elem):
 
 
 class RapXML(Node):
+
     def __init__(self, fname):
         self.fname = fname
         parser = ET.XMLParser(remove_comments=True)
         self.tree = ET.parse(fname, parser)
         self.path = ''
-        self.info = None
         if hasattr(self, 'dirname'):
             # only Tools have dirname
             RapLoader.copy_defaults(self.tree, reset=True)
-            self.load_loaders()
+            self._load_loaders()
         else:
-            self.dirname = None
+            try:
+                self.dirname = self.tree.find('tool/version/application/directory[@id]').text
+                self.dirname = os.path.split(self.dirname)[0]
+            except:
+                self.dirname = None
+        self.top = self
+        self.info = RapXMLInfo(self)
+        
+    def reload(self):
+        self.info = RapXMLInfo(self)
 
-
-    def load_loaders(self):
+    def _load_loaders(self):
         # now load all the default loaders
         for loader in self.tree.findall("input//loader"):
             # print("Found loader", loader)
@@ -78,75 +85,160 @@ class RapXML(Node):
                     if os.path.basename(file) == default.text:
                         RapLoader.load(self.tree, loader, current, file)
                         break
+    
+    def set_input(self, label, val):
+        match = self.info.in_df[self.info.in_df['Label'] == label].index.tolist()
+        if len(match) == 0:
+            # maybe a loader?
+            match = self.info.loader_df[self.info.loader_df['Label'] == label].index.tolist()
+            if len(match) > 0:
+                match = [match[0]]
+        if len(match) == 0:
+            raise ValueError("No matches with that label.")
+        if len(match) > 1:
+            raise ValueError("Error: %d labels match." % len(match))
+        self[match[0]] = val
 
-    def _repr_html_(self):
-        self.info = RapXMLInfo(self)
-        return self.info._repr_html_()
+    def get_input(self, label):
+        match = self.info.in_df[self.info.in_df['Label'] == label].index.tolist()
+        if len(match) == 0:
+            # maybe a loader?
+            match = self.info.loader_df[self.info.loader_df['Label'] == label].index.tolist()
+            if len(match) > 0:
+                match = [match[0]]
+        if len(match) == 0:            
+            raise ValueError("No matches with that label.")
+        if len(match) > 1:
+            raise ValueError("Error: %d labels match." % len(match))
+        return self[match[0]]
 
-    def __str__(self):
-        self.info = RapXMLInfo(self)
-        return str(self.info)
+    def set_output(self, label, val):
+        match = self.info.out_df[self.info.out_df['Label'] == label].index.tolist()
+        if len(match) == 0:
+            raise ValueError("No matches with that label.")
+        if len(match) > 1:
+            raise ValueError("Error: %d labels match." % len(match))
+        self[match[0]] = val
+
+    def get_output(self, label):
+        match = self.info.out_df[self.info.out_df['Label'] == label].index.tolist()
+        if len(match) == 0:            
+            raise ValueError("No matches with that label.")
+        if len(match) > 1:
+            raise ValueError("Error: %d labels match." % len(match))
+        return self[match[0]]
+
+    def create_input_widget(self, label):
+        match = self.info.in_df[self.info.in_df['Label'] == label].index.tolist()
+        if len(match) == 0:
+            raise ValueError("No matches with that label.")
+        if len(match) > 1:
+            raise ValueError("Error: %d labels match." % len(match))
+        return self[match[0]].w
+
+
+    def _ipython_display_(self):
+        if self.info.in_df.size:
+            display(Markdown('## INPUTS'), qgrid.show_grid(self.info.in_df, grid_options={'editable': False}))
+        if self.info.loader_df.size:
+            display(Markdown('## LOADERS'), qgrid.show_grid(self.info.loader_df, grid_options={'editable': False}))
+        if self.info.out_df.size:
+            display(Markdown('## OUTPUTS'), qgrid.show_grid(self.info.out_df, grid_options={'editable': False}))
 
     @property
     def inputs(self):
-        self.info = RapXMLInfo(self, 'in')
-        return self.info.inputs()
+        display(Markdown('## INPUTS'), qgrid.show_grid(self.info.in_df, grid_options={'editable': False}))
+        if self.info.loader_df.size:
+            display(Markdown('## LOADERS'), qgrid.show_grid(self.info.loader_df, grid_options={'editable': False}))
 
     @property
     def outputs(self):
-        self.info = RapXMLInfo(self, 'out')
-        return self.info.outputs()
+        display(qgrid.show_grid(self.info.out_df, grid_options={'editable': False}))        
 
+
+    @property
+    def loaders(self):
+        display(qgrid.show_grid(self.info.loader_df, grid_options={'editable': False}))
 
 
 class RapXMLInfo(object):
 
-    def __init__(self, parent, section=''):
-        self.ilist = []
-        self.olist = []
-        self.llist = {}
-        self.lpath = {}
-        self.cgroups = {}
+    def __init__(self, parent):
+
+        self.ilist = {'Path':[], 'Label':[], 'Description':[]}
+        self.olist = {'Path':[], 'Label':[], 'Group':[], 'Description':[]}
+        self.llist = {'Path':[], 'Label':[], 'Description':[],
+                      'File':[], 'FileLabel':[], 'FileDescription':[]}
         self.parent = parent
 
-        if section == '' or section == 'in':
-            inputs = parent.tree.find('input')
-            if inputs is not None:
-                self.parse_elem('', inputs)
+        inputs = parent.tree.find('input')
+        if inputs is not None:
+            self.parse_elem('', inputs)
 
-        if section == '' or section == 'out':
-            outputs = parent.tree.find('output')
-            if outputs is not None:
-                self.parse_elem('', outputs)
+        outputs = parent.tree.find('output')
+        if outputs is not None:
+            self.parse_elem('', outputs)
 
-    def inputs(self):
-        return self
-
-    def outputs(self):
-        return self
+        # save all data in dataframes
+        self.in_df = pd.DataFrame(data=self.ilist, columns=['Path', 'Label', 'Description'])
+        self.in_df = self.in_df.set_index('Path')
+        self.out_df = pd.DataFrame(data=self.olist, columns=['Path', 'Label', 'Group', 'Description'])
+        self.out_df = self.out_df.set_index('Path')
+        self.loader_df = pd.DataFrame(data=self.llist, columns=['Path', 'Label', 'Description',
+                                                                'File', 'FileLabel', 'FileDescription'])
+        self.loader_df = self.loader_df.set_index('Path')
 
     def append(self, path, elem):
-        if path.startswith('input'):
-            self.ilist.append((path, elem))
+        pid, label, group, desc = get_elem_info(elem)
+        if pid:
+            path = '%s.%s(%s)' % (path, elem.tag, pid)
         else:
-            self.olist.append((path, elem))
+            path = '%s.%s' % (path, elem.tag)
+
+        if path.startswith('input'):
+            self.ilist['Path'].append(path)
+            self.ilist['Label'].append(label)
+            self.ilist['Description'].append(desc)
+        else:
+            self.olist['Path'].append(path)
+            self.olist['Label'].append(label)
+            self.olist['Group'].append(group)
+            self.olist['Description'].append(desc)
 
     def parse_loader(self, elem, path):
+        tdir = self.parent.dirname
         try:
             label = elem.find('about/label').text
+            try:
+                desc = elem.find('about/description').text
+            except:
+                desc = ''
             path += '.loader'
             try:
                 _id = elem.attrib['id']
                 path = path + '(%s)' % _id
             except:
                 pass
-            # print("LOADER: label=%s path=%s" % (label, path))
+            # print("LOADER: label=%s path=%s desc=%s" % (label, path, desc))
             for ex in elem.findall('example'):
-                if label in self.llist:
-                    self.llist[label].append(ex.text)
-                else:
-                    self.llist[label] = [ex.text]
-                    self.lpath[label] = path
+                # print('ex=', ex.text)
+                fpath = '%s/rappture/examples/%s' % (tdir, ex.text)
+                for file in glob(fpath):
+                    if file.endswith('.'):
+                        continue
+                    r = ET.parse(file).getroot()
+                    flabel = r.find('about/label').text
+                    try:
+                        fdesc = r.find('about/description').text
+                    except:
+                        fdesc = ''
+                    # print(file, flabel, fdesc)
+                    self.llist['Path'].append(path)
+                    self.llist['Label'].append(label)
+                    self.llist['Description'].append(desc)
+                    self.llist['File'].append(file)
+                    self.llist['FileLabel'].append(flabel)
+                    self.llist['FileDescription'].append(fdesc)
         except:
             pass
 
@@ -167,16 +259,9 @@ class RapXMLInfo(object):
            elem.tag == 'mesh' or \
            elem.tag == 'period element' or \
            elem.tag == 'structure' or \
+           elem.tag == 'curve' or \
            elem.tag == 'table':
             self.append(path, elem)
-        elif  elem.tag == 'curve':
-            self.append(path, elem)
-            group = elem.find('about/group')
-            if group is not None:
-                if group.text in self.cgroups:
-                    self.cgroups[group.text].append((elem, path))
-                else:
-                    self.cgroups[group.text] = [(elem, path)]
         elif elem.tag == 'loader':
             self.parse_loader(elem, path)
         else:
@@ -190,116 +275,3 @@ class RapXMLInfo(object):
                 pass
             for child in elem:
                 self.parse_elem(path, child)
-
-    @staticmethod
-    def html_info(info, title):
-        s = '<h3>%s</h3>\n' % title
-        s += '<table><tr bgcolor="#cccccc"><th>Path</th><th>Label</th><th>Description</th></tr>\n'
-        rnum = 0
-        for val in info:
-            path, elem = val
-            pid, label, group, desc = get_elem_info(elem)
-            rnum += 1
-            if rnum % 2:
-                bg = '#ffffff'
-            else:
-                bg = '#dddddd'
-            s += '<tr bgcolor="%s"><td>%s.%s(%s)</td>' % (bg, path, elem.tag, pid)
-            s += '<td>%s</td>' % label
-            s += '<td>%s</td></tr>' % desc[:40]
-        s += '</table>\n'
-        return s
-
-    @staticmethod
-    def str_info(info, title):
-        s = '%s\n' % title
-        for val in info:
-            path, elem = val
-            pid, label, group, desc = get_elem_info(elem)
-            s += '%s.%s(%s)\t%s\n\t%s' % (path, elem.tag, pid, label, desc[:60])
-        return s
-
-    @staticmethod
-    def loader_html(llist, lpath, dirname):
-        s = "<h3>LOADERS</h3>\n"
-        for key in llist:
-            s += '<table><tr bgcolor="#cccccc"><th>%s</th><th>Label</th>\n' % lpath[key]
-            for path in llist[key]:
-                rnum = 0
-                if dirname is None:
-                    if rnum % 2:
-                        bg = '#ffffff'
-                    else:
-                        bg = '#dddddd'
-                    s += '<tr bgcolor="%s"><td>%s</td><td>%s</td></tr>' % (bg, path, desc)
-                    rnum += 1
-                else:
-                    path = '%s/examples/%s' % (dirname, path)
-                    for file in glob(path):
-                        if file.endswith('.'):
-                            continue
-                        if rnum % 2:
-                            bg = '#ffffff'
-                        else:
-                            bg = '#dddddd'
-                        r = ET.parse(file).getroot()
-                        desc = r.find('about/label').text
-                        s += '<tr bgcolor="%s"><td>%s</td><td>%s</td></tr>' % (bg, file, desc)
-                        rnum += 1
-            s += '</table>\n'
-        return s
-
-    @staticmethod
-    def html_groups(groups):
-        table = '<h3>CURVE GROUPS</h3>\n'
-        for key in groups:
-            rnum = 0
-            g = '<table><tr bgcolor="#cccccc"><th>%s</th>\n' % key
-            for elem, path in groups[key]:
-                rnum += 1
-                if rnum % 2:
-                    bg = '#ffffff'
-                else:
-                    bg = '#dddddd'
-                pid = elem.attrib['id']
-                g += '<tr bgcolor="%s"><td>%s.%s(%s)</td></tr>\n' % (bg, path, elem.tag, pid)
-            table += g + '</table>'
-        return table
-
-    @staticmethod
-    def str_groups(groups):
-        g = "\nCurve Groups"
-        for key in groups:
-            g += '\n%s\n' % key
-            for elem, path in groups[key]:
-                pid = elem.attrib['id']
-                g += '\t%s.%s(%s)\n' % (path, elem.tag, pid)
-        return g
-
-    def _repr_html_(self):
-        outstr = ""
-        if self.ilist:
-            outstr += RapXMLInfo.html_info(self.ilist, 'INPUTS')
-            if self.llist:
-                tdir = os.path.split(self.parent.tool)[0]
-                outstr += RapXMLInfo.loader_html(self.llist, self.lpath, tdir)
-
-        if self.olist:
-            outstr += RapXMLInfo.html_info(self.olist, 'OUTPUTS')
-            if self.cgroups:
-                outstr += RapXMLInfo.html_groups(self.cgroups)
-        return outstr
-
-    def __str__(self):
-        outstr = ""
-        if self.ilist:
-            outstr += RapXMLInfo.str_info(self.ilist, 'INPUTS')
-
-        if self.olist:
-            if outstr != "":
-                outstr += '\n'
-            outstr += RapXMLInfo.str_info(self.olist, 'OUTPUTS')
-            if self.cgroups:
-                outstr += RapXMLInfo.str_groups(self.cgroups)
-
-        return outstr
