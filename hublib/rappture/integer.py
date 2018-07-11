@@ -3,9 +3,27 @@ from .. import ureg, Q_
 from io import BytesIO
 import numpy as np
 from .node import Node
+from .number import parse_rap_expr
+from .util import from_rap
+from .. import ui as ui
 
 
 class RapInt(Node):
+
+    @property
+    def w(self):
+        vals = from_rap(self)
+        w = ui.Integer(
+            name=vals['label'],
+            desc=vals['desc'],
+            units=vals['units'],
+            min=vals['min'],
+            max=vals['max'],
+            value=vals['value'],
+            cb=lambda x, y: RapInt.value.fset(self, w.value)
+        )
+        return w
+
     @property
     def value(self):
         return int(self.get_text())
@@ -16,12 +34,22 @@ class RapInt(Node):
 
 
 class RapMinMax(Node):
+    def text_to_number(self, par):
+        val = self.get_text()
+        u = par.find('units')
+        if u is None or u == '' or (type(u) == str and u.startswith('/')):
+            return float(val)
+        val = parse_rap_expr(u.text, val)
+        if type(val) == str:
+            return val
+        return val.magnitude
+
     @property
     def value(self):
         par = self.elem.find('..')
         if par.tag == 'integer':
             return int(self.get_text())
-        return float(self.get_text())
+        return float(self.text_to_number(par))
 
     @value.setter
     def value(self, val):

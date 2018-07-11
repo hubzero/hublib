@@ -100,7 +100,8 @@ def _create_path(root, path):
 
 
 class Node(object):
-    def __init__(self, tree, path, elem=None, child=None):
+    def __init__(self, top, tree, path, elem=None, child=None):
+        self.top = top
         self.tree = tree
         self.path = path
         self.elem = elem
@@ -133,28 +134,28 @@ class Node(object):
 
         # Create an object corresponding to the tag.
         if x.tag == 'curve':
-            return Curve(self.tree, path, x, child)
+            return Curve(self.top, self.tree, path, x, child)
         if x.tag == 'number':
-            return Number(self.tree, path, x, child)
+            return Number(self.top, self.tree, path, x, child)
         if x.tag == 'integer':
-            return RapInt(self.tree, path, x, child)
+            return RapInt(self.top, self.tree, path, x, child)
         if x.tag == 'boolean':
-            return RapBool(self.tree, path, x, child)
+            return RapBool(self.top, self.tree, path, x, child)
         if x.tag == 'structure':
-            return Structure(self.tree, path, x, child)
+            return Structure(self.top, self.tree, path, x, child)
         if x.tag == 'histogram':
-            return Histogram(self.tree, path, x, child)
+            return Histogram(self.top, self.tree, path, x, child)
         if x.tag == 'image':
-            return RapImage(self.tree, path, x, child)
+            return RapImage(self.top, self.tree, path, x, child)
         if x.tag == 'xy':
-            return XY(self.tree, path, x, child)
+            return XY(self.top, self.tree, path, x, child)
         if x.tag == 'min' or x.tag == 'max':
-            return RapMinMax(self.tree, path, x, child)
+            return RapMinMax(self.top, self.tree, path, x, child)
         if x.tag == 'log':
-            return RapLog(self.tree, path, x, child)
+            return RapLog(self.top, self.tree, path, x, child)
         if x.tag == 'loader':
-            return RapLoader(self.tree, path, x, child)
-        return Node(self.tree, path, x, child)
+            return RapLoader(self.top, self.tree, path, x, child)
+        return Node(self.top, self.tree, path, x, child)
 
     def __setitem__(self, path, val):
         # print("SETITEM ", self.tree, self.path, path, val)
@@ -162,6 +163,7 @@ class Node(object):
         if n is None:
             return False
         n.value = val
+        self.top.reload()
         return True
 
     def __getitem__(self, path):

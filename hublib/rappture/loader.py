@@ -2,7 +2,10 @@ from __future__ import print_function
 from lxml import etree as ET
 from copy import deepcopy
 import re
+import os
+import glob
 from .node import Node
+
 
 class RapLoader(Node):
 
@@ -12,7 +15,25 @@ class RapLoader(Node):
 
     @value.setter
     def value(self, fname):
+        flabel = fname 
+        if not os.path.isfile(fname):
+            fname = None
+            # if fname is a label, search loader files for the one with that label
+            for ex in self.elem.findall('example'):
+                path = os.path.join(self.top.dirname, "rappture", "examples", ex.text)
+                for file in glob.glob(path):
+                    new_tree = ET.parse(file)
+                    label = new_tree.find('about/label').text
+                    if label == flabel:
+                        fname = file
+                        break
+        
+        if fname is None:
+            raise ValueError('"No loader file with label "%s"' % flabel)
         RapLoader.load(self.tree, self.elem, self.child, fname)
+
+        # reparse everything
+        self.top.reload()
 
 
     @staticmethod
@@ -64,7 +85,7 @@ class RapLoader(Node):
 
     @staticmethod
     def load(tree, elem, current, fname):
-        # print("RapLoad", fname)
+        # print("RapLoad", elem, current.text, fname)
         new_tree = ET.parse(fname)
         label = new_tree.find('about/label').text
         current.text = label
