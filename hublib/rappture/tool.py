@@ -42,7 +42,7 @@ class Tool(RapXML):
         else:
             self.invoke_file = os.path.join(sessdir, 'invoke')
             with open(self.invoke_file, 'w') as f:
-                print('#!/bin/sh', file=f)
+                print('#!/bin/sh -l', file=f)
                 print('/usr/bin/invoke_app "$@" -T %s -C rappture' % (dirname), file=f)
             subprocess.call('chmod +x %s' % self.invoke_file, shell=True)
 

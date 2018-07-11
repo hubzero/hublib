@@ -52,7 +52,7 @@ class Structure(Node):
     def molecule_plot(self, elem, label):
         " Read in a list of atoms and write a PDB file for nglview."
         formula = efind(elem, 'formula')
-        if formula == 'pdt':
+        if formula == 'pdt' or formula == 'tube' or formula == 'cell':
             f = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.pdb')
             for child in elem:
                 if child.tag == 'atom':
