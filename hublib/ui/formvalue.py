@@ -1,11 +1,16 @@
 import ipywidgets as widgets
 
 
-class FormValue(object):
+class FormValue(widgets.HBox):
 
-    def __init__(self, name, desc, **kwargs):
+    def __init__(self, name, **kwargs):
+        self.name = name
         width = kwargs.get('width', 'auto')
+        self._ncb = kwargs.get('cb')
 
+        # accept either 'description' or 'desc'
+        desc = kwargs.get('desc', kwargs.get('description', ''))
+        
         form_item_layout = widgets.Layout(
             display='flex',
             flex_flow='row',
@@ -15,49 +20,33 @@ class FormValue(object):
             width=width
         )
 
-        cb = kwargs.get('cb')
-        self.disabled = kwargs.get('disabled', False)
-        self.default = self.dd.value
-        self.label = widgets.HTML(value='<p data-toggle="popover" title="%s">%s</p>' % (desc, name))
-        self.w = widgets.Box([self.label, self.dd], layout=form_item_layout)
-        try:
-            self.dd.on_submit(lambda x: self.cb(None))
-        except:
-            pass
-        self.dd.observe(lambda x: self.cb(x['new']), names='value')
+        self.dd.layout = {'width': 'initial'}
+        self.dd.disabled = kwargs.get('disabled', False)
+        self.dd.observe(self._cb, names='value')
 
-        self._cb = cb
-        self.name = name
-        self.no_cb = False
+        popup = '<div data-toggle="popover" title="%s" data-container="body">%s</div>' % (desc, name)
+        label = widgets.HTML(value=popup, layout=widgets.Layout(flex='2 1 auto'))
+        widgets.HBox.__init__(self, [label, self.dd], layout=form_item_layout)
 
-    def cb(self, _):
-        '''
-        Called when the value changed.  It is called after every keystroke, so
-        we check on the fly and only reformat on <enter> or when the value property is read.
-        '''
+    def _cb(self, w):
+        if self._ncb is not None:
+            return self._ncb(self, w['new'])
 
-        val = self.dd.value
-        # print "cb val=%s no_cb=%s" % (val, self.no_cb)
-        if self.no_cb:
-            self.no_cb = False
-            return
+    @property
+    def cb(self):
+        return self._ncb
 
-        if self._cb is not None:
-            self._cb(self.name, val)
-
+    @cb.setter
+    def cb(self, newcb):
+        self._ncb = newcb
+    
     @property
     def value(self):
         return self.dd.value
 
     @value.setter
     def value(self, newval):
-        try:
-            self.dd.value = newval
-        except:
-            raise ValueError("Invalid value.")
-
-    def _ipython_display_(self):
-        self.w._ipython_display_()
+        self.dd.value = newval
 
     @property
     def disabled(self):
@@ -75,43 +64,47 @@ class FormValue(object):
     def visible(self, newval):
         if newval:
             self.dd.layout.visibility = 'visible'
-            self.w.layout.visibility = 'visible'
+            self.layout.visibility = 'visible'
             return
         self.dd.layout.visibility = 'hidden'
-        self.w.layout.visibility = 'hidden'
+        self.layout.visibility = 'hidden'
 
 
 class String(FormValue):
-    def __init__(self, name, description, value, **kwargs):
-        self.dd = widgets.Text(value=value, width='auto')
-        FormValue.__init__(self, name, description, **kwargs)
+    def __init__(self, name, value, **kwargs):
+        self.dd = widgets.Text(value=value)
+        FormValue.__init__(self, name, **kwargs)
 
 
 class Dropdown(FormValue):
-    def __init__(self, name, description, options, value, **kwargs):
+    def __init__(self, name, options, value, **kwargs):
         self.dd = widgets.Dropdown(options=options, value=value)
-        FormValue.__init__(self, name, description, **kwargs)
-
+        FormValue.__init__(self, name, **kwargs)
+        mw = '{}ch'.format(max(map(len, self.dd.options))+4)
+        self.dd.layout =  {'width':'auto', 'min_width': mw}
 
 class Checkbox(FormValue):
-    def __init__(self, name, description, value, **kwargs):
+    def __init__(self, name, **kwargs):
+        value = kwargs.get('value', False)
         self.dd = widgets.Checkbox(value=value)
-        FormValue.__init__(self, name, description, **kwargs)
+        FormValue.__init__(self, name, **kwargs)
 
 
 class Radiobuttons(FormValue):
-    def __init__(self, name, description, options, value, **kwargs):
+    def __init__(self, name, options, value, **kwargs):
         self.dd = widgets.RadioButtons(options=options, value=value)
-        FormValue.__init__(self, name, description, **kwargs)
+        FormValue.__init__(self, name, **kwargs)
 
 
 class Togglebuttons(FormValue):
-    def __init__(self, name, description, options, value, **kwargs):
+    def __init__(self, name, options, value, **kwargs):
         self.dd = widgets.ToggleButtons(options=options, value=value)
-        FormValue.__init__(self, name, description, **kwargs)
+        FormValue.__init__(self, name, **kwargs)
+        # self.dd.style.button_width='{}ch'.format(max(map(len, self.dd.options))+4)
+        self.dd.style={'button_width': 'initial'}
 
 
 class Text(FormValue):
-    def __init__(self, name, description, value='', **kwargs):
+    def __init__(self, name, value='', **kwargs):
         self.dd = widgets.Textarea(value=value)
-        FormValue.__init__(self, name, description, **kwargs)
+        FormValue.__init__(self, name, **kwargs)
