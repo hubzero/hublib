@@ -60,7 +60,7 @@ class Tool(RapXML):
 
         with open(self.toolparameters_name, 'w') as f:
             f.write("file(execute):%s" % (self.driver_name))
-        cmd = "TOOL_PARAMETERS=%s %s -d %s" % (self.toolparameters_name, self.invoke_file, self.sessdir)
+        cmd = "/bin/sh -l -c \"TOOL_PARAMETERS=%s %s -d %s\"" % (self.toolparameters_name, self.invoke_file, self.sessdir)
 
         if verbose:
             print(cmd)
