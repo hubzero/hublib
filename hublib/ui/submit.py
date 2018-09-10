@@ -482,6 +482,7 @@ def copy_files(errnum, etime, toolname, runName):
             shutil.rmtree(rdir)
         else:
             os.system('/bin/cp -pr %s/* %s' % (runName, rdir))
+            shutil.rmtree(runName)
     else:
         # nonparametric run.  Results are in current working directory.
         # Use the timestamp to copy all newer files to the cacheName.
