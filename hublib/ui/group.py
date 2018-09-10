@@ -1,5 +1,6 @@
 import ipywidgets as widgets
 
+
 class Tab(widgets.Tab):
     def __init__(self, wlist, **kwargs):
         titles = kwargs.get('titles')
@@ -9,7 +10,7 @@ class Tab(widgets.Tab):
             titles = {i: w for i, w in enumerate(titles)}
         self.wlist = wlist
         self._disabled = False
-        widgets.Tab.__init__(self, wlist, _titles=titles)
+        widgets.Tab.__init__(self, wlist, _titles=titles, **kwargs)
 
     @property
     def disabled(self):
