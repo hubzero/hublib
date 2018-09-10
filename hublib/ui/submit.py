@@ -486,7 +486,7 @@ def copy_files(errnum, etime, toolname, runName):
     else:
         # nonparametric run.  Results are in current working directory.
         # Use the timestamp to copy all newer files to the cacheName.
-        if errnum > 0:
+        if errnum == 0:
             files = os.listdir('.')
             for f in files:
                 if os.path.getmtime(f) > self.start_time:
