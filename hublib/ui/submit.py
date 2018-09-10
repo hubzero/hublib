@@ -442,13 +442,14 @@ def poll_thread(cmd, self):
 
     # copy files to cache dir and return full pathname for it
     if self.cachename:
-        rdir = copy_files(errNum, elapsed_time, self.cachename, self.runname)
+        rdir = copy_files(errNum, self.start_time, elapsed_time, self.cachename, self.runname)
     else:
         rdir = self.runname
 
     # callback for processing the data
     if self.done_func and errNum == 0:
         self.done_func(self, rdir)
+
     self.but.disabled = False
 
 
@@ -467,8 +468,9 @@ def pretty_time_delta(seconds):
         return '%ds' % (seconds,)
 
 
-def copy_files(errnum, etime, toolname, runName):
+def copy_files(errnum, stime, etime, toolname, runName):
     rdir = os.path.join(Submit.CACHEDIR, toolname, runName)
+
     try:
         os.remove(os.path.join(rdir, '.attachid'))
     except OSError:
@@ -489,7 +491,7 @@ def copy_files(errnum, etime, toolname, runName):
         if errnum == 0:
             files = os.listdir('.')
             for f in files:
-                if os.path.getmtime(f) > self.start_time:
+                if os.path.getmtime(f) > stime:
                     shutil.copy2(f, rdir)
 
     if errnum == 0:
