@@ -162,6 +162,7 @@ class Submit(object):
             command-line submit. Do not include runName
             or progress.
         """
+        self.but.disabled = True
 
         if self.thread:
             # cleanup old thread
@@ -174,16 +175,19 @@ class Submit(object):
         if cmd.startswith('submit'):
             print("ERROR: run method should be called with args passed to submit", file=sys.stderr)
             print("and should not contain 'submit'.", file=sys.stderr)
+            self.but.disabled = False
             return
 
         if '--runName' in cmd:
             print("ERROR: run method should be called with args passed to submit", file=sys.stderr)
             print("and should not contain '--runName'.", file=sys.stderr)
+            self.but.disabled = False
             return
 
         if '--progress' in cmd:
             print("ERROR: run method should be called with args passed to submit", file=sys.stderr)
             print("and should not contain '--progress'.", file=sys.stderr)
+            self.but.disabled = False
             return
 
         is_local = False
@@ -206,6 +210,7 @@ class Submit(object):
                 sys.exit(1)
             if self.attachid is None:
                 # job finished. cache is complete
+                self.but.disabled = False
                 return
 
         # Remove any old local directory results
@@ -230,6 +235,7 @@ class Submit(object):
                 if x is None:
                     print("Error:", cmd)
                     print(stdout.decode('UTF-8'))
+                    self.but.disabled = False
                     return
                 self.attachid = x.group(0).split()[1]
                 cmd = "submit --attach %s" % (self.attachid)
@@ -359,6 +365,7 @@ def poll_thread(cmd, self):
     errNum = 3
 
     self.status = self.statusbar(errNum, errState)
+    self.but.disabled = False
     self.w.children = [self.acc, self.status, self.but]
     
     try:
@@ -409,6 +416,7 @@ def poll_thread(cmd, self):
     elapsed_time = time.time() - self.start_time
     self.but.description = self.label
     self.but.button_style = 'success'  # green
+    self.but.disabled = True
     
     errStr = ""
     errNum = 0
@@ -434,13 +442,15 @@ def poll_thread(cmd, self):
 
     # copy files to cache dir and return full pathname for it
     if self.cachename:
-        rdir = copy_files(errNum, elapsed_time, self.cachename, self.runname)
+        rdir = copy_files(errNum, self.start_time, elapsed_time, self.cachename, self.runname)
     else:
         rdir = self.runname
 
     # callback for processing the data
     if self.done_func and errNum == 0:
         self.done_func(self, rdir)
+
+    self.but.disabled = False
 
 
 def pretty_time_delta(seconds):
@@ -458,8 +468,9 @@ def pretty_time_delta(seconds):
         return '%ds' % (seconds,)
 
 
-def copy_files(errnum, etime, toolname, runName):
+def copy_files(errnum, stime, etime, toolname, runName):
     rdir = os.path.join(Submit.CACHEDIR, toolname, runName)
+
     try:
         os.remove(os.path.join(rdir, '.attachid'))
     except OSError:
@@ -473,13 +484,14 @@ def copy_files(errnum, etime, toolname, runName):
             shutil.rmtree(rdir)
         else:
             os.system('/bin/cp -pr %s/* %s' % (runName, rdir))
+            shutil.rmtree(runName)
     else:
         # nonparametric run.  Results are in current working directory.
         # Use the timestamp to copy all newer files to the cacheName.
-        if errnum > 0:
+        if errnum == 0:
             files = os.listdir('.')
             for f in files:
-                if os.path.getmtime(f) > self.start_time:
+                if os.path.getmtime(f) > stime:
                     shutil.copy2(f, rdir)
 
     if errnum == 0:
