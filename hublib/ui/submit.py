@@ -149,6 +149,7 @@ class Submit(object):
         self.status = self.statusbar(0, errState)
         self.w.children = [self.status, self.but]
         # notify callback we are finished
+        self.cached = True
         if self.done_func:
             self.done_func(self, rdir)
         return None, None
@@ -213,6 +214,7 @@ class Submit(object):
                 self.but.disabled = False
                 return
 
+        self.cached = False
         # Remove any old local directory results
         if self.attachid:
             cmd = "submit --attach %s" % (self.attachid)
