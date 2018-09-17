@@ -124,7 +124,7 @@ class RunCommand(object):
         Starts the command.
 
         :param cmd: The Linux shell command to run.        
-        :param runname: (Optional) Directory name for the results.
+        :param runname: (Optional) Name for the results.
                         Required when caching is enabled.
         """
 
