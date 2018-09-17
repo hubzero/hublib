@@ -120,19 +120,19 @@ class Submit(object):
             if self.pid:
                 os.killpg(self.pid, signal.SIGTERM)
 
-    def _check_cache(self, rdir):
+    def _check_cache(self):
         # Returns the attachid if the cached job is still running.
         # Otherwise returns None.  Called with a lock on the cache dir.
 
         try:
-            tfile = os.path.join(rdir, '.submit_time')
+            tfile = os.path.join(self.rdir, '.submit_time')
             with open(tfile, 'r') as f:
                 etime = f.read() 
         except:
             etime = "unknown"
 
         try:
-            idname = os.path.join(rdir, '.attachid')
+            idname = os.path.join(self.rdir, '.attachid')
             with open(idname, 'r') as f:
                 attachid = f.read().strip()
             return attachid, float(etime)
@@ -151,14 +151,14 @@ class Submit(object):
         # notify callback we are finished
         self.cached = True
         if self.done_func:
-            self.done_func(self, rdir)
+            self.done_func(self, self.rdir)
         return None, None
 
     def run(self, runname, cmd):
         """
         Starts the submit command.
 
-        :param runname: Directory name for the results.
+        :param runname: Name for the results.
         :param cmd: The command to pass along to the
             command-line submit. Do not include runName
             or progress.
@@ -197,14 +197,18 @@ class Submit(object):
 
         self.start_time = time.time()
 
+        if self.cachename:
+            self.rdir = os.path.join(Submit.CACHEDIR, self.cachename, runname)
+        else:
+            self.rdir = runName
+
         # check cache
-        rdir = os.path.join(Submit.CACHEDIR, self.cachename, runname)    
-        if self.cachename and os.path.exists(rdir):
-            lockfile = os.path.join(rdir, '.lock')
+        if self.cachename and os.path.exists(self.rdir):
+            lockfile = os.path.join(self.rdir, '.lock')
             lock = FileLock(lockfile)
             try:
                 with lock.acquire(timeout=120):
-                    self.attachid, self.start_time = self._check_cache(rdir)
+                    self.attachid, self.start_time = self._check_cache()
             except Timeout:
                 print("ERROR: Could not acquire lock '%s'" % lockfile)
                 print("If another process is not holding it, you should remove the file.")
@@ -223,8 +227,8 @@ class Submit(object):
                 shutil.rmtree(runname)
 
             # create cache directory
-            if self.cachename and not os.path.exists(rdir):
-                os.makedirs(rdir)
+            if self.cachename and not os.path.exists(self.rdir):
+                os.makedirs(self.rdir)
 
             # Run submit and immediately detach.  This gives us the attach id so we
             # can attach even if we are later disconnected.
@@ -241,13 +245,13 @@ class Submit(object):
                     return
                 self.attachid = x.group(0).split()[1]
                 cmd = "submit --attach %s" % (self.attachid)
-                lockfile = os.path.join(rdir, '.lock')
+                lockfile = os.path.join(self.rdir, '.lock')
                 lock = FileLock(lockfile)
                 try:
                     with lock.acquire(timeout=120):
-                        with open(os.path.join(rdir, '.attachid'), 'w') as f:
+                        with open(os.path.join(self.rdir, '.attachid'), 'w') as f:
                             f.write(self.attachid)
-                        with open(os.path.join(rdir, '.submit_time'), 'w') as f:
+                        with open(os.path.join(self.rdir, '.submit_time'), 'w') as f:
                             f.write(str(self.start_time))
                 except Timeout:
                     print("ERROR: Could not acquire lock '%s'" % lockfile)
@@ -311,9 +315,8 @@ class Submit(object):
                 shutil.rmtree(tabdir)
             return
 
-        rdir = os.path.join(Submit.CACHEDIR, self.cachename, self.runname)
-        if os.path.exists(rdir):
-            shutil.rmtree(rdir)
+        if os.path.exists(self.rdir):
+            shutil.rmtree(self.rdir)
 
     def statusbar(self, num, state):
         state_str = color_rect % (colors[num], state)
@@ -359,6 +362,36 @@ class Submit(object):
             return
         self.w.layout.visibility = 'hidden'
   
+    def copy_files(self, errnum, etime):
+        try:
+            os.remove(os.path.join(self.rdir, '.attachid'))
+        except OSError:
+            pass
+
+        # FIXME: Lock
+        
+        if os.path.isdir(self.runname):
+            # output directory was created.  Must have been a parametric run
+            if errnum > 0:
+                shutil.rmtree(self.rdir)
+            else:
+                os.system('/bin/cp -pr %s/* %s' % (self.runname, self.rdir))
+                shutil.rmtree(self.runname)
+        else:
+            # nonparametric run.  Results are in current working directory.
+            # Use the timestamp to copy all newer files to the cacheName.
+            if errnum > 0:
+                files = os.listdir('.')
+                for f in files:
+                    if os.path.getmtime(f) > self.start_time:
+                        shutil.copy2(f, self.rdir)
+
+        if errnum == 0:
+            with open(os.path.join(self.rdir, '.submit_time'), 'w') as f:
+                f.write(pretty_time_delta(etime))
+
+        return self.rdir
+
 
 def poll_thread(cmd, self):
     # set the output encoding
@@ -444,7 +477,7 @@ def poll_thread(cmd, self):
 
     # copy files to cache dir and return full pathname for it
     if self.cachename:
-        rdir = copy_files(errNum, elapsed_time, self.cachename, self.runname)
+        rdir = self.copy_files(errNum, elapsed_time)
     else:
         rdir = self.runname
 
@@ -467,38 +500,6 @@ def pretty_time_delta(seconds):
         return '%dm%ds' % (minutes, seconds)
     else:
         return '%ds' % (seconds,)
-
-
-def copy_files(errnum, etime, toolname, runName):
-    rdir = os.path.join(Submit.CACHEDIR, toolname, runName)
-    try:
-        os.remove(os.path.join(rdir, '.attachid'))
-    except OSError:
-        pass
-
-    # FIXME: Lock
-    
-    if os.path.isdir(runName):
-        # output directory was created.  Must have been a parametric run
-        if errnum > 0:
-            shutil.rmtree(rdir)
-        else:
-            os.system('/bin/cp -pr %s/* %s' % (runName, rdir))
-            shutil.rmtree(runName)
-    else:
-        # nonparametric run.  Results are in current working directory.
-        # Use the timestamp to copy all newer files to the cacheName.
-        if errnum > 0:
-            files = os.listdir('.')
-            for f in files:
-                if os.path.getmtime(f) > self.start_time:
-                    shutil.copy2(f, rdir)
-
-    if errnum == 0:
-        with open(os.path.join(rdir, '.submit_time'), 'w') as f:
-            f.write(pretty_time_delta(etime))
-
-    return rdir
 
 
 def pwidget(name, num, style):
