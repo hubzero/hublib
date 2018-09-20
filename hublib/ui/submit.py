@@ -383,10 +383,10 @@ class Submit(object):
         else:
             # nonparametric run.  Results are in current working directory.
             # Use the timestamp to copy all newer files to the cacheName.
-            if errnum > 0:
+            if errnum == 0:
                 files = os.listdir('.')
                 for f in files:
-                    if os.path.getmtime(f) > self.start_time:
+                    if os.path.getmtime(f) >= self.start_time:
                         shutil.copy2(f, self.rdir)
 
         if errnum == 0:
@@ -463,7 +463,7 @@ def poll_thread(cmd, self):
     if exitStatus != 0:
         if os.WIFSIGNALED(exitStatus):
             signame = Submit.SIGNALS_TO_NAMES_DICT[os.WTERMSIG(exitStatus)]
-            errStr = "%s failed w/ signal %s\n" % (cmd, signame)
+            errStr = "\"%s\" failed w/ signal %s\n" % (cmd, signame)
             errNum = 1
             errState = "Last Run: Canceled"
         else:
@@ -487,8 +487,6 @@ def poll_thread(cmd, self):
     # callback for processing the data
     if self.done_func and errNum == 0:
         self.done_func(self, rdir)
-    self.but.disabled = False
-
     self.but.disabled = False
 
 
