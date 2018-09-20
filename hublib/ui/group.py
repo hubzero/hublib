@@ -1,19 +1,16 @@
 import ipywidgets as widgets
 
 
-class Tab(object):
+class Tab(widgets.Tab):
     def __init__(self, wlist, **kwargs):
         titles = kwargs.get('titles')
         if titles is None:
             titles = {i: w.name for i, w in enumerate(wlist)}
         else:
             titles = {i: w for i, w in enumerate(titles)}
-        self.w = widgets.Tab([w.w for w in wlist], _titles=titles)
         self.wlist = wlist
         self._disabled = False
-
-    def _ipython_display_(self):
-        self.w._ipython_display_()
+        widgets.Tab.__init__(self, wlist, _titles=titles, **kwargs)
 
     @property
     def disabled(self):
@@ -26,43 +23,51 @@ class Tab(object):
         self._disabled = newval
 
 
-class Form(object):
+class Group(widgets.VBox):
+
     def __init__(self, wlist, **kwargs):
         """
-        Creates a form from a list of ui elements
+        Creates a Group from a list of ui elements
 
         :param wlist: List of UI elements
         :param name: Optional string to show in a titlebar or tab.
         :param desc: Optional description that will show in a popup over the titlebar.
         :param width: Optional with of the form.
+        :param show_name: Boolean. Show the name as a title. Default is True.
+        :param border: CSS for the border. Default is None.
+        :param collapsible: Boolean. Default is False.  If True, the Group
+        shrink and expand like an accordion widget.
         """
+
+        # FIXME: add background-color, font-size, 
         self.wlist = wlist
         self._name = kwargs.get('name', '')
         self._disabled = kwargs.get('disabled', False)
-        self.hidden = []
-        self._width = kwargs.get('width')
+        self._width = kwargs.get('width', 'auto')
         self._desc = kwargs.get('desc', '')
-        self._build()
+        self._show_name = kwargs.get('show_name', True)
+        self._border = kwargs.get('border', None)
+        self._collapsible = kwargs.get('collapsible', False)
 
-    def _build(self):
-        iwlist = [w.w for w in self.wlist]
-        if self.name:
-            style = "style='background-color: #DCDCDC; font-size:200; padding: 5px'"
-            if self._desc:
-                self._desc = 'data-toggle="popover" title="%s"' % (self._desc)
-            lval = '<p  %s %s>%s</p>' % (self._desc, style, self.name)
-            label = widgets.HTML(value=lval, layout=widgets.Layout(flex='2 1 auto'))
-            iwlist.insert(0, label)
+        self._update_desc()
 
-        self.w = widgets.VBox(iwlist, layout=widgets.Layout(
+        widgets.VBox.__init__(self, self.wlist, layout=widgets.Layout(
             display='flex',
             flex_flow='column',
             align_items='stretch',
-            width=self.width
+            width=self._width
         ))
 
-    def _ipython_display_(self):
-        self.w._ipython_display_()
+    def _update_desc(self):    
+        if self._name and self._show_name:
+            style = "style='background-color: #DCDCDC; font-size: 150%; padding: 5px'"
+            if self._desc:
+                desc = 'data-toggle="popover" title="%s"' % (self._desc)
+            else:
+                desc = ''
+            lval = '<p  %s %s>%s</p>' % (desc, style, self.name)
+            label = widgets.HTML(value=lval, layout=widgets.Layout(flex='2 1 auto'))
+            self.wlist.insert(0, label)
 
     @property
     def desc(self):
@@ -70,8 +75,12 @@ class Form(object):
 
     @desc.setter
     def desc(self, val):
+        if self._name and self._show_name:
+            # remove old
+            self.wlist = self.wlist[1:]
         self._desc = val
-        self._build()
+        self._update_desc()
+        self.children = self.wlist
 
     @property
     def name(self):
@@ -79,9 +88,13 @@ class Form(object):
 
     @name.setter
     def name(self, val):
+        if self._name and self._show_name:
+            # remove old
+            self.wlist = self.wlist[1:]
         self._name = val
-        self._build()
-
+        self._update_desc()
+        self.children = self.wlist
+        
     @property
     def width(self):
         return self._width
@@ -89,7 +102,12 @@ class Form(object):
     @width.setter
     def width(self, val):
         self._width = val
-        self._build()
+        self.layout = widgets.Layout(
+            display='flex',
+            flex_flow='column',
+            align_items='stretch',
+            width=self._width
+        )
 
     @property
     def disabled(self):
