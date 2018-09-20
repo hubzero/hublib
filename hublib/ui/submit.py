@@ -129,7 +129,7 @@ class Submit(object):
             with open(tfile, 'r') as f:
                 etime = f.read() 
         except:
-            etime = "unknown"
+            return '', 0.0  # invalid cache
 
         try:
             idname = os.path.join(self.rdir, '.attachid')
@@ -195,13 +195,12 @@ class Submit(object):
         if '--local' in cmd:
             is_local = True
 
-        self.start_time = time.time()
-
         if self.cachename:
             self.rdir = os.path.join(Submit.CACHEDIR, self.cachename, runname)
         else:
-            self.rdir = runName
+            self.rdir = runname
 
+        self.start_time = 0.0
         # check cache
         if self.cachename and os.path.exists(self.rdir):
             lockfile = os.path.join(self.rdir, '.lock')
@@ -219,6 +218,10 @@ class Submit(object):
                 return
 
         self.cached = False
+
+        if self.start_time == 0.0:
+            self.start_time = time.time()
+
         # Remove any old local directory results
         if self.attachid:
             cmd = "submit --attach %s" % (self.attachid)
