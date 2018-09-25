@@ -71,7 +71,7 @@ class RunCommand(object):
             # set up cache
             if cachedir is None:
                 try:
-                    cachedir = os.ENVIRON['CACHEDIR']
+                    cachedir = os.environ['CACHEDIR']
                 except:
                     print("ERROR: cachename is set, but CACHEDIR is not", file=sys.stderr)
                     print("Set the environment variable 'CACHEDIR' to the directory", file=sys.stderr)
