@@ -32,6 +32,7 @@ class Submit(object):
         submit function is completed.
     :param cachename: Optional. Name of the tool or other unique
         name that will be used for the cache directory.
+    :param cachecb: Optional function to call when the cache is cleared.
     :param outcb: Optional function to be called when
         standard output is received. Any returned value
         is written to the submit output widget, otherwise that widget
@@ -55,7 +56,8 @@ class Submit(object):
                  outcb=None,
                  show_progress=True,
                  width='auto',
-                 cachename=None):
+                 cachename=None,
+                 cachecb=None):
         self.label = label
         self.tooltip = tooltip
         self.start_func = start_func
@@ -71,6 +73,7 @@ class Submit(object):
         self.make_rname = None
         self.width = width
         self.attachid = None
+        self.cachecb = cachecb
 
         if start_func is None:
             print("start_func is required.", file=sys.stderr)
@@ -316,10 +319,14 @@ class Submit(object):
             tabdir = os.path.join(Submit.CACHETABDIR, self.cachename)
             if os.path.exists(tabdir):
                 shutil.rmtree(tabdir)
+            if self.cachecb:
+                self.cachecb()
             return
 
         if os.path.exists(self.rdir):
             shutil.rmtree(self.rdir)
+        if self.cachecb:
+            self.cachecb()
 
     def statusbar(self, num, state):
         state_str = color_rect % (colors[num], state)

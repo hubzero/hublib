@@ -37,6 +37,7 @@ class RunCommand(object):
         standard output is received..
     :param cachename: Optional. Name of the tool or other unique
         name that will be used for the cache directory.
+    :param cachecb: Optional function to call when the cache is cleared.
     :param width: Default is 'auto'.
     """
 
@@ -51,7 +52,8 @@ class RunCommand(object):
                  outcb=None,
                  width='auto',
                  cachename=None,
-                 cachedir=None):
+                 cachedir=None,
+                 cachecb=None):
         self.label = label
         self.tooltip = tooltip
         self.start_func = start_func
@@ -201,11 +203,15 @@ class RunCommand(object):
                 shutil.rmtree(self.cachedir)
             if os.path.exists(self.cachetabdir):
                 shutil.rmtree(self.cachetabdir)
+            if self.cachecb:
+                self.cachecb()
             return
+
         rdir = os.path.join(self.cachedir, self.runname)
         if os.path.exists(rdir):
             shutil.rmtree(rdir)
-
+        if self.cachecb:
+            self.cachecb()
 
     def statusbar(self, num, state):
         state_str = color_rect % (colors[num], state)
