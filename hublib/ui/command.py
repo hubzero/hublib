@@ -65,6 +65,7 @@ class RunCommand(object):
         self.status = None
         self.output = None
         self.width = width
+        self.cachecb = cachecb
 
         if start_func is None:
             print("start_func is required", file=sys.stderr)
@@ -390,5 +391,3 @@ def pretty_time_delta(seconds):
         return '%dm%ds' % (minutes, seconds)
     else:
         return '%ds' % (seconds,)
-
-
