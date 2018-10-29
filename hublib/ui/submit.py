@@ -57,7 +57,8 @@ class Submit(object):
                  show_progress=True,
                  width='auto',
                  cachename=None,
-                 cachecb=None):
+                 cachecb=None,
+                 showcache=True):
         self.label = label
         self.tooltip = tooltip
         self.start_func = start_func
@@ -74,6 +75,7 @@ class Submit(object):
         self.width = width
         self.attachid = None
         self.cachecb = cachecb
+        self.showcache = showcache
 
         if start_func is None:
             print("start_func is required.", file=sys.stderr)
@@ -331,12 +333,12 @@ class Submit(object):
     def statusbar(self, num, state):
         state_str = color_rect % (colors[num], state)
         status = w.HTML(state_str)
-        if not state.startswith('Cached'):
+        if not state.startswith('Cached') or self.showcache is False:
             return status
 
-        b1 = w.Button(tooltip='Clear the cache for this run.', 
+        b1 = w.Button(tooltip='Clear the cache for this run. Only do this is you want to force the result to be recomputed.', 
                       description='Clear Entry')
-        b2 = w.Button(tooltip='Clear the entire cache for this tool.', 
+        b2 = w.Button(tooltip='Clear the entire cache for this tool.  You might do this to save space or because you know the old results are no longer valid.', 
                       description='Clear All', 
                       button_style='warning', 
                       icon='trash')
