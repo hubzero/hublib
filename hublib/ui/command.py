@@ -53,7 +53,8 @@ class RunCommand(object):
                  width='auto',
                  cachename=None,
                  cachedir=None,
-                 cachecb=None):
+                 cachecb=None,
+                 showcache=True):
         self.label = label
         self.tooltip = tooltip
         self.start_func = start_func
@@ -66,6 +67,7 @@ class RunCommand(object):
         self.output = None
         self.width = width
         self.cachecb = cachecb
+        self.showcache = showcache
 
         if start_func is None:
             print("start_func is required", file=sys.stderr)
@@ -217,7 +219,7 @@ class RunCommand(object):
     def statusbar(self, num, state):
         state_str = color_rect % (colors[num], state)
         status = w.HTML(state_str)
-        if not state.startswith('Cached'):
+        if not state.startswith('Cached') or self.showcache is False:
             return status
 
         b1 = w.Button(tooltip='Clear the cache for this run.', 
