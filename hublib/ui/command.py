@@ -381,7 +381,7 @@ def poll_thread(cmd, self):
         if self.cachename:
             self.done_func(self, rdir)
         else:
-            self.done_func(self)
+            self.done_func(self, '')
 
 
 def pretty_time_delta(seconds):
