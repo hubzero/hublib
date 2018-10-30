@@ -260,12 +260,16 @@ class RunCommand(object):
             return
         self.w.layout.visibility = 'hidden'
   
-    def copy_files(self, start_time, elapsed_time):
+    def copy_files(self, start_time, elapsed_time, errNum):
         rdir = os.path.join(self.cachedir, self.runname)
 
         # shouldn't happen, but overwrite if it does
         if os.path.exists(rdir):
             shutil.rmtree(rdir)
+
+        # don't copy canceled runs
+        if errNum > 0:
+            return
 
         # Results are in current working directory.
         # Use the timestamp to copy all newer files to the cacheName.
@@ -369,7 +373,7 @@ def poll_thread(cmd, self):
 
     # copy files to cache dir and return full pathname for it
     if self.cachename:
-        rdir = self.copy_files(start_time, elapsed_time)
+        rdir = self.copy_files(start_time, elapsed_time, errNum)
     else:
         rdir = self.runname
 
