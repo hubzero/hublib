@@ -13,6 +13,7 @@ import shutil
 from queue import Queue
 from joblib import Memory
 import uuid
+import glob
 
 color_rect = '<svg width="4" height="20"><rect width="4" height="20" style="fill:%s"/></svg>  %s'
 colors = ["rgb(60,179,113)", "rgb(255,165,0)", "rgb(255,99,71)", "rgb(51,153,255"]
@@ -277,7 +278,7 @@ class Submit(object):
         if not state.startswith('Cached') or self.showcache is False:
             return status
 
-        b1 = w.Button(tooltip='Clear the cache for this run. Only do this is you want to force the result to be recomputed.', 
+        b1 = w.Button(tooltip='Clear the cache for this run. Do this if you want to force the result to be recomputed.', 
                       description='Clear Entry')
         b2 = w.Button(tooltip='Clear the entire cache for this tool.  You might do this to save space or because you know the old results are no longer valid.', 
                       description='Clear All', 
@@ -315,6 +316,26 @@ class Submit(object):
             return
         self.w.layout.visibility = 'hidden'
   
+    def copy_stdout(self):
+        # copy stdout from batch runs (non-local) to text widget
+        if os.path.isdir(self.runname) and os.path.getmtime(self.runname) >= self.start_time:
+            # parametric run
+            files = glob.glob('%s/*/*.stdout' % self.runname)
+            dirs = [(os.path.basename(os.path.dirname(f)), f) for f in files]
+            dirs.sort(key=lambda x: int(x[0]))
+            for d, fname in dirs:
+                self.txt.value += "\n" + 40 * "="
+                self.txt.value += "\nJOB %s OUTPUT\n" % d
+                self.txt.value += 40 * "=" + "\n"
+                with open(fname) as f:
+                    self.txt.value += f.read()
+        else:
+            fname = '%s.stdout' % self.runname
+            if os.path.isfile(fname) and os.path.getmtime(fname) >= self.start_time:
+                with open(fname) as f:
+                    self.txt.value += '\n'
+                    self.txt.value += f.read()
+                    
     def copy_files(self, errnum, etime):
         if os.path.isdir(self.runname):
             # output directory was created.  Must have been a parametric run
@@ -422,6 +443,9 @@ def poll_thread(cmd, self):
     errState += ".  Run Time: %s" % time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
     self.status = self.statusbar(errNum, errState)
     self.w.children = [self.acc, self.status, self.but]
+
+    # copy stdout from batch runs to widget
+    self.copy_stdout()
 
     # copy files to cache dir and return full pathname for it
     if self.cachename:
