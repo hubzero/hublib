@@ -13,7 +13,6 @@ import shutil
 from queue import Queue
 from joblib import Memory
 import uuid
-from filelock import Timeout, FileLock
 
 color_rect = '<svg width="4" height="20"><rect width="4" height="20" style="fill:%s"/></svg>  %s'
 colors = ["rgb(60,179,113)", "rgb(255,165,0)", "rgb(255,99,71)", "rgb(51,153,255"]
@@ -73,7 +72,6 @@ class Submit(object):
         self.progress = None
         self.make_rname = None
         self.width = width
-        self.attachid = None
         self.cachecb = cachecb
         self.showcache = showcache
 
@@ -105,7 +103,10 @@ class Submit(object):
             tooltip=self.tooltip,
             button_style='success'
         )
-
+        self.txt = w.Textarea(layout={'width': '100%', 'height': '400px'})
+        self.acc = w.Accordion(children=[self.txt], width=self.width)
+        self.acc.set_title(0, 'Output')
+        self.acc.selected_index = None
         self.but.on_click(self._but_cb)
         self.disabled = False
         _layout = w.Layout(
@@ -126,24 +127,19 @@ class Submit(object):
                 os.killpg(self.pid, signal.SIGTERM)
 
     def _check_cache(self):
-        # Returns the attachid if the cached job is still running.
-        # Otherwise returns None.  Called with a lock on the cache dir.
-
         try:
             tfile = os.path.join(self.rdir, '.submit_time')
             with open(tfile, 'r') as f:
                 etime = f.read() 
         except:
-            return '', 0.0  # invalid cache
+            return False  # invalid cache
 
         try:
-            idname = os.path.join(self.rdir, '.attachid')
-            with open(idname, 'r') as f:
-                attachid = f.read().strip()
-            return attachid, float(etime)
+            ofile = os.path.join(self.rdir, '.output')
+            with open(ofile, 'r') as f:
+                self.txt.value = f.read() 
         except:
-            pass
-
+            self.txt.value = ''
         try:
             ctime = time.localtime(os.path.getctime(tfile))
             ctime = time.strftime('%d %b %Y', ctime)
@@ -152,12 +148,15 @@ class Submit(object):
         errState = "Cached: (%s, RunTime: %s)" % (ctime, etime)
 
         self.status = self.statusbar(0, errState)
-        self.w.children = [self.status, self.but]
+        self.w.children = [self.acc, self.status, self.but]
+
         # notify callback we are finished
         self.cached = True
         if self.done_func:
+            self.but.disabled = True
             self.done_func(self, self.rdir)
-        return None, None
+            self.but.disabled = False
+        return True
 
     def run(self, runname, cmd):
         """
@@ -168,14 +167,12 @@ class Submit(object):
             command-line submit. Do not include runName
             or progress.
         """
-        self.but.disabled = True
 
         if self.thread:
             # cleanup old thread
             self.thread.join()
 
         self.runname = runname
-        self.attachid = None
         
         # cmd should not have 'submit', '--runName' or '--progress'
         if cmd.startswith('submit'):
@@ -196,89 +193,34 @@ class Submit(object):
             self.but.disabled = False
             return
 
-        is_local = False
-        if '--local' in cmd:
-            is_local = True
-
         if self.cachename:
             self.rdir = os.path.join(Submit.CACHEDIR, self.cachename, runname)
         else:
             self.rdir = runname
 
-        self.start_time = 0.0
         # check cache
         if self.cachename and os.path.exists(self.rdir):
-            lockfile = os.path.join(self.rdir, '.lock')
-            lock = FileLock(lockfile)
-            try:
-                with lock.acquire(timeout=120):
-                    self.attachid, self.start_time = self._check_cache()
-            except Timeout:
-                print("ERROR: Could not acquire lock '%s'" % lockfile)
-                print("If another process is not holding it, you should remove the file.")
-                sys.exit(1)
-            if self.attachid is None:
-                # job finished. cache is complete
-                self.but.disabled = False
+            if self._check_cache():
                 return
 
+        self.but.disabled = True
         self.cached = False
-
-        if self.start_time == 0.0:
-            self.start_time = time.time()
+        self.start_time = time.time()
 
         # Remove any old local directory results
-        if self.attachid:
-            cmd = "submit --attach %s" % (self.attachid)
-        else:
-            if os.path.exists(runname):
-                shutil.rmtree(runname)
+        if os.path.exists(runname):
+            shutil.rmtree(runname)
 
-            # create cache directory
-            if self.cachename and not os.path.exists(self.rdir):
-                os.makedirs(self.rdir)
+        # create cache directory
+        if self.cachename and not os.path.exists(self.rdir):
+            os.makedirs(self.rdir)
 
-            # Run submit and immediately detach.  This gives us the attach id so we
-            # can attach even if we are later disconnected.
-            if is_local or self.cachename is None or self.cachename == '':
-                cmd = "submit --runName=%s --progress submit %s" % (runname, cmd)
-            else:
-                cmd = "submit --detach --runName=%s --progress submit %s" % (runname, cmd)
-                stdout = subprocess.check_output(cmd, shell=True)
-                x = re.search(r"--attach (\d+)", stdout.decode('UTF-8'))
-                if x is None:
-                    print("Error:", cmd)
-                    print(stdout.decode('UTF-8'))
-                    self.but.disabled = False
-                    return
-                self.attachid = x.group(0).split()[1]
-                cmd = "submit --attach %s" % (self.attachid)
-                lockfile = os.path.join(self.rdir, '.lock')
-                lock = FileLock(lockfile)
-                try:
-                    with lock.acquire(timeout=120):
-                        with open(os.path.join(self.rdir, '.attachid'), 'w') as f:
-                            f.write(self.attachid)
-                        with open(os.path.join(self.rdir, '.submit_time'), 'w') as f:
-                            f.write(str(self.start_time))
-                except Timeout:
-                    print("ERROR: Could not acquire lock '%s'" % lockfile)
-                    print("If another process is not holding it, you should remove the file.")
-                    sys.exit(1)
+        cmd = "submit --runName=%s --progress submit %s" % (runname, cmd)
 
         self.but.description = 'Cancel'
         self.but.button_style = 'danger'
-
-        if self.txt is None:
-            self.txt = w.Textarea(
-                layout={'width': '100%', 'height': '400px'}
-            )
-            self.acc = w.Accordion(children=[self.txt], width=self.width)
-            self.acc.set_title(0, 'Output')
-            self.acc.selected_index = None
-        else:
-            self.txt.value = ""
-            self.progress = None
+        self.txt.value = ""
+        self.progress = None
         self.w.children = [self.acc, self.but]
    
         self.thread = threading.Thread(target=poll_thread, args=(cmd, self))
@@ -312,7 +254,6 @@ class Submit(object):
             self.prog[i].value = val
 
     def clear_cache(self, x):
-        # FIXME: need to lock each directory
         x.disabled = True
         if x.description == "Clear All":
             tooldir = os.path.join(Submit.CACHEDIR, self.cachename)
@@ -375,13 +316,6 @@ class Submit(object):
         self.w.layout.visibility = 'hidden'
   
     def copy_files(self, errnum, etime):
-        try:
-            os.remove(os.path.join(self.rdir, '.attachid'))
-        except OSError:
-            pass
-
-        # FIXME: Lock
-        
         if os.path.isdir(self.runname):
             # output directory was created.  Must have been a parametric run
             if errnum > 0:
@@ -401,6 +335,8 @@ class Submit(object):
         if errnum == 0:
             with open(os.path.join(self.rdir, '.submit_time'), 'w') as f:
                 f.write(pretty_time_delta(etime))
+            with open(os.path.join(self.rdir, '.output'), 'w') as f:
+                f.write(self.txt.value)
 
         return self.rdir
 

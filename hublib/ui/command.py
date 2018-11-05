@@ -105,6 +105,10 @@ class RunCommand(object):
             tooltip=self.tooltip,
             button_style='success'
         )
+        self.output = w.Textarea(layout={'width': '100%', 'height': '400px'})
+        self.acc = w.Accordion(children=[self.output])
+        self.acc.set_title(0, 'Output')
+        self.acc.selected_index = None
         self.but.on_click(self._but_cb)
         self.disabled = False
         _layout = w.Layout(
@@ -138,17 +142,7 @@ class RunCommand(object):
             self.thread.join()
 
         self.runname = runname
-
-        # FIXME. Output set by cache too!
-        if self.output is None:
-            self.output = w.Textarea(
-                layout={'width': '100%', 'height': '400px'}
-            )
-            self.acc = w.Accordion(children=[self.output])
-            self.acc.set_title(0, 'Output')
-            self.acc.selected_index = None
-        else:
-            self.output.value = ""
+        self.output.value = ""
         self.w.children = (self.acc, self.but)
 
         if cmd == '':
@@ -168,6 +162,13 @@ class RunCommand(object):
                         etime = f.read() 
                 except:
                     etime = "unknown"
+                
+                try:
+                    ofile = os.path.join(self.rdir, '.output')
+                    with open(ofile, 'r') as f:
+                        self.output.value = f.read() 
+                except:
+                    self.output.value = ''
 
                 try:
                     ctime = time.localtime(os.path.getctime(tfile))
@@ -381,7 +382,7 @@ def poll_thread(cmd, self):
         if self.cachename:
             self.done_func(self, rdir)
         else:
-            self.done_func(self, '')
+            self.done_func(self)
 
 
 def pretty_time_delta(seconds):
