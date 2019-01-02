@@ -1,39 +1,190 @@
-from IPython.display import display, HTML
-from IPython.core.magic import (register_line_magic, register_cell_magic,
-                                register_line_cell_magic)
+from mendeleev import element
+from .. import ureg
+from papermill.iorw import load_notebook_node
+import papermill as pm
+import yaml
+import os
+import shutil
+import copy
 
-"""
-Works with the autorun notebook extension to mark points where the execution stops.
-"""
+def run_simtool(nb, outname, inputs, outdir=None, append=True, parallel=False):
+    inputs = _get_dict(inputs)
+    if outdir is not None:
+        if append:
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+        else:
+            if os.path.exists(outdir):
+                shutil.rmtree(outdir)
+            os.makedirs(outdir)
+    pm.execute_notebook(nb, os.path.join(outdir, outname), parameters=inputs)
 
-# HTML5 code for a button
-input_form = "<button name=\"%s,%s\" class=\"continue_button\" onclick=\"IPython.wait_button_clicked()\">%s</button>"
+def get_inputs(nbname):
+    incell = None
+    nb = load_notebook_node(nbname)
+    for cell in nb.cells:
+        if cell['source'].startswith('%%yaml INPUTS'):
+            incell = cell['source']
+            break
+    if incell is None:
+        return None
+    # remove first line (cell magic)
+    incell = incell.split('\n', 1)[1]
+    input_dict = yaml.load(incell)
+    return parse(input_dict)
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+    def __deepcopy__(self, memo):
+        return AttrDict(copy.deepcopy(self.__dict__))
+
+    def __repr__(self):
+        res = []
+        for i in self:
+            res.append('%s:' % i)
+            res.append(self[i].__repr__())
+        return '\n'.join(res)
+
+class Param(AttrDict):
+    def __init__(self, **kwargs):
+        super(Param, self).__init__(**kwargs)
+        self.desc = kwargs.get('desc')
+
+def parse(inputs):
+    d = AttrDict()
+    for i in inputs:
+        t = inputs[i]['type']
+        if t == 'Text':
+            d[i] = Text(**inputs[i])
+        elif t == 'Element':
+            d[i] = Element(**inputs[i])
+        elif t == 'Integer':
+            d[i] = Integer(**inputs[i])
+        elif t == 'Number':
+            d[i] = Number(**inputs[i])
+    return d
+
+def set_variables(inputs, scope):
+    for i in inputs:
+        val = inputs[i].value
+        scope[i] = val
+
+def _get_dict(inputs):
+    if type(inputs) == dict:
+        return inputs
+    d = {}
+    for i in inputs:
+        try:
+            d[i] = inputs[i].value
+        except:
+            pass
+    return d
+
+class Integer(Param):
+    def __init__(self, value, **kwargs):
+        super(Integer, self).__init__(**kwargs)
+        self.min = kwargs.get('min')
+        self.max = kwargs.get('max')
+        self.value = value
+
+    @property
+    def value(self):
+        return self._value
+    @value.setter
+    def value(self, newval):
+        if self.min is not None and newval < self.min:
+            raise ValueError("Minimum value is %d" % self.min)
+        if self.max is not None and newval > self.max:
+            raise ValueError("Maximum value is %d" % self.max)
+        self._value = newval
+    
+    def __repr__(self):
+        res = '    value: %s\n' % self.value
+        for i in self:
+            if not i.startswith('_') and self[i] is not None:
+                res += '    %s: %s\n' % (i, self[i])
+        return res
 
 
-@register_line_magic
-def wait(line):
-    """ Set a waitpoint.  Optional line should contain a
-    button name and wait name seperated by a comma. """
-    line = line.split(',')
-    if len(line[0]) == 0:
-        name = 'Run'
-        wname = 'Running'
-    elif len(line) == 1:
-        name = line[0]
-        wname = 'Running'
-    else:
-        name, wname = line
-    button = input_form % (name, wname, name)
-    display(HTML(button))
+class Text(Param):
+    def __init__(self, value, **kwargs):
+        super(Text, self).__init__(**kwargs)
+        self.value = value
+        self.options = kwargs.get('options')
+        self.maxlen = kwargs.get('maxlen')
 
+    def __repr__(self):
+        res = ''
+        for i in self:
+            if self[i] is not None:
+                res += '    %s: %s\n' % (i, self[i])
+        return res
 
-@register_line_magic
-def waitdone(line):
-    """
-    Displays a button labelled 'DONE' when executed.
-    """
-    display(HTML('DONE'))
+class Element(Param):
+    def __init__(self, value, property, **kwargs):
+        super(Element, self).__init__(**kwargs)
+        self.property = property
+        self.value = value
+        self.options = kwargs.get('options')
 
-# We delete these to avoid name conflicts for automagic to work
-del wait
-del waitdone
+    @property
+    def value(self):
+        return self._value
+    @value.setter
+    def value(self, newval):
+        if type(newval) is str:
+            self._e = element(newval.title())
+        else:
+            self._e = element(newval)
+        self._value = self._e.__dict__[self.property]
+
+    def __repr__(self):
+        res = '    value: %s\n' % self.value
+        for i in self:
+            if not i.startswith('_') and self[i] is not None:
+                res += '    %s: %s\n' % (i, self[i])
+        return res
+
+class Number(Param):
+    def __init__(self, value, *args, **kwargs):
+        super(Number, self).__init__()
+        self.min = kwargs.get('min')
+        if self.min is not None:
+            self.min = float(self.min)
+        self.max = kwargs.get('max')
+        if self.max is not None:
+            self.max = float(self.max)
+
+        units = kwargs.get('units')
+        if units:
+            try:
+                self.units = ureg.parse_units(units)
+            except:
+                raise ValueError('Unrecognized units: %s' % units)
+        self.value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, newval):
+        if self.units and type(newval) == str:
+            newval = ureg.parse_expression(newval)
+            if hasattr(newval, 'units'):
+                newval = newval.to(self.units).magnitude
+        if self.min is not None and newval < self.min:
+            raise ValueError("Minimum value is %d" % self.min)
+        if self.max is not None and newval > self.max:
+            raise ValueError("Maximum value is %d" % self.max)
+        self._value = newval
+
+    def __repr__(self):
+        res = '    value: %s\n' % self.value
+        for i in self:
+            if not i.startswith('_') and self[i] is not None:
+                res += '    %s: %s\n' % (i, self[i])
+        return res
