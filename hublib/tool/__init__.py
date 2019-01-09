@@ -6,6 +6,68 @@ import yaml
 import os
 import shutil
 import copy
+import numpy as np
+import json
+import plotly
+import plotly.graph_objs as go
+import IPython
+from IPython.display import display as idisplay, Video, Image
+from base64 import b64decode, b64encode
+
+def save(name, value, display=False):
+    if display:
+        idisplay(value)
+
+    if type(value) is np.ndarray:
+        sval = json.dumps(value, cls=plotly.utils.PlotlyJSONEncoder)
+        pm.record(name, sval)
+        return
+    
+    if type(value) is Video or type(value) is Image:
+        data, metadata = IPython.core.formatters.format_display_data(value)
+        pm.record(name, data)
+        return
+
+    if type(value) is go.FigureWidget:
+        sval = json.dumps(value, cls=plotly.utils.PlotlyJSONEncoder)
+        pm.record(name, sval)
+        return
+
+    pm.record(name, value)        
+
+def read(nb, name):
+    data = nb.data[name]
+    if type(data) is str:
+        try:
+            data = json.loads(data)
+        except:
+            pass
+    try:
+        if 'image/jpeg' in data:
+            return b64decode(data['image/jpeg'])
+    except:
+        pass
+    return data
+
+def rdisplay(nb, name):
+    data = nb.data[name]
+    if type(data) is str:
+        try:
+            data = json.loads(data)
+        except:
+            pass
+    try:
+        if 'image/jpeg' in data or 'text/html' in data:
+            idisplay(data, raw=True)
+            return
+    except:
+        pass
+
+    if 'plot' in name:  # FIXME !HACK
+        idisplay(go.FigureWidget(data))
+        return
+        
+    idisplay(data)
 
 def run_simtool(nb, outname, inputs, outdir=None, append=True, parallel=False):
     inputs = _get_dict(inputs)
@@ -93,6 +155,7 @@ class Integer(Param):
     @property
     def value(self):
         return self._value
+    
     @value.setter
     def value(self, newval):
         if self.min is not None and newval < self.min:
@@ -133,6 +196,7 @@ class Element(Param):
     @property
     def value(self):
         return self._value
+    
     @value.setter
     def value(self, newval):
         if type(newval) is str:
