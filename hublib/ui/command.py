@@ -3,6 +3,8 @@ from __future__ import print_function
 import ipywidgets as w
 import sys
 import os
+import fcntl
+import collections
 import signal
 import threading
 import subprocess
@@ -68,6 +70,7 @@ class RunCommand(object):
         self.width = width
         self.cachecb = cachecb
         self.showcache = showcache
+        self.cbuf = collections.deque(maxlen=200)  # circular buffer
 
         if start_func is None:
             print("start_func is required", file=sys.stderr)
@@ -143,6 +146,7 @@ class RunCommand(object):
 
         self.runname = runname
         self.output.value = ""
+        self.cbuf.clear()
         self.w.children = (self.acc, self.but)
 
         if cmd == '':
@@ -169,6 +173,8 @@ class RunCommand(object):
                         self.output.value = f.read() 
                 except:
                     self.output.value = ''
+                    self.cbuf.clear()
+
 
                 try:
                     ctime = time.localtime(os.path.getctime(tfile))
@@ -184,6 +190,7 @@ class RunCommand(object):
                         self.output.value = f.read()
                 except:
                     self.output.value = ''
+                    self.cbuf.clear()
                 self.w.children = [self.acc, self.status, self.but]
                 # notify callback we are finished
                 self.cached = True
@@ -312,7 +319,7 @@ def poll_thread(cmd, self):
             close_fds=True,
             preexec_fn=os.setsid)
     except Exception as e:
-        print(e.strerror)
+        print(e)
         return
 
     self.q.put(child.pid)
@@ -325,24 +332,42 @@ def poll_thread(cmd, self):
         try:
             r = poller.poll(1)
         except select.error as err:
-            print(err[1], file=sys.stderr)
+            print(err, file=sys.stderr)
             break
         for fd, flags in r:
             if flags & (select.POLLIN | select.POLLPRI):
                 c = os.read(fd, 4096).decode(outenc)
                 if fd == child.stderr.fileno():
+                    # add some special characters to indicate stderr
                     if c.endswith('\n'):
                         c = c[:-1]
-                    self.output.value += u'⇉ ' + c + u' ⇇\n'
-                else:
-                    # write c to output widget
-                    self.output.value += c
-                    if self.outcb:
-                        self.outcb(c)
+                    c = u'<STDERR> ' + c + u' </STDERR>\n'
+                elif self.outcb:
+                    self.outcb(c)
+                # write c to output widget
+                self.cbuf.append(c)
+                self.output.value = ''.join(self.cbuf)
 
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
                 numfds -= 1
+
+    # drain buffers
+    for fp in [child.stdout, child.stderr]:
+        fcntl.fcntl(fp, fcntl.F_SETFL, os.O_NONBLOCK)
+        while True:
+            c = child.stdout.read(4096).decode(outenc)
+            if len(c) == 0:
+                break
+            if fp == child.stderr:
+                if c.endswith('\n'):
+                    c = c[:-1]
+                c = u'<STDERR> ' + c + u' </STDERR>\n'
+            elif self.outcb:
+                self.outcb(c)
+            # write c to output widget
+            self.cbuf.append(c)
+            self.output.value = ''.join(self.cbuf)
     
     pid, exitStatus = os.waitpid(child.pid, 0)
     elapsed_time = time.time() - start_time
