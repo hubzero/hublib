@@ -346,11 +346,10 @@ def poll_thread(cmd, self):
                     self.outcb(c)
                 # write c to output widget
                 self.cbuf.append(c)
-                self.output.value = ''.join(self.cbuf)
-
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
                 numfds -= 1
+        self.output.value = ''.join(self.cbuf)
 
     # drain buffers
     for fp in [child.stdout, child.stderr]:
@@ -367,7 +366,7 @@ def poll_thread(cmd, self):
                 self.outcb(c)
             # write c to output widget
             self.cbuf.append(c)
-            self.output.value = ''.join(self.cbuf)
+    self.output.value = ''.join(self.cbuf)
     
     pid, exitStatus = os.waitpid(child.pid, 0)
     elapsed_time = time.time() - start_time

@@ -4,6 +4,8 @@ import ipywidgets as w
 import sys
 import re
 import os
+import fcntl
+import collections
 import signal
 import threading
 import subprocess
@@ -68,13 +70,14 @@ class Submit(object):
         self.q = Queue()
         self.thread = 0
         self.status = None
-        self.txt = None
+        self.output = None
         self.show_progress = show_progress
         self.progress = None
         self.make_rname = None
         self.width = width
         self.cachecb = cachecb
         self.showcache = showcache
+        self.cbuf = collections.deque(maxlen=200)  # circular buffer
 
         if start_func is None:
             print("start_func is required.", file=sys.stderr)
@@ -104,8 +107,8 @@ class Submit(object):
             tooltip=self.tooltip,
             button_style='success'
         )
-        self.txt = w.Textarea(layout={'width': '100%', 'height': '400px'})
-        self.acc = w.Accordion(children=[self.txt], width=self.width)
+        self.output = w.Textarea(layout={'width': '100%', 'height': '400px'})
+        self.acc = w.Accordion(children=[self.output], width=self.width)
         self.acc.set_title(0, 'Output')
         self.acc.selected_index = None
         self.but.on_click(self._but_cb)
@@ -138,9 +141,10 @@ class Submit(object):
         try:
             ofile = os.path.join(self.rdir, '.output')
             with open(ofile, 'r') as f:
-                self.txt.value = f.read() 
+                self.output.value = f.read() 
         except:
-            self.txt.value = ''
+            self.output.value = ''
+            self.cbuf.clear()
         try:
             ctime = time.localtime(os.path.getctime(tfile))
             ctime = time.strftime('%d %b %Y', ctime)
@@ -220,7 +224,8 @@ class Submit(object):
 
         self.but.description = 'Cancel'
         self.but.button_style = 'danger'
-        self.txt.value = ""
+        self.output.value = ""
+        self.cbuf.clear()
         self.progress = None
         self.w.children = [self.acc, self.but]
    
@@ -295,6 +300,15 @@ class Submit(object):
     def _ipython_display_(self):
         self.w._ipython_display_()
 
+    # backwards compatibility
+    @property
+    def txt(self):
+        return self.output
+
+    @txt.setter
+    def txt(self, val):
+        self.output.value = val
+
     @property
     def disabled(self):
         return self.but.disabled
@@ -324,18 +338,26 @@ class Submit(object):
             dirs = [(os.path.basename(os.path.dirname(f)), f) for f in files]
             dirs.sort(key=lambda x: int(x[0]))
             for d, fname in dirs:
-                self.txt.value += "\n" + 40 * "="
-                self.txt.value += "\nJOB %s OUTPUT\n" % d
-                self.txt.value += 40 * "=" + "\n"
-                with open(fname) as f:
-                    self.txt.value += f.read()
+                val = "\n" + 40 * "="
+                val += "\nJOB %s OUTPUT\n" % d
+                val += 40 * "=" + "\n"
+                self.cbuf.append(val)
+                with open(fname, 'rb') as f:
+                    for chunk in iter(lambda: f.read(4096), b''):
+                        self.cbuf.append(chunk)
+                # with open(fname) as f:
+                    # val += f.read()
         else:
             fname = '%s.stdout' % self.runname
             if os.path.isfile(fname) and os.path.getmtime(fname) >= self.start_time:
-                with open(fname) as f:
-                    self.txt.value += '\n'
-                    self.txt.value += f.read()
-                    
+                with open(fname, 'rb') as f:
+                    self.cbuf.append('\n')
+                    # self.output.value += f.read()
+                    for chunk in iter(lambda: f.read(4096), b''):
+                        self.cbuf.append(chunk)
+        # set the widget from the circular buffer
+        self.output.value = ''.join(self.cbuf)
+
     def copy_files(self, errnum, etime):
         if os.path.isdir(self.runname):
             # output directory was created.  Must have been a parametric run
@@ -357,7 +379,7 @@ class Submit(object):
             with open(os.path.join(self.rdir, '.submit_time'), 'w') as f:
                 f.write(pretty_time_delta(etime))
             with open(os.path.join(self.rdir, '.output'), 'w') as f:
-                f.write(self.txt.value)
+                f.write(self.output.value)
 
         return self.rdir
 
@@ -381,7 +403,7 @@ def poll_thread(cmd, self):
             close_fds=True,
             preexec_fn=os.setsid)
     except Exception as e:
-        print(e.strerror)
+        print(e)
         return
 
     self.q.put(child.pid)
@@ -393,7 +415,7 @@ def poll_thread(cmd, self):
         try:
             r = poller.poll(1)
         except select.error as err:
-            print(err[1], file=sys.stderr)
+            print(err, file=sys.stderr)
             break
         for fd, flags in r:
             if flags & (select.POLLIN | select.POLLPRI):
@@ -401,20 +423,37 @@ def poll_thread(cmd, self):
                 if fd == child.stderr.fileno():
                     if c.endswith('\n'):
                         c = c[:-1]
-                    self.txt.value += u'⇉ ' + c + u' ⇇\n'
+                    self.cbuf.append(u'<STDERR> ' + c + u' </STDERR>\n')
                 else:
                     # parse string and update progress bars
                     if self.show_progress:
                         self.update(c)
                     if self.outcb:
                         c = self.outcb(c)
-                    # write c to output widget
+                    # write c to output widget buffer
                     if c:
-                        self.txt.value += c
-
+                        self.cbuf.append(c)
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
                 numfds -= 1
+        self.output.value = ''.join(self.cbuf)
+
+    # drain buffers
+    for fp in [child.stdout, child.stderr]:
+        fcntl.fcntl(fp, fcntl.F_SETFL, os.O_NONBLOCK)
+        while True:
+            c = child.stdout.read(4096).decode(outenc)
+            if len(c) == 0:
+                break
+            if fp == child.stderr:
+                if c.endswith('\n'):
+                    c = c[:-1]
+                c = u'<STDERR> ' + c + u' </STDERR>\n'
+            elif self.outcb:
+                self.outcb(c)
+            # write c to output widget
+            self.cbuf.append(c)
+    self.output.value = ''.join(self.cbuf)
 
     pid, exitStatus = os.waitpid(child.pid, 0)
     elapsed_time = time.time() - self.start_time
@@ -438,7 +477,7 @@ def poll_thread(cmd, self):
             errStr = "\"%s\" failed w/ exit code %d\n" % (cmd, exitStatus)
             errNum = 2
             errState = "Last Run: Failed"
-        self.txt.value += '\n' + '='*20 + '\n' + errStr
+        self.output.value += '\n' + '='*20 + '\n' + errStr
 
     errState += ".  Run Time: %s" % time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
     self.status = self.statusbar(errNum, errState)
