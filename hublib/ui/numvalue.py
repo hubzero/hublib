@@ -70,6 +70,8 @@ class NumValue(widgets.HBox):
         self.dd.layout = {'width': 'auto'}
         self.dd.disabled = kwargs.get('disabled', False)
         self.dd.observe(self._cb, names='value')
+        self.dd.min = _min
+        self.dd.max = _max
 
         form_item_layout = widgets.Layout(
             display='flex',
