@@ -215,27 +215,27 @@
 <p>You should be familiar with Rappture tools and their “tool.xml” file which
 specifies the inputs and outputs of tool runs.</p>
 <p>All you need is to:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">hublib.rappture</span> <span class="k">as</span> <span class="nn">rappture</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">hublib.rappture</span> <span class="k">as</span> <span class="nn">rappture</span>
 </pre></div>
 </div>
 <p>You might also want to set either:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">notebook</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">notebook</span>
 </pre></div>
 </div>
 <p>for interactive curve plots, or:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
 </pre></div>
 </div>
 <p>for noninteractive plots.</p>
 <div class="section" id="loading-rappture-tools">
 <h3>Loading Rappture Tools<a class="headerlink" href="#loading-rappture-tools" title="Permalink to this headline">¶</a></h3>
 <p>There are two ways to load a tool.  If the tool is installed, you can simply do:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span> <span class="o">=</span> <span class="n">rappture</span><span class="o">.</span><span class="n">Tool</span><span class="p">(</span><span class="s2">&quot;toolname&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span> <span class="o">=</span> <span class="n">rappture</span><span class="o">.</span><span class="n">Tool</span><span class="p">(</span><span class="s2">&quot;toolname&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Internally this will look for “/apps/toolname/current/rappture/tool.xml”.  To load a
 non-current or non-installed tool, you must give the full path to the “tool.xml” file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span> <span class="o">=</span> <span class="n">rappture</span><span class="o">.</span><span class="n">Tool</span><span class="p">(</span><span class="s2">&quot;/path/to/tool.xml&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span> <span class="o">=</span> <span class="n">rappture</span><span class="o">.</span><span class="n">Tool</span><span class="p">(</span><span class="s2">&quot;/path/to/tool.xml&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In addition to loading the xml file, the Tool() function will look for an invoke script.  If one is found, it will parse the invoke script and load any modules the tool requires.</p>
@@ -243,15 +243,15 @@ non-current or non-installed tool, you must give the full path to the “tool.xm
 <div class="section" id="setting-inputs">
 <h3>Setting Inputs<a class="headerlink" href="#setting-inputs" title="Permalink to this headline">¶</a></h3>
 <p>You can get a list of inputs and outputs (if available) by simply typing the name of the Tool object in a code cell:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span>
 </pre></div>
 </div>
 <p>To get just inputs, you would enter:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="o">.</span><span class="n">inputs</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>You can get more information about a specific input by inspecting the XML representation of the inputs:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">xml</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">xml</span><span class="p">()</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="o">&lt;</span><span class="n">integer</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;CarbonTypeN&quot;</span><span class="o">&gt;</span>
             <span class="o">&lt;</span><span class="n">about</span><span class="o">&gt;</span>
                 <span class="o">&lt;</span><span class="n">label</span><span class="o">&gt;</span><span class="n">n</span><span class="o">&lt;/</span><span class="n">label</span><span class="o">&gt;</span>
@@ -266,7 +266,7 @@ non-current or non-installed tool, you must give the full path to the “tool.xm
 </div>
 <p>Rappture tools will use the value in the “current” node, so that is the only one
 our code should be setting.  Set the value by using the full Rappture XML path, for example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN).current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN).current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
 <span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN).current&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="mi">12</span>
 </pre></div>
@@ -274,7 +274,7 @@ our code should be setting.  Set the value by using the full Rappture XML path, 
 <p>A common error was forgetting the “current” part of the path.  For this reason, the
 set method now recognizes when a “current” node is present and will set that
 value instead.  So the following will work:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN)&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality).integer(CarbonTypeN).current&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="mi">7</span>
@@ -286,7 +286,7 @@ value instead.  So the following will work:</p>
 <h3>Using Nodes as Shortcuts<a class="headerlink" href="#using-nodes-as-shortcuts" title="Permalink to this headline">¶</a></h3>
 <p>If you have several values to set with a common path, you can set a variable to
 the common path node and index from that. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ch</span> <span class="o">=</span> <span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality)&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ch</span> <span class="o">=</span> <span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.group(chirality)&#39;</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="s1">&#39;integer(CarbonTypeN)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="s1">&#39;integer(CarbonTypeM)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="mi">7</span>
@@ -298,7 +298,7 @@ the common path node and index from that. For example:</p>
 <span id="units"></span><h3>Working with Units<a class="headerlink" href="#working-with-units" title="Permalink to this headline">¶</a></h3>
 <p>Rappture uses its own unit system.  However, those units are converted to and from Python <a class="reference external" href="https://pint.readthedocs.io/en/0.7.2/">Pint</a> objects.  You can read the docs, however the follwing examples should give you enough background to work with units.</p>
 <p>Only Numbers have units.  You should pass units and values with units as strings to the Rappture XML.  When reading then, the value method will return a Python PINT object. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.number(abc).current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;100 cm&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.number(abc).current&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;100 cm&#39;</span>
 <span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.number(abc).current&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="mf">1.0</span> <span class="n">meter</span>
 
@@ -308,7 +308,7 @@ the common path node and index from that. For example:</p>
 </pre></div>
 </div>
 <p>You can get magnitude with the <strong>magnitude</strong> method and units with the <strong>units</strong> method.  Or you can get them with the PINT methods:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.number(abc).current&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.number(abc).current&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="mf">4.572</span> <span class="n">meter</span>
 <span class="n">io</span><span class="p">[</span><span class="s1">&#39;input.number(abc).current&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">magnitude</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="n">meter</span>
@@ -318,7 +318,7 @@ the common path node and index from that. For example:</p>
 </pre></div>
 </div>
 <p>To convert units, use <strong>to</strong>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">val</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;mm&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">val</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;mm&#39;</span><span class="p">)</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="mf">4572.0</span> <span class="n">millimeter</span>
 </pre></div>
 </div>
@@ -326,7 +326,7 @@ the common path node and index from that. For example:</p>
 <div class="section" id="running-the-tool">
 <h3>Running the Tool<a class="headerlink" href="#running-the-tool" title="Permalink to this headline">¶</a></h3>
 <p>When you have the inputs set, you can run the tool with a single command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>When verbose is set, it will echo the command it is executing to run the tool.  Verbose is False by default.</p>
@@ -334,7 +334,7 @@ the common path node and index from that. For example:</p>
 <div class="section" id="reading-the-outputs">
 <h3>Reading the Outputs<a class="headerlink" href="#reading-the-outputs" title="Permalink to this headline">¶</a></h3>
 <p>To get a list of results:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">io</span><span class="o">.</span><span class="n">outputs</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">io</span><span class="o">.</span><span class="n">outputs</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Outputs are read just like inputs.</p>
@@ -342,7 +342,7 @@ the common path node and index from that. For example:</p>
 <div class="section" id="getting-the-raw-value">
 <h3>Getting the Raw Value<a class="headerlink" href="#getting-the-raw-value" title="Permalink to this headline">¶</a></h3>
 <p>XML stores everything as strings.  The <strong>value</strong> method converts those string to appropriate python types.  If you want the unconverted raw string value, use the <strong>rvalue</strong> method for this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;output.curve(DOS).component.xy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rvalue</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">io</span><span class="p">[</span><span class="s1">&#39;output.curve(DOS).component.xy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rvalue</span><span class="p">)</span>
 <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="o">-</span><span class="mf">10.0</span> <span class="mf">0.0</span>
     <span class="o">-</span><span class="mf">9.999</span> <span class="mf">0.0</span>
     <span class="o">-</span><span class="mf">9.998</span> <span class="mf">0.0</span>
@@ -368,7 +368,7 @@ the common path node and index from that. For example:</p>
 <h3>curve<a class="headerlink" href="#curve" title="Permalink to this headline">¶</a></h3>
 <p>A curve object represents a list of (x,y) data points.  Curves may be members of groups, indicating they should be plotted on the same graph.</p>
 <p>To plot an output curve, simply call <strong>plot()</strong>.  However you should first set the matplotlib output to either <em>inline</em> or <em>notebook</em>.  <em>inline</em> just writes a static image in the notebook.  <em>notebook</em> allows some interaction (zooming and resizing) with the output.  It needs to be set only once and will apply to all cells folowing it.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">notebook</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">notebook</span>
 <span class="n">io</span><span class="p">[</span><span class="s1">&#39;output.curve(DOS)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -383,7 +383,7 @@ the common path node and index from that. For example:</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>single</strong> (<em>boolean</em>) – Only plot a single curve, even if part of a group.</li>
 <li><strong>ax</strong> – <p>Matplotlib axis.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">io[&#39;output.curve(plot1)&#39;].plot(ax=axs[0]);</span>
 <span class="go">io[&#39;output.curve(plot2)&#39;].plot(ax=axs[1]);</span>
 </pre></div>
@@ -519,7 +519,6 @@ viewer is implemented.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

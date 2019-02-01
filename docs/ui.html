@@ -238,7 +238,7 @@ the widgets in <em>wlist</em> will be used.</li>
 <dd><p>Set to True to disable all the contained widgets.</p>
 </dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Tab</span><span class="p">([</span><span class="n">form1</span><span class="p">,</span> <span class="n">form2</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Tab</span><span class="p">([</span><span class="n">form1</span><span class="p">,</span> <span class="n">form2</span><span class="p">])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -299,7 +299,7 @@ widgets.</li>
 <dd><p>The form width.</p>
 </dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Form</span><span class="p">([</span><span class="n">checkbox1</span><span class="p">,</span> <span class="n">checkbox2</span><span class="p">,</span> <span class="n">num1</span><span class="p">,</span> <span class="n">string1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;My Parameters&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Form</span><span class="p">([</span><span class="n">checkbox1</span><span class="p">,</span> <span class="n">checkbox2</span><span class="p">,</span> <span class="n">num1</span><span class="p">,</span> <span class="n">string1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;My Parameters&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -392,7 +392,7 @@ units.  Bad units or values outside the permitted min/max values will cause an e
 <code class="descname">width</code><a class="headerlink" href="#hublib.ui.Number.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">e1</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Number</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">e1</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Number</span><span class="p">(</span>
 <span class="go">    name=&#39;E1&#39;,</span>
 <span class="go">    description=&quot;Longitudinal Young&#39;s Modulus&quot;,</span>
 <span class="go">    units=&#39;GPa&#39;,</span>
@@ -488,7 +488,7 @@ Unless noted, attributes are read/write.</dd>
 <code class="descname">width</code><a class="headerlink" href="#hublib.ui.Integer.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loops</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loops</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Integer</span><span class="p">(</span>
 <span class="go">    name=&#39;Loops&#39;,</span>
 <span class="go">    description=&quot;Number of Loops to Run&quot;,</span>
 <span class="go">    min=0,</span>
@@ -510,7 +510,7 @@ Unless noted, attributes are read/write.</dd>
 <dl class="class">
 <dt id="hublib.ui.Checkbox">
 <em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Checkbox</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em>, <em>value</em><span class="optional">[</span>, <em>cb=None</em>, <em>disabled=False</em>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Checkbox" title="Permalink to this definition">¶</a></dt>
-<dd><div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s1">&#39;Advanced Options&#39;</span><span class="p">,</span> <span class="s1">&#39;Show the Advanced Options&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;50%&#39;</span><span class="p">)</span>
+<dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s1">&#39;Advanced Options&#39;</span><span class="p">,</span> <span class="s1">&#39;Show the Advanced Options&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;50%&#39;</span><span class="p">)</span>
 <span class="go">print check.value</span>
 <span class="go">False</span>
 </pre></div>
@@ -523,7 +523,7 @@ Unless noted, attributes are read/write.</dd>
 <dl class="class">
 <dt id="hublib.ui.Radiobuttons">
 <em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Radiobuttons</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em>, <em>options</em>, <em>value</em><span class="optional">[</span>, <em>cb=None</em>, <em>disabled=False</em>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Radiobuttons" title="Permalink to this definition">¶</a></dt>
-<dd><div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Radiobuttons</span><span class="p">(</span>
+<dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Radiobuttons</span><span class="p">(</span>
 <span class="go">        name=&#39;Nut&#39;,</span>
 <span class="go">        description=&quot;Type of nut to eat.&quot;,</span>
 <span class="go">        value=&#39;almond&#39;,</span>
@@ -588,7 +588,7 @@ Unless noted, attributes are read/write.</dd>
 <code class="descname">width</code><a class="headerlink" href="#hublib.ui.Dropdown.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
 <span class="go">        name=&#39;Nut&#39;,</span>
 <span class="go">        description=&quot;Type of nut to eat.&quot;,</span>
 <span class="go">        value=&#39;almond&#39;,</span>
@@ -600,7 +600,7 @@ Unless noted, attributes are read/write.</dd>
 </pre></div>
 </div>
 <p>or using a dictionary:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
 <span class="go">        name=&#39;Nut&#39;,</span>
 <span class="go">        description=&quot;Type of nut to eat.&quot;,</span>
 <span class="go">        value=2,</span>
@@ -666,7 +666,7 @@ Unless noted, attributes are read/write.</dd>
 <code class="descname">width</code><a class="headerlink" href="#hublib.ui.Togglebuttons.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Togglebuttons</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Togglebuttons</span><span class="p">(</span>
 <span class="go">        name=&#39;Nut&#39;,</span>
 <span class="go">        description=&quot;Type of nut to eat.&quot;,</span>
 <span class="go">        value=&#39;almond&#39;,</span>
@@ -678,7 +678,7 @@ Unless noted, attributes are read/write.</dd>
 </pre></div>
 </div>
 <p>or using a dictionary:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Togglebuttons</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tb</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Togglebuttons</span><span class="p">(</span>
 <span class="go">        name=&#39;Nut&#39;,</span>
 <span class="go">        description=&quot;Type of nut to eat.&quot;,</span>
 <span class="go">        value=2,</span>
@@ -699,7 +699,7 @@ Unless noted, attributes are read/write.</dd>
 <dt id="hublib.ui.String">
 <em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">String</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em>, <em>value=''</em><span class="optional">[</span>, <em>cb=None</em>, <em>disabled=False</em>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.String" title="Permalink to this definition">¶</a></dt>
 <dd><p>A single-line text input box.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xstr</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Name (First and Last)&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;&lt;name&gt;&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xstr</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Name (First and Last)&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;&lt;name&gt;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">xstr</span><span class="o">.</span><span class="n">value</span>
 <span class="go">&lt;name&gt;</span>
 </pre></div>
@@ -713,7 +713,7 @@ Unless noted, attributes are read/write.</dd>
 <dt id="hublib.ui.Text">
 <em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Text</code><span class="sig-paren">(</span><em>name</em>, <em>desc</em>, <em>value=''</em><span class="optional">[</span>, <em>cb=None</em>, <em>disabled=False</em>, <em>width='auto'</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Text" title="Permalink to this definition">¶</a></dt>
 <dd><p>A multi-line text input box.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xtxt</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Description&quot;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xtxt</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Description&quot;</span><span class="p">,</span>
 <span class="go">                   description=&#39;Experiment Description&#39;,</span>
 <span class="go">                   value=&#39;Starting Content&#39;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">xtxt</span><span class="o">.</span><span class="n">value</span>
@@ -792,7 +792,7 @@ Unless noted, attributes are read/write.</dd>
 <dl class="docutils">
 <dt>list()</dt>
 <dd><p class="first">Returns a list of filenames that were uploaded.</p>
-<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 <span class="go">[&#39;quote1.txt&#39;, &#39;quote2.txt&#39;]</span>
 </pre></div>
 </div>
@@ -800,7 +800,7 @@ Unless noted, attributes are read/write.</dd>
 <dt>reset()</dt>
 <dd><p class="first">Clears the filename(s) and progress bar(s). Re-enables the widget
 to allow more files to be selected for uploading.</p>
-<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># called when all files finish uploading</span>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># called when all files finish uploading</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">done_cb</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> downloaded&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="n">w</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -838,11 +838,11 @@ to allow more files to be selected for uploading.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">modal_callback</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">modal_callback</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
 <span class="go">    print(&quot;Modal Dialog Returned&quot;, val)</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Modal</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;This is a test modal dialog.&quot;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Modal</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s2">&quot;This is a test modal dialog.&quot;</span><span class="p">,</span>
 <span class="go">  title=&#39;TEST DIALOG&#39;,</span>
 <span class="go">  icon=&#39;fa-bell&#39;,</span>
 <span class="go">  buttons=[&#39;CANCEL&#39;, &#39;OK&#39;],</span>
@@ -895,7 +895,7 @@ Unless noted, attributes are read/write.</dd>
 <code class="descname">width</code><a class="headerlink" href="#hublib.ui.ListManager.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">initial_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Hydrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;Helium&#39;</span><span class="p">,</span> <span class="s1">&#39;Lithium&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">initial_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Hydrogen&#39;</span><span class="p">,</span> <span class="s1">&#39;Helium&#39;</span><span class="p">,</span> <span class="s1">&#39;Lithium&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lm</span> <span class="o">=</span> <span class="n">ListManager</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">initial_list</span><span class="p">,</span> <span class="n">list_text</span><span class="o">=</span><span class="s1">&#39;Element..&#39;</span><span class="p">,</span> <span class="n">button_text</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cb</span><span class="o">=</span><span class="n">LMCB</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lm</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 <span class="go">[&#39;Hydrogen&#39;, &#39;Helium&#39;, &#39;Lithium&#39;]</span>
@@ -981,11 +981,12 @@ from the user’s computer.</p>
 <h2>RunCommand<a class="headerlink" href="#runcommand" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="hublib.ui.RunCommand">
-<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">RunCommand</code><span class="sig-paren">(</span><em>label='Run'</em>, <em>tooltip='Run Simulation'</em>, <em>start_func=None</em>, <em>done_func=None</em>, <em>outcb=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.RunCommand" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">RunCommand</code><span class="sig-paren">(</span><em>label='Run'</em>, <em>tooltip='Run Simulation'</em>, <em>start_func=None</em>, <em>done_func=None</em>, <em>outcb=None</em>, <em>width='auto'</em>, <em>cachename=None</em>, <em>cachedir=None</em>, <em>cachecb=None</em>, <em>showcache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.RunCommand" title="Permalink to this definition">¶</a></dt>
 <dd><p>A widget to run a Linux command and monitor progress.</p>
 <p>Use this to run external code locally that might take a couple of
-minutes.  If you are using ‘submit’,
-you should probably use the Submit widget.</p>
+minutes.  Results are optionally cached.</p>
+<p>If you are using ‘submit’ on a hub,
+you should use the Submit widget.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -998,7 +999,13 @@ start button is pressed.</li>
 <li><strong>done_func</strong> – Optional function to be called when the
 command is completed.</li>
 <li><strong>outcb</strong> – Optional function to be called when
-standard output is received..</li>
+standard output is received. Any returned value
+is written to the submit output widget, otherwise that widget
+will be empty when this is used.</li>
+<li><strong>cachename</strong> – Optional. Name of the tool or other unique
+name that will be used for the cache directory.</li>
+<li><strong>cachecb</strong> – Optional function to call when the cache is cleared.</li>
+<li><strong>width</strong> – Default is ‘auto’.</li>
 </ul>
 </td>
 </tr>
@@ -1006,13 +1013,18 @@ standard output is received..</li>
 </table>
 <dl class="method">
 <dt id="hublib.ui.RunCommand.run">
-<code class="descname">run</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.RunCommand.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>cmd</em>, <em>runname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.RunCommand.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts the command.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmd</strong> – The Linux shell command to run.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cmd</strong> – The Linux shell command to run.</li>
+<li><strong>runname</strong> – (Optional) Name for the results.
+Required when caching is enabled.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1025,7 +1037,7 @@ standard output is received..</li>
 <h2>Submit<a class="headerlink" href="#submit" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="hublib.ui.Submit">
-<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Submit</code><span class="sig-paren">(</span><em>label='Run'</em>, <em>tooltip='Run Simulation'</em>, <em>start_func=None</em>, <em>done_func=None</em>, <em>outcb=None</em>, <em>show_progress=True</em>, <em>width='auto'</em>, <em>cachename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Submit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">hublib.ui.</code><code class="descname">Submit</code><span class="sig-paren">(</span><em>label='Run'</em>, <em>tooltip='Run Simulation'</em>, <em>start_func=None</em>, <em>done_func=None</em>, <em>outcb=None</em>, <em>show_progress=True</em>, <em>width='auto'</em>, <em>cachename=None</em>, <em>cachecb=None</em>, <em>showcache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#hublib.ui.Submit" title="Permalink to this definition">¶</a></dt>
 <dd><p>A widget to run the submit command and monitor progress.
 Includes optional local caching of results.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1041,6 +1053,7 @@ start button is pressed.</li>
 submit function is completed.</li>
 <li><strong>cachename</strong> – Optional. Name of the tool or other unique
 name that will be used for the cache directory.</li>
+<li><strong>cachecb</strong> – Optional function to call when the cache is cleared.</li>
 <li><strong>outcb</strong> – Optional function to be called when
 standard output is received. Any returned value
 is written to the submit output widget, otherwise that widget
@@ -1064,7 +1077,7 @@ of input arguments.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A long string which is guaranteed to be a unique
-directory in <code class="docutils literal"><span class="pre">~/data/results/.submit_cache/${cachename}</span></code></td>
+directory in <code class="docutils literal notranslate"><span class="pre">~/data/results/.submit_cache/${cachename}</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -1077,7 +1090,7 @@ directory in <code class="docutils literal"><span class="pre">~/data/results/.su
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>runname</strong> – Directory name for the results.</li>
+<li><strong>runname</strong> – Name for the results.</li>
 <li><strong>cmd</strong> – The command to pass along to the
 command-line submit. Do not include runName
 or progress.</li>
@@ -1092,7 +1105,7 @@ or progress.</li>
 
 <p>Submit() can cache results.  If <em>cachename</em> is not None, it must
 be a unique name for the tool or notebook.  A user
-directory will be created for storing results in <code class="docutils literal"><span class="pre">~/data/results/.submit_cache/${cachename}</span></code>  Each run will need a unique name, <em>runname</em>.  The developer is responsible for generating this.  For
+directory will be created for storing results in <code class="docutils literal notranslate"><span class="pre">~/data/results/.submit_cache/${cachename}</span></code>  Each run will need a unique name, <em>runname</em>.  The developer is responsible for generating this.  For
 very simple cases, the runs can be simply named, like “run1”, or “volt5cap6”.  However, submit requires alphanumeric characters only, so no dashes, underscores or  periods.  This makes naming challenging.  To assist with this, Submit includes a handy method, make_rname().  make_rname() takes a variable number or args of any type and produces a unique runname.</p>
 <p>For more information, see the example notebooks.</p>
 </div>
@@ -1151,7 +1164,6 @@ very simple cases, the runs can be simply named, like “run1”, or “volt5cap
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

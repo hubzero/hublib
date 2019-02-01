@@ -36,7 +36,9 @@ class RunCommand(object):
     :param done_func: Optional function to be called when the
         command is completed.
     :param outcb: Optional function to be called when
-        standard output is received..
+        standard output is received. Any returned value
+        is written to the submit output widget, otherwise that widget
+        will be empty when this is used.
     :param cachename: Optional. Name of the tool or other unique
         name that will be used for the cache directory.
     :param cachecb: Optional function to call when the cache is cleared.
@@ -343,9 +345,10 @@ def poll_thread(cmd, self):
                         c = c[:-1]
                     c = u'<STDERR> ' + c + u' </STDERR>\n'
                 elif self.outcb:
-                    self.outcb(c)
+                    c = self.outcb(c)
                 # write c to output widget
-                self.cbuf.append(c)
+                if c:
+                    self.cbuf.append(c)
             if flags & (select.POLLHUP | select.POLLERR):
                 poller.unregister(fd)
                 numfds -= 1

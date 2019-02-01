@@ -239,16 +239,16 @@ when shell is False.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple containing the (return_code, stdout, stderr).  return_code is 0 when executing completed successfully. stdout and stderr are bytestrings.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executeCommand</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executeCommand</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
 <span class="go">(0, &#39;Wed Jul  5 10:54:06 EDT 2017\n&#39;, &#39;&#39;)</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executeCommand</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">streamOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executeCommand</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">streamOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">Wed Jul  5 10:54:08 EDT 2017</span>
 <span class="go">(0, &#39;Wed Jul  5 10:54:08 EDT 2017\n&#39;, &#39;&#39;)</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executeCommand</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;--utc&#39;</span><span class="p">],</span> <span class="n">streamOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executeCommand</span><span class="p">([</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;--utc&#39;</span><span class="p">],</span> <span class="n">streamOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">Wed Jul  5 14:54:23 UTC 2017</span>
 <span class="go">(0, &#39;Wed Jul  5 14:54:23 UTC 2017\n&#39;, &#39;&#39;)</span>
 </pre></div>
@@ -277,16 +277,16 @@ Internally calls executeCommand() with shell set to True.</div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>A tuple containing the (return_code, stdout, stderr).  return_code is 0 when executing completed successfully. stdout and stderr are bytestrings.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">runCommand</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">runCommand</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
 <span class="go">Wed Jul  5 10:59:54 EDT 2017</span>
 <span class="go">(0, &#39;Wed Jul  5 10:59:54 EDT 2017\n&#39;, &#39;&#39;)</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">runCommand</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">runCommand</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="go">(0, &#39;Wed Jul  5 11:00:00 EDT 2017\n&#39;, &#39;&#39;)</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">runCommand</span><span class="p">(</span><span class="s1">&#39;date --utc&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">runCommand</span><span class="p">(</span><span class="s1">&#39;date --utc&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="go">(0, &#39;Wed Jul  5 15:00:12 UTC 2017\n&#39;, &#39;&#39;)</span>
 </pre></div>
 </div>
@@ -352,7 +352,6 @@ Internally calls executeCommand() with shell set to True.</div></blockquote>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
