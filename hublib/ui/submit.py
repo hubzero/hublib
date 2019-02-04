@@ -344,17 +344,14 @@ class Submit(object):
                 self.cbuf.append(val)
                 with open(fname, 'rb') as f:
                     for chunk in iter(lambda: f.read(4096), b''):
-                        self.cbuf.append(chunk)
-                # with open(fname) as f:
-                    # val += f.read()
+                        self.cbuf.append(chunk.decode('utf-8'))
         else:
             fname = '%s.stdout' % self.runname
             if os.path.isfile(fname) and os.path.getmtime(fname) >= self.start_time:
                 with open(fname, 'rb') as f:
                     self.cbuf.append('\n')
-                    # self.output.value += f.read()
                     for chunk in iter(lambda: f.read(4096), b''):
-                        self.cbuf.append(chunk)
+                        self.cbuf.append(chunk.decode('utf-8'))
         # set the widget from the circular buffer
         self.output.value = ''.join(self.cbuf)
 
