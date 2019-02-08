@@ -10,7 +10,41 @@ import plotly
 import IPython
 from IPython.display import display as idisplay, Video, Image
 from base64 import b64decode, b64encode
+from .input_types import parse
 
+class DB(object):
+
+    def __init__(self, outputs):
+        self.out = parse(outputs)
+
+    def save(self, name, value, display=False):
+        if not name in self.out:
+            raise ValueError('\"%s\" not in output schema!' % name)
+        otype = self.out[name]['type']
+
+        if otype == 'Image':
+            if type(value) is str:
+                # filename
+                value = Image(value)
+            if type(value) is Image:
+                if display:
+                    idisplay(value)
+                data, _metadata = IPython.core.formatters.format_display_data(
+                    value)
+                pm.record(name, data)
+                return
+
+        if display:
+            idisplay(value)
+
+        if otype == 'Array' and type(value) is np.ndarray:
+            sval = json.dumps(value, cls=plotly.utils.PlotlyJSONEncoder)
+            pm.record(name, sval)
+            return
+
+        pm.record(name, value)
+
+# deprecated
 def save(name, value, display=False):
     if display:
         idisplay(value)
@@ -25,7 +59,7 @@ def save(name, value, display=False):
         pm.record(name, data)
         return
 
-    pm.record(name, value)        
+    pm.record(name, value)
 
 def read(nb, name):
     data = nb.data[name]

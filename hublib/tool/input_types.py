@@ -86,6 +86,8 @@ def parse(inputs):
             d[i] = Dict(**inputs[i])
         elif t == 'Array':
             d[i] = Array(**inputs[i])
+        elif t == 'Image':
+            d[i] = Image(**inputs[i])
         else:
             print('Unknown type:', t, file=sys.stderr)
     return d
@@ -219,6 +221,29 @@ class Number(Params):
             raise ValueError("Minimum value is %d" % self.min)
         if self.max is not None and newval > self.max:
             raise ValueError("Maximum value is %d" % self.max)
+        self._value = newval
+
+    def __repr__(self):
+        res = ''
+        for i in self:
+            res += '    %s: %s\n' % (i, self[i])
+        return res
+
+
+class Image(Params):
+    def __init__(self, **kwargs):
+        # always set these first
+        super(Image, self).__init__(**kwargs)
+        # always put something in for 'value'
+        if 'value' not in kwargs:
+            self['value'] = None
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, newval):
         self._value = newval
 
     def __repr__(self):
