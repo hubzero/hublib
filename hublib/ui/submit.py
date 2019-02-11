@@ -14,7 +14,6 @@ import time
 import shutil
 from queue import Queue
 from joblib import Memory
-import uuid
 import glob
 
 color_rect = '<svg width="4" height="20"><rect width="4" height="20" style="fill:%s"/></svg>  %s'
