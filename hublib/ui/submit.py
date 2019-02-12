@@ -274,6 +274,11 @@ class Submit(object):
                 self.cachecb()
             return
 
+        # Remove single cachetab entry
+        tabdir = os.path.join(Submit.CACHETABDIR, self.cachename,joblib,hublib,ui,submit,make_rname,self.runname)
+        if os.path.exists(tabdir):
+            shutil.rmtree(tabdir)
+
         if os.path.exists(self.rdir):
             shutil.rmtree(self.rdir)
         if self.cachecb:
