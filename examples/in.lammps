@@ -1,0 +1,87 @@
+# 3D simulation of virus macroassembly
+
+units lj
+boundary p p p
+atom_style hybrid charge sphere
+neighbor	0.3	bin
+neigh_modify	every	1	delay	0	check	yes
+
+## Create Simulation Box, Atoms ##
+read_data	infiles/initCoords_50x.assembly
+
+## Group Atoms by Type ##
+group virus type	1
+group dend type	2
+
+## Defining Particle/Medium Properties ##
+mass	1	1
+mass	2	0.0029024	# relative mass of dendrimer to P22
+dielectric	78.54
+set	type	1	charge	-146270054040101.656250	# qV_DLVO (in LJ units)
+set	type	2	charge	254.384094	# qD_DLVO (in LJ units)
+
+## Ascribing Initial Velocities ##
+velocity	all	create	1.	4928459	rot	yes	dist	gaussian	units	box	# 1-kB*T,random seed,zero net ang.mom.,gauss from MB stats
+
+## Ascribing interparticle potentials: ##
+pair_style	hybrid/overlay	lj/expand	0.1342945664941571	coul/debye	58.226028	1.0937850063125727	# LJ_cut without delta, kappa, Global ES_cut
+pair_coeff	1	1	lj/expand	1	0.11964285714285713	0.8803571428571427	# epsilon, sigma_hc, delta_V-V
+pair_coeff	1	1	coul/debye	1.0937850063125727	# V-V ES_cut
+pair_coeff	1	2	lj/expand	1	0.11964285714285713	0.4401785714285714	# epsilon, sigma_hc, delta_V-D
+pair_coeff	1	2	coul/debye	0.6450526960304916	# V-D ES_cut
+pair_coeff	2	2	lj/expand	1	0.11964285714285713	0.	# epsilon, sigma_hc, delta_D-D
+pair_coeff	2	2	coul/debye	0.19632038574841046	# D-D ES_cut
+pair_modify	shift	yes	# the additive e_LJ for repulsion-only
+
+## Ensemble Fixes (+ for output) ##
+variable	myTStep	equal	0.000025
+timestep	${myTStep}
+variable	myDStep	equal	1000
+fix	ens	all	nvt	temp	1.	1.	0.0025	# T_start, T_stop, T_damp=100*timestep
+
+## Define Computes for Output ##
+compute	myVirusT	virus	temp
+compute	myDendT 	dend	temp
+compute	virusPotVec	virus	pe/atom
+compute	NanoparticlePE	virus	reduce	sum	c_virusPotVec
+compute	dendPotVec	dend	pe/atom
+compute	myDendPot	dend	reduce	sum	c_dendPotVec
+
+## Initial Image Dump ##
+dump   	myimages virus image 100000 outfiles/image.*.jpg type type &
+               	axes no 0.8 0.02 view 60 -30
+dump_modify    	myimages pad 3
+dump_modify	myimages boxcolor black backcolor white
+
+print "OUTPUT COLUMNS: SIMULATION STEP NUMBER | TEMPERATURE | NP POTENTIAL ENERGY | SYSTEM VOLUME"
+
+#thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+thermo_style	custom	step	temp	c_NanoparticlePE	vol	#press
+thermo	50000
+
+restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
+run	1500000    #run for 2.5 million without dumping anything
+
+## Defining Output Information ##
+dump	posD	virus	custom	${myDStep}	outfiles/dump.melt	id	type	x	y	z	# c_atomPot	c_atomKin
+#dump   	myimages virus image 100000 outfiles/image.*.jpg type type &
+#               	axes yes 0.8 0.02 view 60 -30
+#dump_modify    	myimages pad 3
+
+#thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+#thermo	1000
+
+restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files post equilibration; keep this
+run	1500000
+
+unfix	ens
+undump	posD
+#undump	vOnlyD
+uncompute	myVirusT
+uncompute	myDendT
+uncompute	virusPotVec
+uncompute	NanoparticlePE #myVirusPot
+uncompute	dendPotVec
+uncompute	myDendPot
+#shell		echo "Lammps Simulation Ended"
+#shell		./postprocessor -n 50 -N 150

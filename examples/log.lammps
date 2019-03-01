@@ -1,0 +1,224 @@
+LAMMPS (9 Nov 2016)
+  using 16 OpenMP thread(s) per MPI task
+# 3D simulation of virus macroassembly
+
+units lj
+boundary p p p
+atom_style hybrid charge sphere
+neighbor	0.3	bin
+neigh_modify	every	1	delay	0	check	yes
+
+## Create Simulation Box, Atoms ##
+read_data	infiles/initCoords_50x.assembly
+  orthogonal box = (-5.56672 -5.56672 -5.56672) to (5.56672 5.56672 5.56672)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  5508 atoms
+
+## Group Atoms by Type ##
+group virus type	1
+108 atoms in group virus
+group dend type	2
+5400 atoms in group dend
+
+## Defining Particle/Medium Properties ##
+mass	1	1
+mass	2	0.0029024	# relative mass of dendrimer to P22
+dielectric	78.54
+set	type	1	charge	-146270054040101.656250	# qV_DLVO (in LJ units)
+  108 settings made for charge
+set	type	2	charge	254.384094	# qD_DLVO (in LJ units)
+  5400 settings made for charge
+
+## Ascribing Initial Velocities ##
+velocity	all	create	1.	4928459	rot	yes	dist	gaussian	units	box	# 1-kB*T,random seed,zero net ang.mom.,gauss from MB stats
+
+## Ascribing interparticle potentials: ##
+pair_style	hybrid/overlay	lj/expand	0.1342945664941571	coul/debye	58.226028	1.0937850063125727	# LJ_cut without delta, kappa, Global ES_cut
+pair_coeff	1	1	lj/expand	1	0.11964285714285713	0.8803571428571427	# epsilon, sigma_hc, delta_V-V
+pair_coeff	1	1	coul/debye	1.0937850063125727	# V-V ES_cut
+pair_coeff	1	2	lj/expand	1	0.11964285714285713	0.4401785714285714	# epsilon, sigma_hc, delta_V-D
+pair_coeff	1	2	coul/debye	0.6450526960304916	# V-D ES_cut
+pair_coeff	2	2	lj/expand	1	0.11964285714285713	0.	# epsilon, sigma_hc, delta_D-D
+pair_coeff	2	2	coul/debye	0.19632038574841046	# D-D ES_cut
+pair_modify	shift	yes	# the additive e_LJ for repulsion-only
+
+## Ensemble Fixes (+ for output) ##
+variable	myTStep	equal	0.000025
+timestep	${myTStep}
+timestep	2.5e-05
+variable	myDStep	equal	1000
+fix	ens	all	nvt	temp	1.	1.	0.0025	# T_start, T_stop, T_damp=100*timestep
+
+## Define Computes for Output ##
+compute	myVirusT	virus	temp
+compute	myDendT 	dend	temp
+compute	virusPotVec	virus	pe/atom
+compute	NanoparticlePE	virus	reduce	sum	c_virusPotVec
+compute	dendPotVec	dend	pe/atom
+compute	myDendPot	dend	reduce	sum	c_dendPotVec
+
+## Initial Image Dump ##
+dump   	myimages virus image 100000 outfiles/image.*.jpg type type                	axes no 0.8 0.02 view 60 -30
+dump_modify    	myimages pad 3
+dump_modify	myimages boxcolor black backcolor white
+
+print "OUTPUT COLUMNS: SIMULATION STEP NUMBER | TEMPERATURE | NP POTENTIAL ENERGY | SYSTEM VOLUME"
+OUTPUT COLUMNS: SIMULATION STEP NUMBER | TEMPERATURE | NP POTENTIAL ENERGY | SYSTEM VOLUME
+
+#thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+thermo_style	custom	step	temp	c_NanoparticlePE	vol	#press
+thermo	50000
+
+restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
+run	1500000    #run for 2.5 million without dumping anything
+Neighbor list info ...
+  2 neighbor list requests
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 1.39379
+  ghost atom cutoff = 1.39379
+  binsize = 0.696893 -> bins = 16 16 16
+Memory usage per processor = 23.3197 Mbytes
+Step Temp c_NanoparticlePE Volume 
+       0            1 -0.0065739464    1380.0287 
+   50000    1.0023734 -0.088836357    1380.0287 
+  100000    1.0176562  -0.14133175    1380.0287 
+  150000   0.99775392  -0.21586791    1380.0287 
+  200000    1.0074199  -0.29241183    1380.0287 
+  250000    1.0089861  -0.37358585    1380.0287 
+  300000    1.0146145  -0.45192504    1380.0287 
+  350000    1.0007989  -0.52326579    1380.0287 
+  400000   0.98753054  -0.61454361    1380.0287 
+  450000   0.99301467  -0.70086412    1380.0287 
+  500000    1.0022477  -0.77733832    1380.0287 
+  550000   0.98914551  -0.86856298    1380.0287 
+  600000    1.0014233  -0.94321626    1380.0287 
+  650000    0.9879504  -0.99778367    1380.0287 
+  700000    1.0111748    -1.073061    1380.0287 
+  750000     0.997352   -1.1482364    1380.0287 
+  800000    1.0049096   -1.2144223    1380.0287 
+  850000    1.0159721   -1.2673897    1380.0287 
+  900000   0.99808489    -1.279563    1380.0287 
+  950000   0.99870435   -1.3335029    1380.0287 
+ 1000000   0.99161245   -1.3832729    1380.0287 
+ 1050000   0.99837714   -1.4170665    1380.0287 
+ 1100000    1.0141993   -1.4478575    1380.0287 
+ 1150000    1.0013243    -1.472889    1380.0287 
+ 1200000    0.9955946   -1.4954346    1380.0287 
+ 1250000   0.98724298   -1.5239305    1380.0287 
+ 1300000    1.0124302   -1.5697234    1380.0287 
+ 1350000    1.0090606   -1.5794703    1380.0287 
+ 1400000    1.0099157   -1.5993318    1380.0287 
+ 1450000    1.0292519   -1.5940595    1380.0287 
+ 1500000   0.99433027   -1.6149988    1380.0287 
+Loop time of 887.094 on 16 procs for 1500000 steps with 5508 atoms
+
+Performance: 3652.376 tau/day, 1690.915 timesteps/s
+153.2% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 546.38     | 546.38     | 546.38     |   0.0 | 61.59
+Neigh   | 121.06     | 121.06     | 121.06     |   0.0 | 13.65
+Comm    | 75.01      | 75.01      | 75.01      |   0.0 |  8.46
+Output  | 0.14608    | 0.14608    | 0.14608    |   0.0 |  0.02
+Modify  | 110.99     | 110.99     | 110.99     |   0.0 | 12.51
+Other   |            | 33.51      |            |       |  3.78
+
+Nlocal:    5508 ave 5508 max 5508 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    3765 ave 3765 max 3765 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    24349 ave 24349 max 24349 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 24349
+Ave neighs/atom = 4.42066
+Neighbor list builds = 20609
+Dangerous builds = 0
+
+## Defining Output Information ##
+dump	posD	virus	custom	${myDStep}	outfiles/dump.melt	id	type	x	y	z	# c_atomPot	c_atomKin
+dump	posD	virus	custom	1000	outfiles/dump.melt	id	type	x	y	z	
+#dump   	myimages virus image 100000 outfiles/image.*.jpg type type #               	axes yes 0.8 0.02 view 60 -30
+#dump_modify    	myimages pad 3
+
+#thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+#thermo	1000
+
+restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files post equilibration; keep this
+run	1500000
+Memory usage per processor = 24.8993 Mbytes
+Step Temp c_NanoparticlePE Volume 
+ 1500000   0.99433027   -1.6149988    1380.0287 
+ 1550000    1.0052253   -1.6215528    1380.0287 
+ 1600000   0.99922725   -1.6154814    1380.0287 
+ 1650000   0.99990442   -1.6127906    1380.0287 
+ 1700000   0.99252668   -1.6416885    1380.0287 
+ 1750000    1.0101544   -1.6299795    1380.0287 
+ 1800000    1.0206895   -1.6309507    1380.0287 
+ 1850000    1.0034344    -1.644804    1380.0287 
+ 1900000   0.99627247   -1.6378209    1380.0287 
+ 1950000   0.99820705   -1.6510867    1380.0287 
+ 2000000   0.99885589   -1.6422414    1380.0287 
+ 2050000    1.0052353   -1.6605979    1380.0287 
+ 2100000   0.97989693   -1.6590998    1380.0287 
+ 2150000    1.0177696   -1.6652867    1380.0287 
+ 2200000    1.0062177   -1.6470009    1380.0287 
+ 2250000    1.0001451    -1.651981    1380.0287 
+ 2300000    1.0027394   -1.6673376    1380.0287 
+ 2350000   0.99880728   -1.6523284    1380.0287 
+ 2400000    1.0011981   -1.6568608    1380.0287 
+ 2450000   0.99401607   -1.6512066    1380.0287 
+ 2500000   0.97436983   -1.6777687    1380.0287 
+ 2550000     1.004145   -1.6780898    1380.0287 
+ 2600000   0.99994054   -1.6776382    1380.0287 
+ 2650000   0.98577703   -1.6902265    1380.0287 
+ 2700000   0.98767277   -1.6876996    1380.0287 
+ 2750000   0.98828931   -1.6859373    1380.0287 
+ 2800000   0.99977591   -1.6763086    1380.0287 
+ 2850000    1.0128427   -1.6868154    1380.0287 
+ 2900000    1.0065646   -1.6631049    1380.0287 
+ 2950000   0.99625872   -1.6635066    1380.0287 
+ 3000000   0.99435562   -1.6541589    1380.0287 
+Loop time of 1128.06 on 16 procs for 1500000 steps with 5508 atoms
+
+Performance: 2872.193 tau/day, 1329.719 timesteps/s
+141.4% CPU use with 1 MPI tasks x 16 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 786.61     | 786.61     | 786.61     |   0.0 | 69.73
+Neigh   | 142.37     | 142.37     | 142.37     |   0.0 | 12.62
+Comm    | 58.753     | 58.753     | 58.753     |   0.0 |  5.21
+Output  | 0.33182    | 0.33182    | 0.33182    |   0.0 |  0.03
+Modify  | 109.14     | 109.14     | 109.14     |   0.0 |  9.67
+Other   |            | 30.86      |            |       |  2.74
+
+Nlocal:    5508 ave 5508 max 5508 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    4067 ave 4067 max 4067 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    25106 ave 25106 max 25106 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 25106
+Ave neighs/atom = 4.5581
+Neighbor list builds = 20492
+Dangerous builds = 0
+
+unfix	ens
+undump	posD
+#undump	vOnlyD
+uncompute	myVirusT
+uncompute	myDendT
+uncompute	virusPotVec
+uncompute	NanoparticlePE #myVirusPot
+uncompute	dendPotVec
+uncompute	myDendPot
+#shell		echo "Lammps Simulation Ended"
+#shell		./postprocessor -n 50 -N 150
+Total wall time: 0:33:35
