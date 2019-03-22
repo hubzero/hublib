@@ -11,6 +11,7 @@ import json
 import plotly
 import plotly.graph_objs as go
 import IPython
+from glob import glob
 from IPython.display import display as idisplay, Video
 from base64 import b64decode, b64encode
 from mendeleev import element
@@ -70,6 +71,29 @@ def get_inputs(nbname):
     input_dict = yaml.load(incell)
     return parse(input_dict)
 
+
+def get_outputs(nbname):
+    incell = None
+    nb = load_notebook_node(nbname)
+    for cell in nb.cells:
+        if cell['source'].startswith('%%yaml OUTPUTS'):
+            incell = cell['source']
+            break
+    if incell is None:
+        return None
+    # remove first line (cell magic)
+    incell = incell.split('\n', 1)[1]
+    out_dict = yaml.load(incell)
+    return parse(out_dict)
+
+def get_outputs_df(nbname):
+    df = pm.read_notebook(nbname).dataframe
+    df = df.loc[df['type'] == 'record'].set_index('name')
+    df.drop(['type', 'filename'], axis=1, inplace=True)
+    return df
+
+def get_output_files(dirname):
+    return [pm.read_notebook(x) for x in glob('%s/*.ipynb' % dirname)]
 
 def parse(inputs):
     d = Params()

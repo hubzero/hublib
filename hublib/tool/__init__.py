@@ -1,4 +1,4 @@
-from .input_types import get_inputs, parse
+from .input_types import get_inputs, parse, get_outputs, get_outputs_df, get_output_files
 from .rw import save, read, rdisplay, run_simtool, DB
 
 import os
