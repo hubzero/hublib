@@ -11,8 +11,9 @@ import json
 import plotly
 import plotly.graph_objs as go
 import IPython
-from IPython.display import display as idisplay, Video, Image
+from IPython.display import display as idisplay, Video
 from base64 import b64decode, b64encode
+from mendeleev import element
 
 
 # A dictionary-like object that can also
@@ -88,6 +89,8 @@ def parse(inputs):
             d[i] = Array(**inputs[i])
         elif t == 'Image':
             d[i] = Image(**inputs[i])
+        elif t == 'Element':
+            d[i] = Element(**inputs[i])
         else:
             print('Unknown type:', t, file=sys.stderr)
     return d
@@ -211,12 +214,32 @@ class Number(Params):
     def value(self):
         return self._value
 
+    def convert(self, newval):
+        "unit conversion with special temperature conversion"
+        units = self.units
+        if units == ureg.degC or units == ureg.kelvin or units == ureg.degF or units == ureg.degR:
+            if newval.units == ureg.coulomb:
+                # we want temp, so 'C' is degC, not coulombs
+                newval = newval.magnitude * ureg.degC
+            elif newval.units == ureg.farad:
+               # we want temp, so 'F' is degF, not farads
+                newval = newval.magnitude * ureg.degF
+        elif units == ureg.delta_degC or units == ureg.delta_degF:
+            # detect when user means delta temps
+            if newval.units == ureg.degC or newval.units == ureg.coulomb:
+                newval = newval.magnitude * ureg.delta_degC
+            elif newval.units == ureg.degF or units == ureg.farad:
+                newval = newval.magnitude * ureg.delta_degF
+        return newval.to(units).magnitude
+
     @value.setter
     def value(self, newval):
         if self.units and type(newval) == str:
             newval = ureg.parse_expression(newval)
             if hasattr(newval, 'units'):
-                newval = newval.to(self.units).magnitude
+                newval = self.convert(newval)
+            else:
+                newval = float(newval)
         if self.min is not None and newval < self.min:
             raise ValueError("Minimum value is %d" % self.min)
         if self.max is not None and newval > self.max:
@@ -245,6 +268,38 @@ class Image(Params):
     @value.setter
     def value(self, newval):
         self._value = newval
+
+    def __repr__(self):
+        res = ''
+        for i in self:
+            res += '    %s: %s\n' % (i, self[i])
+        return res
+
+class Element(Params):
+    def __init__(self, **kwargs):
+        self.property = kwargs.get('property', 'symbol')
+        self.options = kwargs.get('options')
+        super(Element, self).__init__(**kwargs)
+        # always put something in for 'value'
+        if 'value' not in kwargs:
+            self['value'] = None
+
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, newval):
+        if type(newval) is not str:
+            self._value = newval
+            return
+        self._e = element(newval.title())
+        try:
+            self._value = self._e.__dict__[self.property]
+        except KeyError:
+            print("Error: unknown property:", self.property)
+            print("Valid properties are")
+            print(list(sorted(self._e.__dict__.keys())))
 
     def __repr__(self):
         res = ''
