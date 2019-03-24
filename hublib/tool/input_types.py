@@ -131,14 +131,11 @@ class Integer(Params):
         self.min = kwargs.get('min')
         self.max = kwargs.get('max')
         super(Integer, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     @property
     def value(self):
         return self._value
-    
+
     @value.setter
     def value(self, newval):
         if self.min is not None and newval < self.min:
@@ -146,7 +143,7 @@ class Integer(Params):
         if self.max is not None and newval > self.max:
             raise ValueError("Maximum value is %d" % self.max)
         self._value = newval
-    
+
     def __repr__(self):
         res = ''
         for i in self:
@@ -157,9 +154,6 @@ class Integer(Params):
 class Text(Params):
     def __init__(self, **kwargs):
         super(Text, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     def __repr__(self):
         res = ''
@@ -171,9 +165,6 @@ class Text(Params):
 class List(Params):
     def __init__(self, **kwargs):
         super(List, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     def __repr__(self):
         res = ''
@@ -185,9 +176,6 @@ class List(Params):
 class Dict(Params):
     def __init__(self, **kwargs):
         super(Dict, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     def __repr__(self):
         res = ''
@@ -198,9 +186,11 @@ class Dict(Params):
 class Array(Params):
     def __init__(self, **kwargs):
         super(Array, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
+        if self.units:
+            try:
+                self.units = ureg.parse_units(self.units)
+            except:
+                raise ValueError('Unrecognized units: %s' % self.units)
 
     @property
     def value(self):
@@ -215,8 +205,14 @@ class Array(Params):
     def __repr__(self):
         res = ''
         for i in self:
-            res += '    %s: %s\n' % (i, self[i].__repr__())
+            res += '    %s: %s\n' % (i, self[i])
         return res
+
+    # def __repr__(self):
+    #     res = ''
+    #     for i in self:
+    #         res += '    %s: %s\n' % (i, self[i].__repr__())
+    #     return res
 
 class Number(Params):
     def __init__(self, **kwargs):
@@ -230,9 +226,6 @@ class Number(Params):
                 self.units = ureg.parse_units(self.units)
             except:
                 raise ValueError('Unrecognized units: %s' % self.units)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     @property
     def value(self):
@@ -281,9 +274,6 @@ class Image(Params):
     def __init__(self, **kwargs):
         # always set these first
         super(Image, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     @property
     def value(self):
@@ -304,14 +294,11 @@ class Element(Params):
         self.property = kwargs.get('property', 'symbol')
         self.options = kwargs.get('options')
         super(Element, self).__init__(**kwargs)
-        # always put something in for 'value'
-        if 'value' not in kwargs:
-            self['value'] = None
 
     @property
     def value(self):
         return self._value
-    
+
     @value.setter
     def value(self, newval):
         if type(newval) is not str:
