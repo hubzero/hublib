@@ -186,7 +186,9 @@ class Dict(Params):
 class Array(Params):
     def __init__(self, **kwargs):
         super(Array, self).__init__(**kwargs)
-        if self.units:
+        units = kwargs.get('units')
+
+        if units:
             try:
                 self.units = ureg.parse_units(self.units)
             except:
