@@ -11,7 +11,7 @@ import os
 from string import Template
 from IPython.core.magic import register_line_magic
 
-EPATH = '/apps/share64/debian7/environ.d'
+EPATH = os.environ['ENVIRON_CONFIG_DIRS'].split()
 d = {}
 
 
@@ -43,9 +43,16 @@ def _set(a, b):
     d[a] = b
 
 def _use(name):
-    if not name[0] == '.':
-        fname = os.path.join(EPATH, name)
 
+    fname = None
+    for e in EPATH:
+        ename = os.path.join(e, name)
+        if os.path.isfile(ename):
+            fname = ename
+            break
+    if fname is None:
+        raise ValueError(f'use: could not find module: {name}')
+    
     with open(fname) as fp:
         for line in fp:
             sline = line.strip().split()
