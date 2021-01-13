@@ -8,6 +8,7 @@ Works for all currently installed modules except two old ones that use local she
 
 import sys
 import os
+import subprocess
 from string import Template
 from IPython.core.magic import register_line_magic
 
@@ -18,7 +19,17 @@ d = {}
 def setenv(line):
     name = line[0]
     val = ' '.join(line[1:])
-    os.environ[name] = val
+    try:
+        completedProcess = subprocess.run("""/bin/bash -c 'echo %s'""" % (val),stdout=subprocess.PIPE,shell=True)
+    except:
+        pass
+    else:
+        if completedProcess.returncode == 0:
+            try:
+                os.environ[name] = completedProcess.stdout.strip().decode('utf-8')
+                _set(name, os.environ[name])
+            except:
+                pass
 
 def prepend(line):
     global d
