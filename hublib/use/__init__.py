@@ -35,6 +35,18 @@ def prepend(line):
     global d
     name, val = line
     val = Template(val).safe_substitute(d)
+
+    try:
+        completedProcess = subprocess.run("""/bin/bash -c 'echo %s'""" % (val),stdout=subprocess.PIPE,shell=True)
+    except:
+        pass
+    else:
+        if completedProcess.returncode == 0:
+            try:
+                val = completedProcess.stdout.strip().decode('utf-8')
+            except:
+                pass
+
     try:
         oldval = os.environ[name]
         val = '%s:%s' % (val, oldval)
