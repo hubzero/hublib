@@ -117,23 +117,9 @@ cmdclass = {
 }
 
 
-# get the version string
-verstr = "unknown"
-try:
-    verstrline = open('hublib/__init__.py', "rt").read()
-except:
-    pass
-else:
-    VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
-    mo = re.search(VSRE, verstrline, re.M)
-    if mo:
-        verstr = mo.group(1)
-    else:
-        raise RuntimeError("unable to find version in hublib/__init__.py")
-
 setup(
     name='hublib',
-    version=verstr,
+    version='0.9.96',
     url='https://github.com/hubzero/hublib',
     license='MIT Software License',
     author='Martin Hunt',
