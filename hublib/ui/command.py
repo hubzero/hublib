@@ -88,7 +88,7 @@ class RunCommand(object):
                     print("where you want the cache to be located.", file=sys.stderr)
                     sys.exit(1)
 
-            self.cachedir = os.path.join(cachedir, cachename)
+            self.cachedir = os.path.join(os.path.expanduser(cachedir), cachename)
             self.cachetabdir = os.path.join(self.cachedir, '.cache_table')
             if not os.path.isdir(self.cachedir):
                 os.makedirs(self.cachedir)
@@ -358,7 +358,7 @@ def poll_thread(cmd, self):
     for fp in [child.stdout, child.stderr]:
         fcntl.fcntl(fp, fcntl.F_SETFL, os.O_NONBLOCK)
         while True:
-            c = child.stdout.read(4096).decode(outenc)
+            c = fp.read(4096).decode(outenc)
             if len(c) == 0:
                 break
             if fp == child.stderr:
@@ -393,7 +393,9 @@ def poll_thread(cmd, self):
             errStr = "\"%s\" failed w/ exit code %d\n" % (cmd, exitStatus)
             errNum = 2
             errState = "Last Run: Failed"
-        self.output.value += '\n' + '='*20 + '\n' + errStr
+        c = unicode('\n' + '='*50 + '\n' + errStr + '\n' + '='*50 + '\n')
+        self.cbuf.append(c)
+        self.output.value = ''.join(self.cbuf)
 
     errState += ".  Run Time: %s" % time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
     self.status = self.statusbar(errNum, errState)
